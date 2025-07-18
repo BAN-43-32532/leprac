@@ -1,0 +1,48 @@
+# https://docs.google.com/spreadsheets/d/e/2PACX-1vT9uja84HDrNHTaPwILiDZHIYxsUjFARZUqgdwnmWQzcT-Lhyr5t7SrEA4ZrOtvaLSlky7iOlSepi1A/pubhtml
+
+le01:
+  0_01a: no
+  1_00a: no
+  1_01a: no
+  1_10a: no
+  1_11a: no
+  1_20a: no
+
+le02:
+  0_01a: no
+  1_00a: yes
+  1_01a: yes
+  1_10a: yes
+  1_11a: yes
+  1_20a: yes
+
+le03:
+  0_01a: no
+  0_50a: no
+  1_00a: yes
+  1_10a: yes
+  1_11a: yes
+  1_20a: yes
+  1_21a: yes
+
+le04:
+  0_01a: no
+  0_02a: no
+  0_02b: no
+  1_00a: no
+  1_01a: no
+  1_02a: no
+  1_03a: no
+  1_10a: no
+  1_10b: no
+  1_20a: no
+  1_20b: no
+  1_20c: no
+  1_20d: no
+  1_20e: no
+  1_20f: no
+
+# 束方 嘘時空　～ Fools_rush_in
+uso:
+  0_20a: no
+  0_20b: no
