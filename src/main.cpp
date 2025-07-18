@@ -14,11 +14,14 @@
 
 #include "backends/imgui_impl_sdl3.h"
 #include "backends/imgui_impl_sdlrenderer3.h"
+#include "battery/embed.hpp"
 #include "imgui.h"
+#include "launcher.h"
 #include "libmem/libmem.hpp"
 #include "logBuffer.h"
 #include "SDL3/SDL.h"
 #include "SDL3/SDL_main.h"
+#include "UI.h"
 
 namespace leprac {
 struct SDL_State {
@@ -37,6 +40,7 @@ struct ImGuiState {
 struct AppState {
   SDL_State                                     sdl;
   ImGuiState                                    imgui;
+  Launcher                                      launcher{};
   std::unordered_map<std::type_index, std::any> components;
 
   template<typename T>
@@ -256,17 +260,25 @@ using namespace leprac;
 SDL_AppResult SDL_AppInit(void **appstate, int, char **) {
   auto state = new AppState();
   *appstate  = state;
+  SetConsoleOutputCP(CP_UTF8);
 
   if (!SDL_init(state)) return SDL_APP_FAILURE;
   if (!ImGuiInit(state)) return SDL_APP_FAILURE;
 
-  SetConsoleOutputCP(CP_UTF8);
+  ImGuiStyle &style = ImGui::GetStyle();
+  style.ScaleAllSizes(1.5f);
+
+  UI::setImGuiFont();
 
   auto process = libmem::FindProcess("Le03.exe");
   if (!process) {
     logBuffer.println("Process not found");
-    return SDL_APP_FAILURE;
+    return SDL_APP_CONTINUE;
   }
+
+  logBuffer << b::embed<"asset/stack.toml">();
+  logBuffer.flush();
+
   logBuffer.println("Pid: {}", process->pid);
   logBuffer.println("Process is {}", checkIf32Bits(*process) ? "x32" : "x64");
 
@@ -353,50 +365,55 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
   ImGui_ImplSDL3_NewFrame();
   ImGui::NewFrame();
 
+  // state->launcher.UI();
+
   auto &m                   = state->imgui;
   auto &show_demo_window    = m.show_demo_window;
   auto &show_another_window = m.show_another_window;
   auto &clear_color         = m.clear_color;
   auto &io                  = ImGui::GetIO();
   auto  renderer            = state->sdl.renderer;
-
+  //
   // 1. Show the big demo window (Most of the sample code is in
-  // ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear
-  // ImGui!).
-  if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
-
-  // 2. Show a simple window that we create ourselves. We use a Begin/End pair
-  // to create a named window.
-  {
-    static float f       = 0.0f;
-    static int   counter = 0;
-
-    ImGui::Begin("Hello, world!");
-    ImGui::Text("This is some useful text.");
-    ImGui::Checkbox("Demo Window", &show_demo_window);
-    ImGui::Checkbox("Another Window", &show_another_window);
-    ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-    ImGui::ColorEdit3("clear color", reinterpret_cast<float *>(&clear_color));
-    if (ImGui::Button("Button")) counter++;
-    ImGui::SameLine();
-    ImGui::Text("counter = %d", counter);
-    ImGui::Text(
-      "Application average %.3f ms/frame (%.1f FPS)",
-      1000.0f / io.Framerate,
-      io.Framerate
-    );
-    ImGui::End();
-  }
-
-  if (show_another_window) {
-    ImGui::Begin("Another Window", &show_another_window);
-    // Pass a pointer to our bool variable (the window will have a closing
-    // button that will clear the bool when clicked)
-    ImGui::Text("Hello from another window!");
-    if (ImGui::Button("Close Me")) show_another_window = false;
-    ImGui::End();
-  }
-
+  // // ImGui::ShowDemoWindow()! You can browse its code to learn more about
+  // Dear
+  // // ImGui!).
+  // if (show_demo_window)
+  ImGui::ShowDemoWindow(&show_demo_window);
+  //
+  // // 2. Show a simple window that we create ourselves. We use a Begin/End
+  // pair
+  // // to create a named window.
+  // {
+  //   static float f       = 0.0f;
+  //   static int   counter = 0;
+  //
+  //   ImGui::Begin("Hello, world!");
+  //   ImGui::Text("This is some useful text.");
+  //   ImGui::Checkbox("Demo Window", &show_demo_window);
+  //   ImGui::Checkbox("Another Window", &show_another_window);
+  //   ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+  //   ImGui::ColorEdit3("clear color", reinterpret_cast<float
+  //   *>(&clear_color)); if (ImGui::Button("Button")) counter++;
+  //   ImGui::SameLine();
+  //   ImGui::Text("counter = %d", counter);
+  //   ImGui::Text(
+  //     "Application average %.3f ms/frame (%.1f FPS)",
+  //     1000.0f / io.Framerate,
+  //     io.Framerate
+  //   );
+  //   ImGui::End();
+  // }
+  //
+  // if (show_another_window) {
+  //   ImGui::Begin("Another Window", &show_another_window);
+  //   // Pass a pointer to our bool variable (the window will have a closing
+  //   // button that will clear the bool when clicked)
+  //   ImGui::Text("Hello from another window!");
+  //   if (ImGui::Button("Close Me")) show_another_window = false;
+  //   ImGui::End();
+  // }
+  //
   ImGui::Render();
   SDL_SetRenderScale(
     renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y
