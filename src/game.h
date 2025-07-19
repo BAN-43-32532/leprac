@@ -4,5 +4,9 @@
 #endif //GAME_H
 
 namespace leprac {
-class Game{};
+class Game {
+public:
+  void getCurrentlyRunningGame();
+private:
+};
 }

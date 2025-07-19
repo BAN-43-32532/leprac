@@ -271,13 +271,19 @@ SDL_AppResult SDL_AppInit(void **appstate, int, char **) {
   UI::setImGuiFont();
 
   auto process = libmem::FindProcess("Le03.exe");
+
+  logBuffer << b::embed<"asset/address.toml">();
+  logBuffer.flush();
+  logBuffer << b::embed<"asset/le02/pattern.toml">();
+  logBuffer.flush();
+
+
   if (!process) {
     logBuffer.println("Process not found");
     return SDL_APP_CONTINUE;
   }
 
-  logBuffer << b::embed<"asset/stack.toml">();
-  logBuffer.flush();
+
 
   logBuffer.println("Pid: {}", process->pid);
   logBuffer.println("Process is {}", checkIf32Bits(*process) ? "x32" : "x64");

@@ -62,5 +62,9 @@ target_link_libraries(leprac PRIVATE tomlplusplus::tomlplusplus)
 
 # embed ########################################################################
 add_subdirectory(external/embed)
-b_embed(leprac asset/stack.toml)
+
+file(GLOB_RECURSE ASSET_FILES RELATIVE ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/asset/*)
+foreach(FILE IN LISTS ASSET_FILES)
+    b_embed(leprac ${FILE})
+endforeach()
 ################################################################################
