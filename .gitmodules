@@ -6,7 +6,7 @@
 	url = https://github.com/libsdl-org/SDL.git
 [submodule "external/embed"]
 	path = external/embed
-	url = https://github.com/batterycenter/embed
+	url = https://github.com/batterycenter/embed.git
 [submodule "external/curl"]
 	path = external/curl
 	url = https://github.com/curl/curl.git
