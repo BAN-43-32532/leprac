@@ -1,0 +1,18 @@
+[submodule "external/imgui"]
+	path = external/imgui
+	url = https://github.com/ocornut/imgui.git
+[submodule "external/SDL"]
+	path = external/SDL
+	url = https://github.com/libsdl-org/SDL.git
+[submodule "external/embed"]
+	path = external/embed
+	url = https://github.com/batterycenter/embed
+[submodule "external/curl"]
+	path = external/curl
+	url = https://github.com/curl/curl.git
+[submodule "external/json"]
+	path = external/json
+	url = https://github.com/nlohmann/json.git
+[submodule "external/toml11"]
+	path = external/toml11
+	url = https://github.com/ToruNiina/toml11.git

@@ -1,0 +1,41 @@
+curl and libcurl 8.15.1
+
+ Public curl releases:         270
+ Command line options:         269
+ curl_easy_setopt() options:   308
+ Public functions in libcurl:  96
+ Contributors:                 3460
+
+This release includes the following changes:
+
+
+This release includes the following bugfixes:
+
+ o tool_operate: avoid superfluous strdup'ing output [1]
+
+This release includes the following known bugs:
+
+ See https://curl.se/docs/knownbugs.html
+
+For all changes ever done in curl:
+
+ See https://curl.se/changes.html
+
+Planned upcoming removals include:
+
+ o Support for the msh3 HTTP/3 backend
+ o Supporting curl builds using VS2008
+ o The winbuild build system
+ o Windows CE support
+
+ See https://curl.se/dev/deprecate.html
+
+This release would not have looked like this without help, code, reports and
+advice from friends like these:
+
+  Daniel Stenberg
+  (1 contributors)
+
+References to bug reports and discussions on issues:
+
+ [1] = https://curl.se/bug/?i=17946

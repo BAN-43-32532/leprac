@@ -1,0 +1,48 @@
+# https://docs.google.com/spreadsheets/d/e/2PACX-1vT9uja84HDrNHTaPwILiDZHIYxsUjFARZUqgdwnmWQzcT-Lhyr5t7SrEA4ZrOtvaLSlky7iOlSepi1A/pubhtml
+
+[le01]
+0_01a = false
+1_00a = false
+1_01a = false
+1_10a = false
+1_11a = false
+1_20a = false
+
+[le02]
+0_01a = false
+1_00a = true
+1_01a = true
+1_10a = true
+1_11a = true
+1_20a = true
+
+[le03]
+0_01a = false
+0_50a = false
+1_00a = true
+1_10a = true
+1_11a = true
+1_20a = true
+1_21a = true
+
+[le04]
+0_01a = false
+0_02a = false
+0_02b = false
+1_00a = false
+1_01a = false
+1_02a = false
+1_03a = false
+1_10a = false
+1_10b = false
+1_20a = false
+1_20b = false
+1_20c = false
+1_20d = false
+1_20e = false
+1_20f = false
+
+# 束方 嘘時空　～ Fools_rush_in
+[uso]
+0_20a = false
+0_20b = false
