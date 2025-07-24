@@ -1,0 +1,47 @@
+[stage1]
+pre = []
+midboss = 0x7D0
+post = []
+boss = 0x1130
+
+[stage2]
+pre = []
+midboss = 0xBB8
+post = []
+boss = 0x1518
+
+[stage3]
+pre = []
+midboss = 0xC1C
+post = []
+boss = 0x1770
+
+[stage4]
+pre = []
+midboss = 0x1388
+post = []
+boss = 0x1F40
+
+[stage5]
+pre = []
+midboss = 0x109A
+post = []
+boss = 0x1A90
+
+[stage6]
+pre = []
+midboss = 0x0960
+post = []
+boss = 0x0CE4
+
+[stage7_1]
+pre = []
+midboss = 0x13EC
+post = []
+boss = 0x1FA4
+
+[stage7_2]
+pre = []
+midboss = 0x1130
+post = []
+boss = 0x1838

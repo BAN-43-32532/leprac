@@ -1,0 +1,44 @@
+How to use PMiBR skips:
+
+For phase 1, just skip to the pattern like normal. If you've been practicing a different pattern and want to practice phase 1, reset the values to:
+timer 1 = 0, screenclear 1 = 1200, timer 2 = 6000, jump code = 24.
+
+When practicing phases 2-5, you'll need to set jump code to 229. The values for the other three addresses to practice each phase are:
+Phase 2: timer 1 = 1200, screenclear 1 = 1200, timer 2 = 4800
+Phase 3: timer 1 = 2400, screenclear 1 = 2400, timer 2 = 3600
+Phase 4: timer 1 = 3600, screenclear 1 = 3600, timer 2 = 2400
+Phase 5: timer 1 = 4800, screenclear 1 = 4800, timer 2 = 1200
+
+NOTE: You'll need to restart the stage once after modifying timer 2 for it to have any effect.
+
+NOTE: These values WILL NOT reset naturally by restarting the stage, or even by closing cheat engine. If you want to return them to default values, the defaults are:
+timer 1 = 0
+screenclear 1 = 1200
+timer 2 = 6000
+jump code = 24
+
+
+How to use Tasouken skips:
+
+For phase 1, just skip to Tasouken normally. If you've been practicing a different phase and want to practice phase 1, reset the values to:
+starting phase = 1, phase length = 2940
+
+For phases 2-5, you need to change Tasouken starting phase and Tasouken phase length. The necessary values are as follows:
+Phase 2: starting phase = 4, phase length = 1620
+Phase 3: starting phase = 2, phase length = 2400
+Phase 4: starting phase = 5, phase length = 1680
+Phase 5: starting phase = 0, phase length = 2460
+
+You can also see unused phases by setting starting phase to 3 or 6.
+
+For phase 6, you need to change Tasouken starting phase and Tasouken starting timer, in order to emulate the slowdown and boss explosion at the end of the phase. You also need to restart the stage once after changing the values. The needed values are:
+starting phase = 7, starting timer = 1080
+NOTE: If you want to return to practicing a different phase after phase 6, you'll need to change starting timer back to a larger value (I recommend just using the default, 12180) and restart the stage once after changing the starting timer value.
+
+
+NOTE: These values WILL NOT reset naturally by restarting the stage, or even by closing cheat engine. If you want to return them to default values, the defaults are:
+starting phase = 1
+phase length = 2940
+starting timer = 12180 (restart stage once for this change to take effect)
+
+There is also a "Tasouken phase (not recommended)" variable at the bottom of the address list. This one allows you to directly change the phase value as Tasouken progresses. I don't recommend using it for practice purposes, as it naturally resets to the value of "Tasouken starting phase" at the beginning of the spellcard (not something I did, it's the result of how the game code works.) However, if you want to experiment with changing it, feel free! There's some pretty entertaining things that can happen.

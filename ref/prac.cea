@@ -1,0 +1,921 @@
+define(game,"Le01prac.exe")
+define(KEYS,game+AE7A34)
+define(KEY_DOWN,KEYS)
+define(KEY_LEFT,KEYS+4)
+define(KEY_RIGHT,KEYS+8)
+define(KEY_UP,KEYS+c)
+define(KEY_Z,KEYS+10)
+define(KEY_X,KEYS+14)
+define(KEY_SHIFT,KEYS+18)
+define(DIFF,game+AE7780)
+define(SHOT,game+AE7784)
+define(SHOT_YABU,0)
+define(SHOT_TSUBA,1)
+define(SHOT_SUZU,2)
+
+define(getTextTexture,game+F6930)
+define(drawTextTexture,game+FD610)
+
+alloc(cave,2048)
+// define(cave,game+BA9000)
+// mboss/boss spawn timings are at Le01.exe+2CE70
+
+
+game+BF5B6:
+  jmp initFrameTimer
+  nop 2
+initFrameTimer_ret:
+
+game+83052:
+  jmp customMenuRender
+
+game+831FA:
+customMenuRender_ret:
+
+game+2EC80:
+  jmp applyPatternIdWarp
+  nop 2
+applyPatternIdWarp_ret:
+
+game+C29A6:
+  jmp setPracFalse
+setPracFalse_ret:
+
+game+BFABE:
+  jmp setPower
+  nop 5
+setPower_ret:
+
+game+CDBA5:
+  jmp musicFix1
+  nop
+musicFix1_ret:
+
+game+CDBF0:
+  jmp musicFix2
+musicFix2_ret:
+
+game+CDBC4:
+  jmp musicFix3
+musicFix3_ret:
+
+game+C5187:
+  jmp setScore
+  nop 2
+setScore_ret:
+
+cave:
+applyPatternIdWarp:
+  push ebx
+  mov ebx, [IS_PRAC]
+  test ebx, ebx
+  je applyPatternIdWarp_dont
+  mov ebx, [PATTERN_WARP]
+  dec ebx
+  cmp ebx, 0
+  jl applyPatternIdWarp_dont
+  mov [eax+44], ebx
+applyPatternIdWarp_dont:
+  pop ebx
+  // org code
+  mov [edi],eax
+  call game+2C91CF
+  jmp applyPatternIdWarp_ret
+
+initFrameTimer:
+  pushad
+  mov eax, [IS_PRAC]
+  test eax, eax
+  je initFrameTimer_notPrac
+  mov [MUSIC_PLAYED], 0
+  mov [BOSSMUSIC_PLAYED], 0
+  mov eax, [FRAME_COUNT_INIT]
+  mov [edi+48], eax
+  popad
+  jmp initFrameTimer_ret
+initFrameTimer_notPrac:
+  mov [edi+48],00000000
+  popad
+  jmp initFrameTimer_ret
+
+customMenuRender:
+  pushad
+// init
+  cmp [CURR_SEL], 0
+  jne customMenu_initEnd
+  mov eax, SEL_STAGE
+  mov [CURR_SEL], eax
+
+  mov ebx, DIFF_TXTS
+  mov [ebx], TXT_EASY
+  mov [ebx+4], TXT_NORMAL
+  mov [ebx+8], TXT_HARD
+  mov [ebx+c], TXT_UNREAL
+  mov [ebx+10], TXT_EASY_EXTRA
+  mov [ebx+14], TXT_EXTRA
+  mov [ebx+18], TXT_ABSURDLY_EXTRA
+  mov [ebx+1C], TXT_DIFF7
+
+  mov ebx, PATTERNS_TABLE
+  mov [ebx], PATTERNS_ST1
+  mov [ebx+4], PATTERNS_ST2
+  mov [ebx+8], PATTERNS_ST3
+  mov [ebx+c], PATTERNS_ST4
+  mov [ebx+10], PATTERNS_ST5
+  mov [ebx+14], PATTERNS_ST6
+  mov [ebx+18], PATTERNS_ST7
+
+  mov ebx, PATTERNS_ST1
+  mov [ebx], TXT_NONE
+  mov [ebx+4], TXT_MNON1
+  mov [ebx+8], TXT_MSPELL1
+  mov [ebx+c], TXT_NON1
+  mov [ebx+10], TXT_SPELL1
+  mov [ebx+14], TXT_NON2
+  mov [ebx+18], TXT_SPELL2
+
+  mov ebx, PATTERNS_ST2
+  mov [ebx], TXT_NONE
+  mov [ebx+4], TXT_MSPELL1
+  mov [ebx+8], TXT_NON1
+  mov [ebx+c], TXT_SPELL1
+  mov [ebx+10], TXT_NON2
+  mov [ebx+14], TXT_SPELL2
+  mov [ebx+18], TXT_NON3
+  mov [ebx+1c], TXT_SPELL3
+  mov [ebx+20], TXT_SPELL4
+
+  mov ebx, PATTERNS_ST3
+  mov [ebx], TXT_NONE
+  mov [ebx+4], TXT_MNON1
+  mov [ebx+8], TXT_MSPELL1
+  mov [ebx+c], TXT_NON1
+  mov [ebx+10], TXT_SPELL1
+  mov [ebx+14], TXT_NON2
+  mov [ebx+18], TXT_SPELL2
+  mov [ebx+1c], TXT_NON3
+  mov [ebx+20], TXT_SPELL3
+  mov [ebx+24], TXT_SPELL4
+  mov [ebx+28], TXT_SPELL5
+
+  mov ebx, PATTERNS_ST4
+  mov [ebx], TXT_NONE
+  mov [ebx+4], TXT_MNON1
+  mov [ebx+8], TXT_MSPELL1
+  mov [ebx+c], TXT_NON1
+  mov [ebx+10], TXT_SPELL1
+  mov [ebx+14], TXT_NON2
+  mov [ebx+18], TXT_SPELL2
+  mov [ebx+1c], TXT_SPELL3
+  mov [ebx+20], TXT_SPELL4
+
+  mov ebx, PATTERNS_ST5
+  mov [ebx], TXT_NONE
+  mov [ebx+4], TXT_MSPELL1
+  mov [ebx+8], TXT_NON1
+  mov [ebx+c], TXT_SPELL1
+  mov [ebx+10], TXT_NON2
+  mov [ebx+14], TXT_SPELL2
+  mov [ebx+18], TXT_NON3
+  mov [ebx+1c], TXT_SPELL3
+  mov [ebx+20], TXT_NON4
+  mov [ebx+24], TXT_SPELL4
+  mov [ebx+28], TXT_SPELL5
+
+  mov ebx, PATTERNS_ST6
+  mov [ebx], TXT_NONE
+  mov [ebx+4], TXT_MNON1
+  mov [ebx+8], TXT_MSPELL1
+  mov [ebx+c], TXT_NON1
+  mov [ebx+10], TXT_SPELL1
+  mov [ebx+14], TXT_NON2
+  mov [ebx+18], TXT_SPELL2
+  mov [ebx+1c], TXT_NON3
+  mov [ebx+20], TXT_SPELL3
+  mov [ebx+24], TXT_NON4
+  mov [ebx+28], TXT_SPELL4
+  mov [ebx+2c], TXT_SPELL5
+
+  mov ebx, PATTERNS_ST7
+  mov [ebx], TXT_NONE
+  mov [ebx+4], TXT_MSPELL1
+  mov [ebx+8], TXT_MSPELL2
+  mov [ebx+c], TXT_MSPELL3
+  mov [ebx+10], TXT_NON1
+  mov [ebx+14], TXT_SPELL1
+  mov [ebx+18], TXT_NON2
+  mov [ebx+1c], TXT_SPELL2
+  mov [ebx+20], TXT_NON3
+  mov [ebx+24], TXT_SPELL3
+  mov [ebx+28], TXT_NON4
+  mov [ebx+2c], TXT_SPELL4
+  mov [ebx+30], TXT_NON5
+  mov [ebx+34], TXT_SPELL5
+  mov [ebx+38], TXT_NON6
+  mov [ebx+3c], TXT_SPELL6
+  mov [ebx+40], TXT_NON7
+  mov [ebx+44], TXT_SPELL7
+  mov [ebx+48], TXT_NON8
+  mov [ebx+4c], TXT_SPELL8
+  mov [ebx+50], TXT_SPELL9
+  mov [ebx+54], TXT_SPELL10
+
+  mov eax, [DIFF]
+  mov [SEL_DIFF], eax
+  jmp customMenu_initEnd2
+customMenu_initEnd:
+  mov eax, [SEL_DIFF]
+  mov [DIFF], eax
+customMenu_initEnd2:
+// update
+  mov edi, [CURR_SEL]
+  mov esi, edi
+  sub esi, SEL_ARR_BEGIN
+  add esi, SEL_DATA
+  movzx ebx, word ptr [esi]
+  movzx esi, word ptr [esi+2]
+
+  cmp esi, 0
+  je customMenu_slowInc
+  mov eax, ffffffff
+  jmp customMenu_keyCheck
+customMenu_slowInc:
+  mov eax, 1
+
+customMenu_keyCheck:
+  mov ecx, [KEY_RIGHT]
+  cmp ecx, 0
+  je customMenu_notRight
+  cmp ecx, eax
+  ja customMenu_notRight
+  add [edi], ecx
+  cmp ebx, ffff
+  je customMenu_rightClb
+  cmp [edi], ebx
+  jna customMenu_rightClb // does not exceed max
+  mov [edi], ebx
+customMenu_rightClb:
+  call customMenuSwitchClb
+customMenu_notRight:
+  mov ecx, [KEY_LEFT]
+  cmp ecx, 0
+  je customMenu_notLeft
+  cmp ecx, eax
+  ja customMenu_notLeft
+  sub [edi], ecx
+  cmp [edi], 0
+  jnl customMenu_leftClb // not <zero
+  mov [edi], 0
+customMenu_leftClb:
+  call customMenuSwitchClb
+customMenu_notLeft:
+  cmp [KEY_UP], 1
+  jne customMenu_notUp
+  sub edi, 4
+  cmp edi, SEL_ARR_BEGIN
+  jnl customMenu_notUp
+  mov edi, SEL_ARR_LAST
+customMenu_notUp:
+  cmp [KEY_DOWN], 1
+  jne customMenu_notDown
+  add edi, 4
+  cmp edi, SEL_ARR_LAST
+  jng customMenu_notDown
+  mov edi, SEL_ARR_BEGIN
+customMenu_notDown:
+
+  mov [CURR_SEL], edi
+// render
+  mov edi, 90
+
+  mov eax, [SEL_STAGE]
+  inc eax
+  push eax
+  push TXT_STAGE
+  mov eax, SEL_STAGE
+  call getColor
+  push eax
+  push ff
+  push ff
+  call getTextTexture
+  add esp, 0c
+  push eax
+  push edi
+  push 30
+  call drawTextTexture
+  add esp, 14
+  add edi, 10
+
+  mov eax, [DIFF]
+  push [DIFF_TXTS+eax*4]
+  push TXT_DIFF
+  mov eax, SEL_DIFF
+  call getColor
+  push eax
+  push ff
+  push ff
+  call getTextTexture
+  add esp, 0c
+  push eax
+  push edi
+  push 30
+  call drawTextTexture
+  add esp, 14
+  add edi, 10
+
+  push [FRAME_COUNT_INIT]
+  push TXT_FRAME
+  mov eax, FRAME_COUNT_INIT
+  call getColor
+  push eax
+  push ff
+  push ff
+  call getTextTexture
+  add esp, 0c
+  push eax
+  push edi
+  push 30
+  call drawTextTexture
+  add esp, 14
+  add edi, 10
+
+  mov eax, [SEL_STAGE]
+  mov ebx, [PATTERNS_TABLE+eax*4]
+  mov eax, [PATTERN_WARP]
+  mov ebx, [ebx+eax*4]
+  push ebx
+  push TXT_PATTERN
+  mov eax, PATTERN_WARP
+  call getColor
+  push eax
+  push ff
+  push ff
+  call getTextTexture
+  add esp, 0c
+  push eax
+  push edi
+  push 30
+  call drawTextTexture
+  add esp, 14
+  add edi, 10
+
+  push [SEL_POWER]
+  push TXT_POWER
+  mov eax, SEL_POWER
+  call getColor
+  push eax
+  push ff
+  push ff
+  call getTextTexture
+  add esp, 0c
+  push eax
+  push edi
+  push 30
+  call drawTextTexture
+  add esp, 14
+  add edi, 10
+
+  push [SEL_FLASHBOMB]
+  push TXT_FLASHBOMB
+  mov eax, SEL_FLASHBOMB
+  call getColor
+  push eax
+  push ff
+  push ff
+  call getTextTexture
+  add esp, 0c
+  push eax
+  push edi
+  push 30
+  call drawTextTexture
+  add esp, 14
+  add edi, 10
+
+  mov eax, [SEL_SCORE]
+  cdq
+  mov ebx, 3E8 // 1000
+  div ebx
+  push edx
+  push eax
+  push TXT_SCORE
+  mov eax, SEL_SCORE
+  call getColor
+  push eax
+  push ff
+  push ff
+  call getTextTexture
+  add esp, 0c
+  push eax
+  push edi
+  push 30
+  call drawTextTexture
+  add esp, 18
+  add edi, 10
+
+  push [VER_MINOR]
+  push [VER_MAJOR]
+  push TXT_VER
+  push ff
+  push ff
+  push ff
+  call getTextTexture
+  add esp, 0c
+  push eax
+  push 124
+  push 30
+  call drawTextTexture
+  add esp, 18
+
+  popad
+  mov eax, [SEL_STAGE]
+  mov [edi+5dc], eax
+  mov [IS_PRAC], 1
+  jmp customMenuRender_ret
+
+customMenuSwitchClb:
+  mov eax, [CURR_SEL]
+  cmp eax, SEL_STAGE
+  jne clb_notStage
+  mov [FRAME_COUNT_INIT], 0
+  mov [PATTERN_WARP], 0
+  jmp clb_end
+clb_notStage:
+  cmp eax, PATTERN_WARP
+  jne clb_notPatternWarp
+  mov eax, [SEL_STAGE]
+  movzx eax, byte ptr [MAX_PATTERNID+eax]
+  cmp [PATTERN_WARP], eax
+  jle clb_notOverMaxId
+  mov [PATTERN_WARP], eax
+clb_notOverMaxId:
+  mov eax, [PATTERN_WARP]
+  test eax, eax
+  je clb_noPattern
+  mov eax, [SEL_STAGE]
+  movzx eax, byte ptr [MBOSS_PATTERN_CNT+eax]
+  inc eax
+  cmp [PATTERN_WARP], eax
+  jnl clb_notMBossPattern
+  mov eax, [SEL_STAGE]
+  cmp eax, 6 //ex
+  jne clb_notExMBoss
+  cmp [SHOT], SHOT_YABU
+  je clb_notExMBoss
+  inc eax
+clb_notExMBoss:
+  mov eax, [MBOSS_FRAMES+eax*4]
+  dec eax
+  mov [FRAME_COUNT_INIT], eax
+  jmp clb_end
+clb_notMBossPattern:
+  mov eax, [SEL_STAGE]
+  cmp eax, 6 // ex
+  jne clb_notExBoss
+  cmp [SHOT], SHOT_YABU
+  je clb_notExBoss
+  inc eax
+clb_notExBoss:
+  mov eax, [BOSS_FRAMES+eax*4]
+  dec eax
+  mov [FRAME_COUNT_INIT], eax
+  jmp clb_end
+clb_noPattern:
+  mov [FRAME_COUNT_INIT], 0
+  jmp clb_end
+clb_notPatternWarp:
+
+clb_end:
+  ret
+
+getColor:
+  cmp [CURR_SEL], eax
+  je getColor_e
+  mov eax, ff
+  ret
+getColor_e:
+  xor eax, eax
+  ret
+
+setPracFalse:
+  mov [IS_PRAC], 0
+  // org code
+  call game+ECE60
+  jmp setPracFalse_ret
+
+setPower:
+  push edi
+  mov edi, [IS_PRAC]
+  test edi, edi
+  je setPower_dont
+  mov edi, [SEL_POWER]
+  mov [eax+7C], edi
+  mov edi, [SEL_FLASHBOMB]
+  mov [eax+6C], edi
+setPower_dont:
+  pop edi
+  // org
+  mov [edi+00002820],00000000
+  jmp setPower_ret
+
+musicFix1:
+  mov eax, [esi+48] // timer
+  cmp [IS_PRAC], 0
+  je musicFix1_alreadyDone
+  cmp [MUSIC_PLAYED], 1
+  je musicFix1_alreadyDone
+  mov [MUSIC_PLAYED], 1
+  cmp eax, [esi+64]
+  jle musicFix1_alreadyDone // no fix needed
+  cmp eax, eax
+  jmp musicFix1_ret
+musicFix1_alreadyDone:
+  cmp eax,[esi+64]
+  jmp musicFix1_ret
+
+musicFix2:
+  cmp [IS_PRAC], 0
+  je musicFix2_dont
+  mov eax, [SEL_STAGE]
+  cmp eax, 6
+  jne musicFix2_notEx1
+  cmp [SHOT], SHOT_YABU
+  je musicFix2_notEx1
+  inc eax
+musicFix2_notEx1:
+  mov eax, [BOSS_FRAMES+eax*4]
+  dec eax
+  cmp [esi+48], eax // timer vs bossframe
+  jl musicFix2_stage
+  cmp [BOSSMUSIC_PLAYED], 1
+  je musicFix2_readyToPlayBossMusic // stage music must play for 1 frame before boss music...
+  mov [MUSIC_PLAYED], 0
+  mov [BOSSMUSIC_PLAYED], 1
+  jmp musicFix2_stage
+musicFix2_readyToPlayBossMusic:
+  cmp [SEL_STAGE], 6
+  jne musicFix2_notEx
+  push 2
+  jmp musicFix2_done
+musicFix2_notEx:
+  cmp [SEL_STAGE], 2
+  jne musicFix2_notSt3
+  cmp [SHOT], SHOT_TSUBA
+  jne musicFix2_notSt3
+  push 2
+  jmp musicFix2_done
+musicFix2_notSt3:
+  push 1
+  jmp musicFix2_done
+musicFix2_stage:
+  cmp [SHOT], SHOT_YABU
+  je musicFix2_dont
+  cmp [SEL_STAGE], 6
+  jne musicFix2_dont
+  push 1
+  jmp musicFix2_done
+musicFix2_dont:
+  push 0
+musicFix2_done:
+  push [esi+30]
+  jmp musicFix2_ret
+
+musicFix3:
+  call game+CF50
+  mov ecx, eax
+  cmp [IS_PRAC], 1
+  jne musicFix3_ret
+  add esp, 4
+  jmp musicFix2
+
+setScore:
+  cmp [IS_PRAC], 1
+  jne setScore_dont
+  push ebx
+  mov ebx, [SEL_SCORE]
+  imul ebx, ebx, 3E8
+  mov [eax+58], ebx
+  pop ebx
+  jmp setScore_ret
+setScore_dont:
+  mov [eax+58],00000000
+  jmp setScore_ret
+
+SEL_DATA:
+/*
+  u16 max_sel (ffff = no maximum)
+  u16 inc_mode (0 = slow, 1 = speedy)
+*/
+  db 06 00  00 00
+  db 07 00  00 00
+  db ff ff  01 00
+  db ff ff  00 00
+  db f4 01  01 00
+  db 70 17  01 00
+  db ff ff  01 00
+
+MAX_PATTERNID:
+  // byte per state
+  db 06
+  db 08
+  db 0A
+  db 08
+  db 0A
+  db 0B
+  db 15 // 21
+
+PATTERNS_ST1:
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+
+PATTERNS_ST2:
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+
+PATTERNS_ST3:
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+
+PATTERNS_ST4:
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+
+PATTERNS_ST5:
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+
+PATTERNS_ST6:
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+
+PATTERNS_ST7:
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+
+PATTERNS_TABLE:
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+
+MBOSS_FRAMES:
+  db D0 07 00 00
+  db B8 0B 00 00
+  db 1C 0C 00 00
+  db 88 13 00 00
+  db 9A 10 00 00
+  db 60 09 00 00
+  db EC 13 00 00
+  db 30 11 00 00
+
+BOSS_FRAMES:
+  db 30 11 00 00
+  db 18 15 00 00
+  db 70 17 00 00
+  db 40 1F 00 00
+  db 90 1A 00 00
+  db E4 0C 00 00
+  db A4 1F 00 00
+  db 38 18 00 00
+
+MBOSS_PATTERN_CNT: // 1 byte for stage
+  db 02 01 02 02 01 02 03
+
+TXT_STAGE:
+  db 53 00 74 00 61 00 67 00 65 00 3A 00 20 00 25 00 64 00 00 00
+
+TXT_FRAME:
+  db 46 00 72 00 61 00 6d 00 65 00 20 00 77 00 61 00 72 00 70 00 3A 00 20 00 25 00 64 00 00 00
+
+TXT_PATTERN:
+  db 50 00 61 00 74 00 74 00 65 00 72 00 6e 00 3A 00 20 00 25 00 73 00 00 00
+
+TXT_DIFF:
+  db 44 00 69 00 66 00 66 00 3A 00 20 00 25 00 73 00 00 00
+
+TXT_EASY:
+  db 45 00 61 00 73 00 79 00 00 00
+
+TXT_NORMAL:
+  db 4e 00 6f 00 72 00 6d 00 61 00 6c 00 00 00
+
+TXT_HARD:
+  db 48 00 61 00 72 00 64 00 00 00
+
+TXT_UNREAL:
+  db 55 00 6e 00 72 00 65 00 61 00 6c 00 00 00
+
+TXT_EASY_EXTRA:
+  db 45 00 61 00 73 00 79 00 45 00 78 00 74 00 72 00 61 00 00 00
+
+TXT_EXTRA:
+  db 45 00 78 00 74 00 72 00 61 00 00 00
+
+TXT_ABSURDLY_EXTRA:
+  db 41 00 62 00 73 00 75 00 72 00 64 00 6c 00 79 00 45 00 78 00 74 00 72 00 61 00 00 00
+
+TXT_DIFF7:
+  db 3f 00 20 00 3f 00 20 00 3f 00 20 00 3f 00 20 00 3f 00 20 00 3f 00 00 00
+
+DIFF_TXTS:
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+  db 00 00 00 00
+
+TXT_POWER:
+  db 50 00 6f 00 77 00 65 00 72 00 3a 00 20 00 25 00 64 00 00 00
+
+TXT_FLASHBOMB:
+  db 46 00 6c 00 61 00 73 00 68 00 62 00 6f 00 6d 00 62 00 3a 00 20 00 25 00 64 00 00 00
+
+TXT_SCORE:
+  db 53 00 63 00 6f 00 72 00 65 00 3a 00 20 00 25 00 30 00 33 00 64 00 20 00 25 00 30 00 33 00 64 00 20 00 30 00 30 00 30 00 00 00
+
+TXT_VER:
+  db 50 00 72 00 61 00 63 00 20 00 70 00 61 00 74 00 63 00 68 00 20 00 76 00 25 00 64 00 2e 00 25 00 64 00 20 00 62 00 79 00 20 00 50 00 72 00 69 00 77 00 38 00 00 00
+
+VER_MAJOR:
+  db 00 00 00 00
+
+VER_MINOR:
+  db 02 00 00 00
+
+TXT_NONE:
+  db 4e 00 6f 00 6e 00 65 00 00 00
+
+TXT_MNON1:
+  db 4d 00 4e 00 6f 00 6e 00 20 00 31 00 00 00
+
+TXT_NON1:
+  db 4e 00 6f 00 6e 00 20 00 31 00 00 00
+
+TXT_NON2:
+  db 4e 00 6f 00 6e 00 20 00 32 00 00 00
+
+TXT_NON3:
+  db 4e 00 6f 00 6e 00 20 00 33 00 00 00
+
+TXT_NON4:
+  db 4e 00 6f 00 6e 00 20 00 34 00 00 00
+
+TXT_NON5:
+  db 4e 00 6f 00 6e 00 20 00 35 00 00 00
+
+TXT_NON6:
+  db 4e 00 6f 00 6e 00 20 00 36 00 00 00
+
+TXT_NON7:
+  db 4e 00 6f 00 6e 00 20 00 37 00 00 00
+
+TXT_NON8:
+  db 4e 00 6f 00 6e 00 20 00 38 00 00 00
+
+TXT_MSPELL1:
+  db 4d 00 53 00 70 00 65 00 6c 00 6c 00 20 00 31 00 00 00
+
+TXT_MSPELL2:
+  db 4d 00 53 00 70 00 65 00 6c 00 6c 00 20 00 32 00 00 00
+
+TXT_MSPELL3:
+  db 4d 00 53 00 70 00 65 00 6c 00 6c 00 20 00 33 00 00 00
+
+TXT_SPELL1:
+  db 53 00 70 00 65 00 6c 00 6c 00 20 00 31 00 00 00
+
+TXT_SPELL2:
+  db 53 00 70 00 65 00 6c 00 6c 00 20 00 32 00 00 00
+
+TXT_SPELL3:
+  db 53 00 70 00 65 00 6c 00 6c 00 20 00 33 00 00 00
+
+TXT_SPELL4:
+  db 53 00 70 00 65 00 6c 00 6c 00 20 00 34 00 00 00
+
+TXT_SPELL5:
+  db 53 00 70 00 65 00 6c 00 6c 00 20 00 35 00 00 00
+
+TXT_SPELL6:
+  db 53 00 70 00 65 00 6c 00 6c 00 20 00 36 00 00 00
+
+TXT_SPELL7:
+  db 53 00 70 00 65 00 6c 00 6c 00 20 00 37 00 00 00
+
+TXT_SPELL8:
+  db 53 00 70 00 65 00 6c 00 6c 00 20 00 38 00 00 00
+
+TXT_SPELL9:
+  db 53 00 70 00 65 00 6c 00 6c 00 20 00 39 00 00 00
+
+TXT_SPELL10:
+  db 53 00 70 00 65 00 6c 00 6c 00 20 00 31 00 30 00 00 00
+
+CURR_SEL:
+  db 00 00 00 00
+
+SEL_ARR_BEGIN:
+SEL_STAGE:
+  db 00 00 00 00
+
+SEL_DIFF:
+  db 00 00 00 00
+
+FRAME_COUNT_INIT:
+  db 00 00 00 00
+
+PATTERN_WARP:
+  db 00 00 00 00
+
+SEL_POWER:
+  db f4 01 00 00
+
+SEL_FLASHBOMB:
+  db 00 00 00 00
+
+SEL_ARR_LAST:
+SEL_SCORE:
+  db 00 00 00 00
+
+IS_PRAC:
+  db 00 00 00 00
+
+MUSIC_PLAYED:
+  db 00 00 00 00
+
+BOSSMUSIC_PLAYED:
+  db 00 00 00 00
+
+

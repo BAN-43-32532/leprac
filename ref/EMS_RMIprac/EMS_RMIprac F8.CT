@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheatTable CheatEngineTableVersion="45">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>448</ID>
+      <Description>"Framewarp (F8)"</Description>
+      <ShowAsSigned>0</ShowAsSigned>
+      <Color>4080FF</Color>
+      <VariableType>4 Bytes</VariableType>
+      <Address>"THREADSTACK0"-000000F8</Address>
+      <Offsets>
+        <Offset>4C</Offset>
+        <Offset>C</Offset>
+      </Offsets>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>471</ID>
+      <Description>"Pattern number"</Description>
+      <Color>FFFF00</Color>
+      <VariableType>4 Bytes</VariableType>
+      <Address>"THREADSTACK0"-000000F8</Address>
+      <Offsets>
+        <Offset>44</Offset>
+        <Offset>0</Offset>
+        <Offset>8</Offset>
+        <Offset>C</Offset>
+      </Offsets>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>496</ID>
+      <Description>"Pattern timer"</Description>
+      <Color>FF0080</Color>
+      <VariableType>4 Bytes</VariableType>
+      <Address>"THREADSTACK0"-000000F8</Address>
+      <Offsets>
+        <Offset>64</Offset>
+        <Offset>0</Offset>
+        <Offset>8</Offset>
+        <Offset>C</Offset>
+      </Offsets>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>476</ID>
+      <Description>"Lives"</Description>
+      <Color>FF80FF</Color>
+      <VariableType>4 Bytes</VariableType>
+      <Address>"THREADSTACK0"-000000F8</Address>
+      <Offsets>
+        <Offset>48</Offset>
+        <Offset>0</Offset>
+        <Offset>0</Offset>
+        <Offset>C</Offset>
+      </Offsets>
+      <Hotkeys>
+        <Hotkey Active="0">
+          <Action>Set Value</Action>
+          <Keys>
+            <Key>9</Key>
+          </Keys>
+          <Value>8</Value>
+          <ID>0</ID>
+        </Hotkey>
+      </Hotkeys>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>523</ID>
+      <Description>"Bombs"</Description>
+      <Color>008000</Color>
+      <VariableType>4 Bytes</VariableType>
+      <Address>"THREADSTACK0"-000000F8</Address>
+      <Offsets>
+        <Offset>60</Offset>
+        <Offset>0</Offset>
+        <Offset>0</Offset>
+        <Offset>C</Offset>
+      </Offsets>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>504</ID>
+      <Description>"Flash gauge"</Description>
+      <Color>FF0000</Color>
+      <VariableType>4 Bytes</VariableType>
+      <Address>"THREADSTACK0"-000000F8</Address>
+      <Offsets>
+        <Offset>6C</Offset>
+        <Offset>0</Offset>
+        <Offset>0</Offset>
+        <Offset>C</Offset>
+      </Offsets>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>485</ID>
+      <Description>"Character 1 power"</Description>
+      <Color>004000</Color>
+      <VariableType>4 Bytes</VariableType>
+      <Address>"THREADSTACK0"-000000F8</Address>
+      <Offsets>
+        <Offset>7C</Offset>
+        <Offset>0</Offset>
+        <Offset>0</Offset>
+        <Offset>C</Offset>
+      </Offsets>
+      <Hotkeys>
+        <Hotkey Active="0">
+          <Action>Set Value</Action>
+          <Keys>
+            <Key>9</Key>
+          </Keys>
+          <Value>500</Value>
+          <ID>3</ID>
+        </Hotkey>
+      </Hotkeys>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>488</ID>
+      <Description>"Character 2 power"</Description>
+      <Color>004080</Color>
+      <VariableType>4 Bytes</VariableType>
+      <Address>"THREADSTACK0"-000000F8</Address>
+      <Offsets>
+        <Offset>80</Offset>
+        <Offset>0</Offset>
+        <Offset>0</Offset>
+        <Offset>C</Offset>
+      </Offsets>
+      <Hotkeys>
+        <Hotkey Active="0">
+          <Action>Set Value</Action>
+          <Keys>
+            <Key>9</Key>
+          </Keys>
+          <Value>500</Value>
+          <ID>3</ID>
+        </Hotkey>
+      </Hotkeys>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>453</ID>
+      <Description>"Boss HP"</Description>
+      <ShowAsSigned>0</ShowAsSigned>
+      <Color>8080FF</Color>
+      <VariableType>4 Bytes</VariableType>
+      <Address>"THREADSTACK0"-000000F8</Address>
+      <Offsets>
+        <Offset>58</Offset>
+        <Offset>0</Offset>
+        <Offset>8</Offset>
+        <Offset>C</Offset>
+      </Offsets>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>508</ID>
+      <Description>"RMI Iframes"</Description>
+      <Color>C08080</Color>
+      <VariableType>4 Bytes</VariableType>
+      <Address>"THREADSTACK0"-000000F8</Address>
+      <Offsets>
+        <Offset>374</Offset>
+        <Offset>0</Offset>
+        <Offset>C</Offset>
+      </Offsets>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>481</ID>
+      <Description>"RMI Spirits"</Description>
+      <ShowAsSigned>0</ShowAsSigned>
+      <Color>C0C0C0</Color>
+      <VariableType>4 Bytes</VariableType>
+      <Address>"THREADSTACK0"-000000F8</Address>
+      <Offsets>
+        <Offset>94</Offset>
+        <Offset>0</Offset>
+        <Offset>0</Offset>
+        <Offset>C</Offset>
+      </Offsets>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>509</ID>
+      <Description>"RMI Stage"</Description>
+      <Color>808000</Color>
+      <VariableType>4 Bytes</VariableType>
+      <Address>Le03.exe+B0A548</Address>
+      <Hotkeys>
+        <Hotkey>
+          <Action>Set Value</Action>
+          <Keys>
+            <Key>221</Key>
+          </Keys>
+          <Value>8</Value>
+          <ID>0</ID>
+        </Hotkey>
+      </Hotkeys>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>511</ID>
+      <Description>"RMI Difficulty"</Description>
+      <Color>800080</Color>
+      <VariableType>4 Bytes</VariableType>
+      <Address>Le03.exe+B0A53C</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>526</ID>
+      <Description>"EMS Iframes"</Description>
+      <Color>C08080</Color>
+      <VariableType>4 Bytes</VariableType>
+      <Address>"THREADSTACK0"-000000F8</Address>
+      <Offsets>
+        <Offset>248</Offset>
+        <Offset>0</Offset>
+        <Offset>C</Offset>
+      </Offsets>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>518</ID>
+      <Description>"EMS Flower gauge"</Description>
+      <Color>0000FF</Color>
+      <VariableType>4 Bytes</VariableType>
+      <Address>"THREADSTACK0"-000000F8</Address>
+      <Offsets>
+        <Offset>8C</Offset>
+        <Offset>0</Offset>
+        <Offset>0</Offset>
+        <Offset>C</Offset>
+      </Offsets>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>512</ID>
+      <Description>"EMS Stage"</Description>
+      <Color>808000</Color>
+      <VariableType>4 Bytes</VariableType>
+      <Address>Le02.exe+ADDFF0</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>513</ID>
+      <Description>"EMS Difficulty"</Description>
+      <Color>800080</Color>
+      <VariableType>4 Bytes</VariableType>
+      <Address>Le02.exe+ADDFE8</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>527</ID>
+      <Description>"PMiBR timer 1"</Description>
+      <ShowAsSigned>0</ShowAsSigned>
+      <Color>0080FF</Color>
+      <VariableType>4 Bytes</VariableType>
+      <Address>Le03.exe+2B1B0</Address>
+      <Hotkeys>
+        <Hotkey Active="0">
+          <Action>Set Value</Action>
+          <Keys>
+            <Key>9</Key>
+          </Keys>
+          <Value>4800</Value>
+          <ID>0</ID>
+        </Hotkey>
+        <Hotkey Active="0">
+          <Action>Set Value</Action>
+          <Keys>
+            <Key>9</Key>
+          </Keys>
+          <Value>5200</Value>
+          <ID>1</ID>
+        </Hotkey>
+        <Hotkey>
+          <Action>Set Value</Action>
+          <Keys>
+            <Key>187</Key>
+          </Keys>
+          <Value>0</Value>
+          <ID>2</ID>
+        </Hotkey>
+      </Hotkeys>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>528</ID>
+      <Description>"PMiBR screenclear 1"</Description>
+      <ShowAsSigned>0</ShowAsSigned>
+      <Color>0080FF</Color>
+      <VariableType>4 Bytes</VariableType>
+      <Address>Le03.exe+71894</Address>
+      <Hotkeys>
+        <Hotkey Active="0">
+          <Action>Set Value</Action>
+          <Keys>
+            <Key>9</Key>
+          </Keys>
+          <Value>4800</Value>
+          <ID>0</ID>
+        </Hotkey>
+        <Hotkey Active="0">
+          <Action>Set Value</Action>
+          <Keys>
+            <Key>9</Key>
+          </Keys>
+          <Value>5200</Value>
+          <ID>1</ID>
+        </Hotkey>
+        <Hotkey>
+          <Action>Set Value</Action>
+          <Keys>
+            <Key>187</Key>
+          </Keys>
+          <Value>1200</Value>
+          <ID>2</ID>
+        </Hotkey>
+      </Hotkeys>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>529</ID>
+      <Description>"PMiBR timer 2"</Description>
+      <ShowAsSigned>0</ShowAsSigned>
+      <Color>0080FF</Color>
+      <VariableType>4 Bytes</VariableType>
+      <Address>Le03.exe+28F28</Address>
+      <Hotkeys>
+        <Hotkey Active="0">
+          <Action>Set Value</Action>
+          <Keys>
+            <Key>9</Key>
+          </Keys>
+          <Value>1200</Value>
+          <ID>0</ID>
+        </Hotkey>
+        <Hotkey Active="0">
+          <Action>Set Value</Action>
+          <Keys>
+            <Key>9</Key>
+          </Keys>
+          <Value>800</Value>
+          <ID>1</ID>
+        </Hotkey>
+        <Hotkey>
+          <Action>Set Value</Action>
+          <Keys>
+            <Key>187</Key>
+          </Keys>
+          <Value>6000</Value>
+          <ID>2</ID>
+        </Hotkey>
+      </Hotkeys>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>530</ID>
+      <Description>"PMiBR jump code"</Description>
+      <ShowAsSigned>0</ShowAsSigned>
+      <Color>0080FF</Color>
+      <VariableType>Byte</VariableType>
+      <Address>Le03.exe+71899</Address>
+      <Hotkeys>
+        <Hotkey Active="0">
+          <Action>Set Value</Action>
+          <Keys>
+            <Key>9</Key>
+          </Keys>
+          <Value>229</Value>
+          <ID>0</ID>
+        </Hotkey>
+        <Hotkey>
+          <Action>Set Value</Action>
+          <Keys>
+            <Key>187</Key>
+          </Keys>
+          <Value>24</Value>
+          <ID>1</ID>
+        </Hotkey>
+      </Hotkeys>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>531</ID>
+      <Description>"Tasouken starting phase"</Description>
+      <ShowAsSigned>0</ShowAsSigned>
+      <Color>004000</Color>
+      <VariableType>4 Bytes</VariableType>
+      <Address>Le02.exe+6B7C0</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>532</ID>
+      <Description>"Tasouken phase length"</Description>
+      <ShowAsSigned>0</ShowAsSigned>
+      <Color>004000</Color>
+      <VariableType>4 Bytes</VariableType>
+      <Address>Le02.exe+6B839</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>533</ID>
+      <Description>"Tasouken starting timer"</Description>
+      <ShowAsSigned>0</ShowAsSigned>
+      <Color>004000</Color>
+      <VariableType>4 Bytes</VariableType>
+      <Address>Le02.exe+2772A</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>534</ID>
+      <Description>"Tasouken phase (not recommended)"</Description>
+      <ShowAsSigned>0</ShowAsSigned>
+      <Color>004000</Color>
+      <VariableType>4 Bytes</VariableType>
+      <Address>Le02.exe+5E0888</Address>
+    </CheatEntry>
+  </CheatEntries>
+  <UserdefinedSymbols/>
+</CheatTable>

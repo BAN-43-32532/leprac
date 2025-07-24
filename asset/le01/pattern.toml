@@ -1,0 +1,69 @@
+[stage1]
+midboss = ["non 1", "spell 1"]
+boss = [
+    "non 1", "spell 1",
+    "non 2", "spell 2"
+]
+
+[stage2]
+midboss = ["spell 1"]
+boss = [
+    "non 1", "spell 1",
+    "non 2", "spell 2",
+    "non 3", "spell 3",
+    "spell 4"
+]
+
+[stage3]
+midboss = ["non 1", "spell 1"]
+boss = [
+    "non 1", "spell 1",
+    "non 2", "spell 2",
+    "non 3", "spell 3",
+    "spell 4",
+    "spell 5"
+]
+
+[stage4]
+midboss = ["non 1", "spell 1"]
+boss = [
+    "non 1", "spell 1",
+    "non 2", "spell 2",
+    "spell 3",
+    "spell 4"
+]
+
+[stage5]
+midboss = ["non 1", "spell 1"]
+boss = [
+    "non 1", "spell 1",
+    "non 2", "spell 2",
+    "non 3", "spell 3",
+    "non 4", "spell 4",
+    "spell 5"
+]
+
+[stage6]
+midboss = ["non 1", "spell 1"]
+boss = [
+    "non 1", "spell 1",
+    "non 2", "spell 2",
+    "non 3", "spell 3",
+    "non 4", "spell 4",
+    "spell 5"
+]
+
+[stage7]
+midboss = ["spell 1", "spell 2", "spell 3"]
+boss = [
+    "non 1", "spell 1",
+    "non 2", "spell 2",
+    "non 3", "spell 3",
+    "non 4", "spell 4",
+    "non 5", "spell 5",
+    "non 6", "spell 6",
+    "non 7", "spell 7",
+    "non 8", "spell 8",
+    "spell 9",
+    "spell 10"
+]

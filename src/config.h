@@ -1,106 +1,60 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#pragma once
-
+#include <filesystem>
+#include <fstream>
+#include <magic_enum/magic_enum_all.hpp>
 #include <string>
 #include <vector>
-#include <fstream>
-#include <filesystem>
-#include <toml++/toml.hpp>
 
+#include "game.h"
+#include "literal.h"
+#include "toml.hpp"
+
+namespace leprac {
 class Config {
-public:
-    // Initialize configuration: read or create default file
-    static void init() {
-        const std::string filename = "leprac.cfg";
-        if (!std::filesystem::exists(filename)) {
-            // Create default table with comments
-            toml::table cfg;
-            cfg.comment("This is a config file for leprac using TOML format");
+  auto commentLanguage =
+    R"(A string ("en" / "zh" / "ja") defining which language the launcher and the in-game overlay gui use)";
+  auto commentPath  = R"(path)";
+  auto commentFonts = R"(font)";
+  auto commentDebug = R"(debug)";
 
-            // language
-            cfg.insert("language", toml::value(std::string("")));
-            cfg["language"]->comment(
-                "A string (\"en\" / \"zh\" / \"ja\") that defines in which language the launcher and the in-game overlay gui are"
-            );
-
-            // paths to executables
-            cfg.insert("path_le01", toml::value(std::string("")));
-          cfg["path_le01"].comments
-            cfg["path_le01"]->comment("A string of absolute / relative path to your game executable Le01");
-            cfg.insert("path_le02", toml::value(std::string("")));
-            cfg["path_le02"]->comment("A string of absolute / relative path to your game executable Le02");
-            cfg.insert("path_le03", toml::value(std::string("")));
-            cfg["path_le03"]->comment("A string of absolute / relative path to your game executable Le03");
-            cfg.insert("path_le04", toml::value(std::string("")));
-            cfg["path_le04"]->comment("A string of absolute / relative path to your game executable Le04");
-
-            // fonts list
-            cfg.insert("path_fonts", toml::array{});
-            cfg["path_fonts"]->comment(
-                "A list of strings of absolute / relative path to your font ttf / ttc file"
-            );
-
-            // debug mode
-            cfg.insert("debug_mode", toml::value(false));
-            cfg["debug_mode"]->comment("Debug mode (true / false)");
-
-            // Write out
-            std::ofstream ofs(filename, std::ios::out | std::ios::trunc);
-            ofs << cfg;
-            ofs.close();
-        }
-
-        // Parse file
-        auto table = toml::parse_file(filename);
-        language = toml::find_or(table, "language", std::string(""));
-        pathLe01 = toml::find_or(table, "path_le01", std::string(""));
-        pathLe02 = toml::find_or(table, "path_le02", std::string(""));
-        pathLe03 = toml::find_or(table, "path_le03", std::string(""));
-        pathLe04 = toml::find_or(table, "path_le04", std::string(""));
-
-        // Load fonts list
-        pathFonts.clear();
-        if (auto arr = table["path_fonts"].as_array()) {
-            for (auto& item : *arr) {
-                if (item.is_string()) {
-                    pathFonts.emplace_back(item.value<std::string>());
-                }
-            }
-        }
-
-        debugMode = toml::find_or(table, "debug_mode", false);
+ public:
+  static void init() {
+    auto        pathConfig = "leprac-cfg.toml";
+    toml::value config;
+    if (auto parseResult = toml::try_parse(pathConfig); parseResult.is_ok()) {
+      config    = parseResult.unwrap();
+      auto lang = toml::find_or(config, "language", "unk");
+      lang_ = *magic_enum::enum_cast<Lang>(lang);
+      magic_enum::enum_for_each<GameId>([config](auto val) {
+        constexpr GameId gameId = val;
+        pathGame_[gameId]       = toml::find_or(
+          config, std::format("path{}", magic_enum::enum_name(gameId)), ""
+        );
+      });
+      pathFonts_ =
+        toml::find_or(config, "pathFonts", std::vector<std::string>{});
+      debug_ = toml::find_or(config, "debug", false);
+    } else {
     }
 
-    // Getters
-    static const std::string& getLanguage() { return language; }
-    static const std::string& getPathLe01() { return pathLe01; }
-    static const std::string& getPathLe02() { return pathLe02; }
-    static const std::string& getPathLe03() { return pathLe03; }
-    static const std::string& getPathLe04() { return pathLe04; }
-    static const std::vector<std::string>& getPathFonts() { return pathFonts; }
-    static bool getDebugMode() { return debugMode; }
+    std::ofstream fileConfig(pathConfig);
+  }
 
-    // Setters
-    static void setLanguage(const std::string& v) { language = v; }
-    static void setPathLe01(const std::string& v) { pathLe01 = v; }
-    static void setPathLe02(const std::string& v) { pathLe02 = v; }
-    static void setPathLe03(const std::string& v) { pathLe03 = v; }
-    static void setPathLe04(const std::string& v) { pathLe04 = v; }
-    static void setPathFonts(const std::vector<std::string>& v) { pathFonts = v; }
-    static void setDebugMode(bool v) { debugMode = v; }
+  // Getters
+  static auto const& lang() { return lang_; }
 
-private:
-    // Configuration values
-    static inline std::string language = "";
-    static inline std::string pathLe01 = "";
-    static inline std::string pathLe02 = "";
-    static inline std::string pathLe03 = "";
-    static inline std::string pathLe04 = "";
-    static inline std::vector<std::string> pathFonts = {};
-    static inline bool debugMode = false;
+  static void setLanguage(Lang lang) {
+    lang_ = lang;
+  }
+
+ private:
+  static inline Lang                                    lang_{};
+  static inline std::unordered_map<GameId, std::string> pathGame_;
+  static inline std::vector<std::string>                pathFonts_{};
+  static inline bool                                    debug_{};
 };
+}  // namespace leprac
 
-
-#endif //CONFIG_H
+#endif  // CONFIG_H

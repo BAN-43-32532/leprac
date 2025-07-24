@@ -1,0 +1,445 @@
+Most of this was done by Oscar, credit to RosePenguin100 for finding the tasouken/prime minister phase warps included in the seperate .txt.
+
+
+
+This is a practise tool for EMS and RMI that works by using Cheat Engine to alter the games memory. I did all this stuff with Cheat Engine 7.5, ver 1.21a of RMI and ver 1,20a of EMS and i don't know if different versions will cause problems. Before you can do anything, you will need to download Cheat Engine (ver 7.5) if you don't have it, and then attach CE to RMI or EMS. You do this by opening up both rmi/ems and CE, then in CE, click that icon in the top left with the computer screen with a magnifying glass in front of it and select your game.
+
+There are two cheat engine presets included; FC and F8. For technical reasons i dont really understand, whenever the game starts it will randomly choose to allocate memory to either FC or F8.  So what you can do is just start the game and run FC, if it works then good and if it doesn't then close FC and open F8 instead. You will know that its working properly when after attaching CE to rmi/ems, the adress for framewarp will say P-> some number instead of just P-> ????????. It doesn't matter that the others still display ????????, they will work when you go play a stage. If you want to play fullscreen then you will need to alt+tab out of the game every time you attach CE to the game.
+
+
+So how do you use this then? For warping to any stage section or boss pattern, we will need to interact with the 'Framewarp' and 'Pattern number' addresses. You can right click any address at the lower part of the CE window and click the 'set hotkeys' option to start setting up hotkeys. Hotkeys let you change the values of the addresses to a set value whenever you press the key the hotkey is assigned to, so in order to create efficient in-game warps we will create hotkeys for framewarp and pattern number:
+
+Lets say for example that we want to practise RMI Iyozane's final spell in stage 3. First look up the framewarp value that warps you directly to the boss from the table down below (its listed in both the stage and boss lists). The stage 3 midboss framewarp in rmi is 3399 and the boss warp is 6599. Since this is the final spell of the stage, if you want the slowdown effect after depleting the hp of the spell we will want to choose the boss warp value, so 6599 (its ok to use either midboss or boss value for any pattern if you dont care about the slowdown for finals). Right click framewarp in cheat engine, click the 'Set/change hotkeys' icon and then click create hotkey. Enter whatever key you want to use as the hotkey, and then click that dropdown menu that initially says 'Toggle freeze' and select 'Set value to:'. Type the value of the framewarp in the textbox below the dropdown menu, in this example we would type 6599.
+
+Pressing this hotkey ingame would warp us to the boss, but the pattern would be the midnon instead of the final spell. Next we need to setup a hotkey for the 'Pattern number' adress. From the table below, we see that Iyozane spell 5 has a value of 9, so setup a hotkey for pattern number just like with framewarp and set the value to 9, it works if you select the same key you used for the framewarp hotkey.
+
+Now when you go in game, go to practise mode and select stage 3. Once in the stage, press the key you assigned to the hotkeys and Iyozane should come in and use the final spell. 
+
+For stage section warps, you only need to set a hotkey for framewarp. I divided each stage into 'chapters' and made a list of these chapters and the frame the first enemies of the chapter spawn in, but you can set it to any frame you want. You can set the warp say 100 or 200 frames earlier than the time the enemies spawn if you need to like setup a hud align or something, but in some cases this might spawn earlier enemies.
+
+
+
+There are other adresses you can use to make things more convenient/simulate run conditions more accurately. Heres a list of all the adresses i found that you can use or view to track what is happening:
+
+
+	Boss HP:
+
+This value displays the current amount of hp a boss pattern has. You can change it, and setting it to 0 will instakill the pattern. You can set it to 0 before the pattern has started.
+
+
+	Framewarp:
+
+Whenever you start a stage, the game starts counting how much time you've spent in that stage. It uses this value to spawn both enemies and bosses, and this timer freezes for the duration of midboss and boss battles. This adress displays the current stage progress frame (idk what a proper term would be), change it to warp to your desired stage section or the boss. Warping to either the midboss or boss spawn frame will cause the first pattern of the midboss (if there is one) or boss of the stage to appear, assuming you havent touched the pattern number value. 
+
+Setting the value to the midboss framewarp will have the following effects:
+The last spell of the stage will not have the slowdown effect it is supposed to have, and the stage portion will continue afterwards even if you just fought the end of stage boss.
+
+Setting the value to the end boss framewarp will have the following effects:
+The last spell of the midboss or boss will have the slowdown when you kill it, and the stage will end after doing so.
+
+
+
+	Pattern number:
+
+This value determines what pattern the boss will use. The first pattern of the stage will have a value of 0, the second will have 1, third 2 etc. You can change this during a pattern, and doing so will cause the boss to stop whatever it's currently doing and try to start doing the pattern you're telling it to do. However, boss hp, timer, and position on screen will not change and might not be what they should be, so if youre using multiple hotkeys make sure that pattern number does not get applied after boss framewarp (its ok to have both on same hotkey).
+
+
+	Pattern timer:
+
+The timer of the current pattern. Change it to make the timer longer or shorter, or freeze it to enable timelock. Will not let you skip to a certain part of prime minister if you make it shorter, unfortunately.
+
+
+	Lives, bombs, flash gauge and power:
+
+Lives, bombs, power and flash gauge work for both games, but EMS and RMI have different flash gauge sizes.
+
+Character 1 power is the power of the character that is first in the menu that asks you to select the active character just before the game starts, and character 2 power is the power of the second character option. So in RMI Yabusame, Yaorochi, Kuroji and Suzumi are chara 1 and Tsubakura, Sukune, Saragimaru and the other Suzumi are chara 2, either when playing as a team or solo shot. In EMS chara 2 changes your item count instead.
+
+Flash gauge is 0-4000 in RMI, with 0 being completely empty and 4000 being flashbomb ready. Yabusame, Tsubakura, Yaorochi and Sukune get 150 gauge per grazed bullet, Kuroji gets 175, Saragimaru gets 250, and Suzumi gets 75. With Kuroji as your active character, you gain flash gauge passively at a rate of 150 per 100 frames as far as i can tell.
+
+Flash gauge in EMS is 0-6000. Yabusame and Tsubakura get 150 gauge per grazed bullet, Kuroji gets 200, and Suzumi gets 75.
+
+
+
+	Iframes:
+
+This value represents your current amount of immunity frames, when you have any iframes you cannot lose lives/die, use bombs or flashbombs, or graze bullets. You can change it to add iframes, or freeze it to stop them from decreasing. Note that for some reason you can only gain additional iframes when you already have iframes, setting this value to say 200 while you have '0' (its actually like 429000000~ but whatever) will do nothing. So the way to set this up is either from dying or bombing, or just using the iframes you have at the start of any stage. Start of stage iframes are weird as there are two seperate kinds(?): First are the ones you have while youre moving up automatically at the very start, and the second are the ones after you stop moving automatically. Increasing or freezing iframes that are the first kind will have you permanently moving up and you cannot move so maybe try not to use these ones. Probably easier to just freeze lives instead of using this.
+
+
+	Stage:
+
+This doesnt have much use other than letting you instantly warp to alpha stage in RMI if you change it to 8 in any stage and restart the stage. RMI Stage 0 has cursed stage 1 Sese and EMS stage 0 has cursed Jun.
+
+
+	Difficulty:
+
+Lets you change the difficulty of the game. Easy is 0, normal is 1 etc all the way to abex which is 6. You can go above 6 for potential funny results and game crashes.
+
+
+	Spirits:
+
+The spirit items in RMI. Setting spirits to intervals of 200 will not trigger a zenith, you need to collect the 200th spirit to trigger a zenith. Higher spirit values will still trigger longer zeniths, regardless of whether the sprits before the zenith were obtained with cheat engine or collected legit.
+
+
+	Flower gauge:
+
+The flower gauge in ems that multiplies score or something. 0 is completely empty, 5000 is completely full, and each petal is 1000. Can warp to Tasouken even if this is empty.
+
+
+
+
+For stages 1 and ex you dont start at max power, so might as well set a hotkey to set one or both characters powers to max and set lives to 8/freeze them to make sure you dont unintentionally gameover. 
+
+In addition to using hotkeys to change the values of addresses to a specific number, you can also set them to freeze the address, preventing it from increasing or decreasing on its own (you can still influence it with cheat engine though, and that little box under Active lets you toggle it on/off). You can also set a hotkey to increase or decrease ex. the pattern value by 1 to have two keys with which to cycle through all the possible boss pattern in the stage, just be careful not to go outside of the value range of patterns in your stage as trying to make the boss do a nonexistent pattern will crash the game.
+
+
+
+	RMI Stage section warps:
+
+s1c1 	299
+s1c2	1249
+s1c3	1999
+Midboss 2199
+s1c4 	2299
+s1c5 	2499
+s1c6 	2799
+s1c7	3149
+Boss	3799
+
+s2c1 	399
+s2c2 	1199
+s2c3 	1699
+Midboss	2499
+s2c4 	2599
+s2c5	3199
+s2c6	4399
+s2c7	5199
+s2c8 	5699
+Boss 	6799
+
+s3c1 	599
+s3c2 	1299
+s3c3 	1999
+s3c4	2499
+Midboss 3399
+s3c5 	3449
+s3c6 	3999
+s3c7	5699
+Boss	6599
+
+s4c1 	299
+s4c2	1899
+s4c3	2699
+s4c4	3899
+s4c5	5199
+s4c6	6299
+s4c7	7299
+s4c8	9499
+Boss	11099
+
+s5c1	349
+s5c2	1199
+s5c3	2349
+s5c4	3099
+s5c5	4199
+s5c6	4999
+Midboss	6099
+s5c7	6149
+s5c8	7699
+s5c9	8699
+s5c10	9799
+Boss	10999
+
+s6 boss at 1499
+
+s7c1	399
+s7c2	999
+s7c3	2099
+s7c4	2599
+s7c5	3999
+s7c6	5299
+Midboss 6499
+s7c7	6501
+s7c8	7199
+s7c9	8199
+s7c10	8999
+s7c11	9999
+s7c12	10399
+s7c13	10799
+Boss	11999
+
+Ex+a boss at 249
+
+
+
+	RMI Boss pattern warps
+
+Stage 1 (Midboss 2199 Boss 3799)
+Sese midnon	0
+Sese midspell	1
+Sese non 1	2
+Sese spell 1	3
+Sese non 2	4
+Sese spell 2	5
+
+Stage 2 (Midboss 2499 Boss 6799)
+Tsugumi midnon	  0
+Tsugumi midspell  1
+Tsugumi non 1	  2
+Tsugumi spell 1	  3
+Tsugumi non 2	  4
+Tsugumi spell 2	  5
+Tsugumi non 3	  6
+Tsugumi spell 3   7
+
+
+Stage 3 (Midboss 3399 Boss 6599)
+Iyo midnon	0
+Iyo midspell	1
+Iyo non 1	2
+Iyo spell 1	3
+Iyo non 2	4
+Iyo spell 2	5
+Iyo non 3	6
+Iyo spell 3	7
+Iyo spell 4	8
+Iyo spell 5	9
+
+
+Stage 4 (Boss 11099)
+Non 1	  0
+Spell 1   1
+Spell 2   2
+Non 2	  3
+Spell 3   4
+Spell 4   5
+Non 3	  6
+Spell 5   7
+
+Stage 5 (Midboss 6099 Boss 10999)
+Iyo midnon	0
+Iyo midspell	1
+Fumi non 1	2
+Fumi spell 1	3
+Fumi non 2	4
+Fumi spell 2	5
+Fumi non 3	6
+Fumi spell 3	7
+Fumi non 4	8
+Fumi spell 4	9
+Fumi spell 5	10	
+
+Stage 6 (Boss 1499)
+Shion non 1	0
+Shion spell 1	1
+Shion non 2	2
+Shion spell 2	3
+Shion non 3	4
+Shion spell 3	5
+Shion spell 4	6
+Shion spell 5	7
+
+Extra (Midboss 6499 Boss 11999)
+Sese midspell 1	  0
+Sese midspell 2   1
+Sese midspell 3   2
+Tenkai non 1      3
+Tenkai spell 1	  4
+Tenkai non 2      5	
+Tenkai spell 2	  6
+Tenkai non 3      7
+Tenkai spell 3	  8
+Tenkai non 4      9
+Tenkai spell 4	  10
+Tenkai non 5      11
+Tenkai spell 5	  12
+Tenkai non 6      13
+Tenkai spell 6	  14
+Tenkai non 7      15
+Tenkai spell 7	  16
+Tenkai non 8      17
+Tenkai spell 8 	  18
+Tenkai spell 9	  19
+Tenkai spell 10	  20
+
+EX+a (Boss 249)
+Sese spell 1	0
+Sese spell 2	1
+Sese spell 3	2
+Sese spell 4	3
+Sese spell 5	4
+
+
+
+
+
+	EMS Stage section warps
+
+
+s1c1 	199
+s1c2	599
+s1c3	999
+s1c4	1599
+s1c5 	2299
+Midboss 2599
+s1c6 	2699
+s1c7	3399
+Boss	3999
+
+s2c1	249
+s2c2	999
+s2c3	1799
+s2c4	2299
+s2c5	3399
+Midboss	4899
+s2c6	4999
+Boss	6199
+
+s3c1	0
+s3c2	1099
+s3c3	1899
+s3c4	2599
+Midboss	2999
+s3c5	3099
+s3c6	3799
+s3c7	4699
+s3c8	5699
+Boss	6699
+
+s4c1	299
+s4c2	1749
+s4c3	2799
+s4c4	4299
+Midboss	4999
+s4c5	5099
+s4c6	5799
+s4c7	6699
+s4c8	8299
+Boss	8999
+
+s5c1	299
+s5c2	1399
+s5c3	1999
+s5c4	2799
+s5c5	3999
+Midboss	4899
+s5c6	5199
+s5c7	6799
+s5c8	7599
+s5c9	8799
+Boss	10199
+
+s6c1	399
+s6c2	999
+Midboss	1699
+s6c3	1999
+s6c4	2699
+s6c5	3199
+Boss	4499
+
+s7c1	299
+s7c2	849
+s7c3	1849
+s7c4	3149
+s7c5	4199
+Midboss	4999
+s7c6	5299
+s7c7	5999
+s7c8	6899
+s7c9	8899
+s7c10	9499
+Boss	10499
+
+
+
+	EMS Boss pattern warps
+
+Stage 1 (Midboss 2599 Boss 3999)
+Jun midnon	 0
+Jun midspell	 1
+Jun non 1	 2
+Jun spell 1	 3
+Jun non 2	 4
+Jun spell 2	 5
+
+Stage 2 (Midboss 4899 Boss 6199)
+Shou midspell	 0
+Shou non 1	 1
+Shou spell 1	 2
+Shou non 2	 3
+Shou spell 2	 4
+Shou non 3	 5
+Shou spell 3	 6
+Shou spell 4	 7
+
+Stage 3 (Midboss 2999 Boss 6699)
+Lumen midnon	 0
+Lumen midspell	 1
+Lumen non 1	 2
+Lumen spell 1	 3
+Lumen non 2	 4
+Lumen spell 2	 5
+Lumen non 3	 6
+Lumen spell 3	 7
+Lumen spell 4	 8
+Lumen spell 5	 9
+
+Stage 4 (Midboss 4999 Boss 8999)
+Hibaru midnon	 0
+Hibaru midspell	 1
+Hibaru non 1	 2
+Hibaru spell 1	 3
+Hibaru non 2	 4
+Hibaru spell 2	 5
+Hibaru spell 3	 6
+Hibaru spell 4	 7
+
+Stage 5 (Midboss 4899 Boss 10199)
+Sukune midnon	 0
+Sukune midspell	 1
+Sukune non 1	 2
+Sukune spell 1	 3
+Sukune non 2	 4
+Sukune spell 2	 5
+Sukune non 3	 6
+Sukune spell 3	 7
+Sukune non 4	 8
+Sukune spell 4	 9
+
+Stage 6 (Midboss 1699 Boss 4499)
+Sukune midnon     0
+Sukune midspell	  1
+Yaorochi non 1    2
+Yaorochi spell 1  3
+Yaorochi non 2    4
+Yaorochi spell 2  5
+Yaorochi non 3    6
+Yaorochi spell 3  7
+Yaorochi non 4    8
+Yaorochi spell 4  9
+Yaorochi spell 5  10
+Yaorochi spell 6  11
+Tasouken	  12	
+
+Extra (Midboss 4999 Boss 10499)
+Lumen midspell 1	0
+Lumen midspell 2	1
+Lumen midspell 3	2
+Saragimaru non 1	3
+Saragimaru spell 1	4
+Saragimaru non 2	5
+Saragimaru spell 2	6
+Saragimaru non 3	7
+Saragimaru spell 3	8
+Saragimaru non 4	9
+Saragimaru spell 4	10
+Saragimaru non 5	11
+Saragimaru spell 5	12
+Saragimaru non 6	13
+Saragimaru spell 6	14
+Saragimaru non 7	15
+Saragimaru spell 7	16
+Saragimaru non 8	17
+Saragimaru spell 8	18
+Saragimaru spell 9	19
+Saragimaru spell 10	20

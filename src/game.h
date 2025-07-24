@@ -1,10 +1,11 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include <libmem/libmem.hpp>
+#include <magic_enum/magic_enum.hpp>
 #include <string>
 #include <vector>
 
-#include "libmem/libmem.hpp"
 #include "logger.h"
 #include "util.h"
 
@@ -15,11 +16,10 @@ enum class GameId {
   Le03,
   Le04,
   Uso,  // 束方 嘘時空　～ Fools_rush_in
-  COUNT,
 };
 
 struct GameInfo {
-  GameId          id = GameId::COUNT;
+  GameId          id;
   libmem::Process process;
   libmem::Thread  main_thread;
 };

@@ -1,0 +1,179 @@
+[number]
+en = "12345678910"
+zh = "一二三四五六七八九十"
+ja = "一二三四五六七八九十"
+
+[framewarp]
+en = "Frame Warp"
+zh = "帧跳转"
+ja = "フレームワープ"
+
+[pattern]
+en = "Boss Pattern"
+zh = "Boss 招式"
+ja = ""
+
+[pattern_timer]
+en = "Boss Pattern Timer"
+zh = "Boss 招式倒计时"
+ja = ""
+
+[boss_hp]
+en = "Boss HP"
+zh = "Boss 血量"
+ja = "ボスHP"
+
+[boss_iframe]
+en = "Boss Inv Frame"
+zh = "Boss 无敌帧"
+ja = "ボス無敵フレーム"
+
+[score]
+en = "Score"
+zh = "分数"
+ja = "スコア"
+
+[life]
+en = "Life"
+zh = "残机"
+ja = "残機"
+
+[bomb]
+en = "Bomb"
+zh = "Bomb"
+ja = "ボム"
+
+[thrill]
+en = "Thrill"
+zh = "擦弹"
+ja = "Thrill" # TODO
+
+[flash_gauge]
+en = "Flash Gauge"
+zh = "瞬雷槽"
+ja = "フラッシュボムゲージ"
+
+[bomb_timer]
+en = "Bomb Timer"
+zh = "Bomb 倒计时"
+ja = "ボムタイマー"
+
+[stage]
+en = "Stage"
+zh = "面数"
+ja = "ステージ"
+
+[diff]
+en = "Difficulty"
+zh = "难度"
+ja = "難易度"
+
+[total_point]
+en = "Total Points"
+zh = "总得点"
+ja = "総点"
+
+[point]
+en = "Points"
+zh = "得点"
+ja = "得点"
+
+[power]
+en = "Power"
+zh = "火力"
+ja = ""
+
+[power1]
+en = "Main Power"
+zh = "主火力"
+ja = ""
+
+[power2]
+en = "Sub Power"
+zh = "次火力"
+ja = ""
+
+[iframe]
+en = "Player Inv Frame"
+zh = "自机无敌帧"
+ja = ""
+
+[shoot_dur]
+en = "Shooting Duration"
+zh = "射击持续时间"
+ja = ""
+
+[flower_gauge]
+en = "Flower Gauge"
+zh = "云花槽"
+ja = ""
+
+[spirit]
+en = "Spirit"
+zh = "灵魂"
+ja = ""
+
+[tasouken]
+en = "A Single Glimmer"
+zh = "独一无二的辉煌"
+ja = "ただ一つの煌き"
+
+[PMiBR]
+en = "PMiBR"
+zh = "黑衣宰相"
+ja = "黒衣の宰相"
+
+[le01.shottype]
+en = ["Yabusame Houlen", "Tsubakura Enraku", "Suzumi Kuzu"]
+zh = ["凤联薮雨", "燕乐玄鸟", "国主雀巳"]
+ja = ["鳳聯藪雨", "燕楽玄鳥", "國主雀巳"]
+
+[le01.boss]
+en = ["Kurohebi", "Aoji Shitodo", "Hooaka Shitodo", "Kuroji Shitodo", "Clause", "Tsurubami Senri"]
+zh = ["乌蛇", "鹀蒿雀", "鹀颊赤", "鹀黑巫鸟", "克劳斯", "阐里鹤喰"]
+ja = ["烏蛇", "鵐蒿雀", "鵐頬赤", "鵐黒巫鳥", "クラウゼ", "闡裡鶴喰"]
+
+[le02.shottype]
+en = ["Yabusame Houlen", "Tsubakura Enraku", "Kuroji Shitodo", "Suzumi Kuzu"]
+zh = ["凤联薮雨", "燕乐玄鸟", "鹀黑巫鸟", "国主雀巳"]
+ja = ["鳳聯藪雨", "燕楽玄鳥", "鵐黒巫鳥", "國主雀巳"]
+
+[le02.boss]
+en = ["Jun Amanomiya", "Shou Amanomori", "Lumen Celeritas", "Hibaru Kokutenshi", "Sukune Katano", "Adagumo no Yaorochi", "Tasouken", "Adagumo no Saragimaru"]
+zh = ["天宫润", "雨杏宵", "凯勒里塔斯·流明", "旭天子云雀流", "片野宿祢", "徒云八尾吕智", "蛇丛剑", "徒云蛇穴丸"]
+ja = ["天宮潤", "雨杏宵", "ケレリタス・ルーメン", "旭天子ヒバル", "片埜宿禰", "徒雲八尾呂智", "蛇叢剣", "徒雲蛇穴丸"]
+
+[le03.shottype]
+en = ["Shrine Team", "Bottle Opener Team", "Slaver Team", "Hidden Team", "Yabusame Houlen", "Tsubakura Enraku", "Adagumo no Yaorochi", "Sukune Katano", "Kuroji Shitodo", "Adagumo no Saragimaru", "Suzumi Kuzu (solo)"]
+zh = ["神社组", "开瓶器组", "奴隶商人组", "隐藏自机组", "凤联薮雨", "燕乐玄鸟", "徒云八尾吕智", "片野宿祢", "鹀黑巫鸟", "徒云蛇穴丸", "国主雀巳（单）"]
+ja = ["神社組", "栓抜き組", "奴隷商人組", "隠し自機組", "鳳聯藪雨", "燕楽玄鳥", "徒雲八尾呂智", "片埜宿禰", "鵐黒巫鳥", "徒雲蛇穴丸", "國主雀巳（単）"] # TODO
+
+[le03.boss]
+en = ["Sese Kitsugai", "Tsugumi Umatachi", "Fujiwara no Iyozane", "Taira no Fumikado", "Shion", "Tenkai Zuifeng"]
+zh = ["乞骸让让", "马立噤美", "藤原伊代真", "平文门", "死宛", "瑞风天堺"]
+ja = ["乞骸セセ", "馬立ツグミ", "藤原伊代真", "平文門", "シオン", "瑞風天堺"]
+
+[fmt.stage]
+en = "Stage {}"
+zh = "{}面"
+ja = "{}面"
+
+[fmt.midnon]
+en = "Midnon {}"
+zh = "道中{}非"
+ja = ""
+
+[fmt.midsp]
+en = "Midspell {}"
+zh = "道中{}符"
+ja = ""
+
+[fmt.non]
+en = "Non {}"
+zh = "{}非"
+ja = ""
+
+[fmt.spell]
+en = "Spell {}"
+zh = "{}牌"
+ja = ""

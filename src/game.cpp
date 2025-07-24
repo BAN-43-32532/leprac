@@ -3,6 +3,8 @@
 #include <Windows.h>
 #include <winternl.h>
 
+#include "magic_enum/magic_enum_utility.hpp"
+
 namespace leprac {
 struct THREAD_BASIC_INFORMATION {
   NTSTATUS  ExitStatus;
@@ -33,11 +35,11 @@ std::string toProcessName(GameId game) {
 
 std::vector<GameInfo> Game::detectRunningGame() {
   std::vector<GameInfo> result;
-  for (int i = 0; i < static_cast<int>(GameId::COUNT); i++) {
-    auto gameId  = static_cast<GameId>(i);
-    auto process = libmem::FindProcess(toProcessName(gameId).c_str());
+  magic_enum::enum_for_each<GameId>([&](auto val) {
+    GameId gameId  = val;
+    auto   process = libmem::FindProcess(toProcessName(gameId).c_str());
     if (process) { result.emplace_back(gameId, *process); }
-  }
+  });
   return result;
 }
 
@@ -71,7 +73,6 @@ std::vector<std::wstring> getWindowTitles(libmem::Process const& process) {
     }
     return TRUE;
   };
-
   EnumWindows(callback, reinterpret_cast<LPARAM>(&context));
   return result;
 }

@@ -1,13 +1,17 @@
 #ifndef LITERAL_H
 #define LITERAL_H
 
+#include <utility>
+
+#include "UI.h"
+
 namespace leprac {
-enum class Language { en, zh, ja };
+enum class Lang { en, zh, ja };
 
 class Literal {
  public:
  private:
-  Language language_;
+  Lang language_;
 };
 
 }  // namespace leprac
