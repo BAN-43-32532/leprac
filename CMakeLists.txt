@@ -50,9 +50,9 @@ add_subdirectory(external/embed)
 set(B_PRODUCTION_MODE ON CACHE BOOL "" FORCE)
 
 file(GLOB_RECURSE ASSET_FILES RELATIVE ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/asset/*)
-foreach(FILE IN LISTS ASSET_FILES)
+foreach (FILE IN LISTS ASSET_FILES)
     b_embed(leprac ${FILE})
-endforeach()
+endforeach ()
 ################################################################################
 
 # imgui ########################################################################
@@ -98,9 +98,4 @@ target_link_libraries(leprac PRIVATE libmem::libmem)
 # toml11 #######################################################################
 add_subdirectory(${EXT_DIR}/toml11)
 target_link_libraries(leprac PRIVATE toml11::toml11)
-################################################################################
-
-# SDL ##########################################################################
-add_subdirectory(${EXT_DIR}/SDL)
-target_link_libraries(leprac PRIVATE SDL3::SDL3)
 ################################################################################
