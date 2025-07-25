@@ -6,7 +6,7 @@
 #include "UI.h"
 
 namespace leprac {
-enum class Lang { en, zh, ja };
+
 
 class Literal {
  public:

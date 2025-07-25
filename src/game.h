@@ -7,16 +7,10 @@
 #include <vector>
 
 #include "logger.h"
+#include "type.h"
 #include "util.h"
 
 namespace leprac {
-enum class GameId {
-  Le01,
-  Le02,
-  Le03,
-  Le04,
-  Uso,  // 束方 嘘時空　～ Fools_rush_in
-};
 
 struct GameInfo {
   GameId          id;

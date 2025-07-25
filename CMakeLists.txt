@@ -11,7 +11,10 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "$<1:${CMAKE_BINARY_DIR}/bin>")
 #file(GLOB_RECURSE SRC CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/src/*.cpp)
 #list(REMOVE_ITEM SRC ${CMAKE_SOURCE_DIR}/src/main_old.cpp)
 #add_executable(leprac WIN32 ${SRC})
-add_executable(leprac WIN32 ${CMAKE_SOURCE_DIR}/src/main.cpp)
+add_executable(leprac WIN32
+        ${CMAKE_SOURCE_DIR}/src/main.cpp
+        ${CMAKE_SOURCE_DIR}/src/config.cpp
+)
 
 set(EXT_DIR ${CMAKE_SOURCE_DIR}/external)
 

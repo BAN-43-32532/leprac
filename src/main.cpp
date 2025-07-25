@@ -1,41 +1,41 @@
+#include <backends/imgui_impl_dx11.h>
+#include <backends/imgui_impl_win32.h>
 #include <d3d11.h>
+#include <imgui.h>
+#include <string>
 #include <tchar.h>
 
-#include "backends/imgui_impl_dx11.h"
-#include "backends/imgui_impl_win32.h"
-#include "imgui.h"
+#include "config.h"
 
-// Data
-static ID3D11Device*           g_pd3dDevice        = nullptr;
-static ID3D11DeviceContext*    g_pd3dDeviceContext = nullptr;
-static IDXGISwapChain*         g_pSwapChain        = nullptr;
-static bool                    g_SwapChainOccluded = false;
-static UINT                    g_ResizeWidth = 0, g_ResizeHeight = 0;
-static ID3D11RenderTargetView* g_mainRenderTargetView = nullptr;
+static ID3D11Device*           g_pd3dDevice{};
+static ID3D11DeviceContext*    g_pd3dDeviceContext{};
+static IDXGISwapChain*         g_pSwapChain{};
+static bool                    g_SwapChainOccluded{};
+static UINT                    g_ResizeWidth{};
+static UINT                    g_ResizeHeight{};
+static ID3D11RenderTargetView* g_mainRenderTargetView{};
 
-// Forward declarations of helper functions
 bool           CreateDeviceD3D(HWND hWnd);
 void           CleanupDeviceD3D();
 void           CreateRenderTarget();
 void           CleanupRenderTarget();
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-// Main code
-int main(int, char**) {
-  // Make process DPI aware and obtain main monitor scale
+int WINAPI WinMain(HINSTANCE hinstance, HINSTANCE, LPSTR, int) {
+  SetConsoleOutputCP(CP_UTF8);
+
   ImGui_ImplWin32_EnableDpiAwareness();
   float main_scale = ImGui_ImplWin32_GetDpiScaleForMonitor(
     MonitorFromPoint(POINT{0, 0}, MONITOR_DEFAULTTOPRIMARY)
   );
 
-  // Create application window
   WNDCLASSEXW wc = {
     sizeof(wc),
     CS_CLASSDC,
     WndProc,
     0L,
     0L,
-    GetModuleHandle(nullptr),
+    hinstance,
     nullptr,
     nullptr,
     nullptr,
@@ -58,43 +58,30 @@ int main(int, char**) {
     nullptr
   );
 
-  // Initialize Direct3D
   if (!CreateDeviceD3D(hwnd)) {
     CleanupDeviceD3D();
     UnregisterClassW(wc.lpszClassName, wc.hInstance);
     return 1;
   }
 
-  // Show the window
   ShowWindow(hwnd, SW_SHOWDEFAULT);
   UpdateWindow(hwnd);
 
-  // Setup Dear ImGui context
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
   ImGuiIO& io = ImGui::GetIO();
   (void) io;
-  io.ConfigFlags |=
-    ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
-  io.ConfigFlags |=
-    ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
+  io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
-  // Setup Dear ImGui style
-  ImGui::StyleColorsDark();
-  // ImGui::StyleColorsLight();
+  std::string strstyle = "dark";
+  if (strstyle == "dark") ImGui::StyleColorsDark();
+  else if (strstyle == "light") ImGui::StyleColorsLight();
+  else if (strstyle == "classic") ImGui::StyleColorsClassic();
 
-  // Setup scaling
   ImGuiStyle& style = ImGui::GetStyle();
-  style.ScaleAllSizes(
-    main_scale
-  );  // Bake a fixed style scale. (until we have a solution for dynamic style
-      // scaling, changing this requires resetting Style + calling this again)
-  style.FontScaleDpi =
-    main_scale;  // Set initial font scale. (using io.ConfigDpiScaleFonts=true
-                 // makes this unnecessary. We leave both here for documentation
-                 // purpose)
+  style.ScaleAllSizes(main_scale);
+  style.FontScaleDpi = main_scale;
 
-  // Setup Platform/Renderer backends
   ImGui_ImplWin32_Init(hwnd);
   ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
 
@@ -122,17 +109,12 @@ int main(int, char**) {
   // io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf");
   // IM_ASSERT(font != nullptr);
 
-  // Our state
-  bool   show_demo_window    = true;
-  bool   show_another_window = false;
-  ImVec4 clear_color         = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+  ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-  // Main loop
+  leprac::Config::save();
+
   bool done = false;
   while (!done) {
-    // Poll and handle messages (inputs, window resize, etc.)
-    // See the WndProc() function below for our to dispatch events to the Win32
-    // backend.
     MSG msg;
     while (::PeekMessage(&msg, nullptr, 0U, 0U, PM_REMOVE)) {
       TranslateMessage(&msg);
@@ -141,7 +123,6 @@ int main(int, char**) {
     }
     if (done) break;
 
-    // Handle window being minimized or screen locked
     if (g_SwapChainOccluded
         && g_pSwapChain->Present(0, DXGI_PRESENT_TEST)
              == DXGI_STATUS_OCCLUDED) {
@@ -150,7 +131,6 @@ int main(int, char**) {
     }
     g_SwapChainOccluded = false;
 
-    // Handle window resize (we don't resize directly in the WM_SIZE handler)
     if (g_ResizeWidth != 0 && g_ResizeHeight != 0) {
       CleanupRenderTarget();
       g_pSwapChain->ResizeBuffers(
@@ -160,70 +140,12 @@ int main(int, char**) {
       CreateRenderTarget();
     }
 
-    // Start the Dear ImGui frame
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
-
-    // 1. Show the big demo window (Most of the sample code is in
-    // ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear
-    // ImGui!).
-    if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
-
-    // 2. Show a simple window that we create ourselves. We use a Begin/End pair
-    // to create a named window.
-    {
-      static float f       = 0.0f;
-      static int   counter = 0;
-
-      ImGui::Begin(
-        "Hello, world!"
-      );  // Create a window called "Hello, world!" and append into it.
-
-      ImGui::Text(
-        "This is some useful text."
-      );  // Display some text (you can use a format strings too)
-      ImGui::Checkbox(
-        "Demo Window", &show_demo_window
-      );  // Edit bools storing our window open/close state
-      ImGui::Checkbox("Another Window", &show_another_window);
-
-      ImGui::SliderFloat(
-        "float", &f, 0.0f, 1.0f
-      );  // Edit 1 float using a slider from 0.0f to 1.0f
-      ImGui::ColorEdit3(
-        "clear color", (float*) &clear_color
-      );  // Edit 3 floats representing a color
-
-      if (ImGui::Button(
-            "Button"
-          ))  // Buttons return true when clicked (most widgets return true when
-              // edited/activated)
-        counter++;
-      ImGui::SameLine();
-      ImGui::Text("counter = %d", counter);
-
-      ImGui::Text(
-        "Application average %.3f ms/frame (%.1f FPS)",
-        1000.0f / io.Framerate,
-        io.Framerate
-      );
-      ImGui::End();
-    }
-
-    // 3. Show another simple window.
-    if (show_another_window) {
-      ImGui::Begin(
-        "Another Window", &show_another_window
-      );  // Pass a pointer to our bool variable (the window will have a closing
-          // button that will clear the bool when clicked)
-      ImGui::Text("Hello from another window!");
-      if (ImGui::Button("Close Me")) show_another_window = false;
-      ImGui::End();
-    }
-
-    // Rendering
+    ImGui::ShowDemoWindow();
     ImGui::Render();
+
     float const clear_color_with_alpha[4] = {
       clear_color.x * clear_color.w,
       clear_color.y * clear_color.w,
@@ -238,13 +160,11 @@ int main(int, char**) {
     );
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-    // Present
     HRESULT hr          = g_pSwapChain->Present(1, 0);  // Present with vsync
     // HRESULT hr = g_pSwapChain->Present(0, 0); // Present without vsync
     g_SwapChainOccluded = (hr == DXGI_STATUS_OCCLUDED);
   }
 
-  // Cleanup
   ImGui_ImplDX11_Shutdown();
   ImGui_ImplWin32_Shutdown();
   ImGui::DestroyContext();
@@ -256,10 +176,7 @@ int main(int, char**) {
   return 0;
 }
 
-// Helper functions
-
 bool CreateDeviceD3D(HWND hWnd) {
-  // Setup swap chain
   DXGI_SWAP_CHAIN_DESC sd;
   ZeroMemory(&sd, sizeof(sd));
   sd.BufferCount                        = 2;
@@ -297,8 +214,7 @@ bool CreateDeviceD3D(HWND hWnd) {
     &featureLevel,
     &g_pd3dDeviceContext
   );
-  if (res == DXGI_ERROR_UNSUPPORTED)  // Try high-performance WARP software
-                                      // driver if hardware is not available.
+  if (res == DXGI_ERROR_UNSUPPORTED)
     res = D3D11CreateDeviceAndSwapChain(
       nullptr,
       D3D_DRIVER_TYPE_WARP,
@@ -314,7 +230,6 @@ bool CreateDeviceD3D(HWND hWnd) {
       &g_pd3dDeviceContext
     );
   if (res != S_OK) return false;
-
   CreateRenderTarget();
   return true;
 }
@@ -351,14 +266,6 @@ void CleanupRenderTarget() {
   }
 }
 
-// Forward declare message handler from imgui_impl_win32.cpp
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(
-  HWND   hWnd,
-  UINT   msg,
-  WPARAM wParam,
-  LPARAM lParam
-);
-
 // Win32 message handler
 // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if
 // dear imgui wants to use your inputs.
@@ -368,9 +275,11 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(
 // your main application, or clear/overwrite your copy of the keyboard data.
 // Generally you may always pass all inputs to dear imgui, and hide them from
 // your application based on those two flags.
+extern IMGUI_IMPL_API LRESULT
+  ImGui_ImplWin32_WndProcHandler(HWND, UINT, WPARAM, LPARAM);
+
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam)) return true;
-
   switch (msg) {
   case WM_SIZE:
     if (wParam == SIZE_MINIMIZED) return 0;
@@ -384,8 +293,4 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   case WM_DESTROY: PostQuitMessage(0); return 0;
   }
   return DefWindowProcW(hWnd, msg, wParam, lParam);
-}
-
-int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
-  return main(0, nullptr);
 }

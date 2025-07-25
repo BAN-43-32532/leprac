@@ -6,7 +6,8 @@
 #include "logger.h"
 
 namespace leprac {
-// enum class Lang { en, zh, ja };
+
+
 //
 // inline auto toString(Lang lang) {
 //   static char const* lang2string[]{"en", "zh", "ja"};
