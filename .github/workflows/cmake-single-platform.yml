@@ -1,0 +1,49 @@
+name: Windows CMake Build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  BUILD_TYPE: Release
+  GENERATOR: "Visual Studio 17 2022"
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    strategy:
+      matrix:
+        arch: [x64]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v1
+
+    - name: Configure CMake
+      run: |
+        cmake -B build -G "${{env.GENERATOR}}" -A ${{matrix.arch}} `
+          -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} `
+          -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDLL  # 匹配你的项目设置
+
+    - name: Build
+      run: cmake --build build --config ${{env.BUILD_TYPE}} --parallel
+
+    - name: Collect artifacts
+      run: |
+        mkdir artifacts
+        copy "build\bin\${{env.BUILD_TYPE}}\leprac.exe" artifacts
+      shell: cmd
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: Windows-Build
+        path: artifacts
