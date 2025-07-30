@@ -1,42 +1,46 @@
-#include "config.h"
-
-#include <battery/embed.hpp>
+module;
 #include <ranges>
+#include <toml.hpp>
+module leprac.config;
 
-namespace ranges = std::ranges;
-namespace me     = magic_enum;
+import magic_enum;
 
 namespace leprac {
-static constexpr auto pathConfig = "leprac-cfg.toml";
-
-static constexpr std::array commentConfig = {
-  R"( This is the configuration file for leprac, written in TOML format.)",
-  R"( It is auto-generated alongside leprac.exe on first launch.)",
-  R"( You can modify settings either within leprac or by editing this file directly.)"
+namespace {
+constexpr auto       pathConfig    = "leprac-cfg.toml";
+constexpr std::array commentConfig = {
+  R"(# Config file for leprac in TOML format)",
+  R"(# Auto-generated alongside leprac on first launch)",
+  R"(# You can either modify settings in leprac or edit this file directly)"
 };
 
-static constexpr std::array commentLanguage = {
-  R"( Language setting for launcher and overlay GUI ("en", "zh", "ja").)",
-  R"( If omitted, leprac prompts on launch.)"
+constexpr auto       keyLang     = "language";
+constexpr std::array commentLang = {
+  R"(# Language for launcher and overlay GUI: "en" / "zh" / "ja")",
+  R"(# If omitted, leprac prompts on launch)"
 };
 
-static constexpr std::array commentStyle = {
-  R"( ImGui style: "dark", "light", "classic", "custom" (not supported yet).)",
-  R"( Default: "dark")"
+constexpr auto       keyStyle     = "style";
+constexpr std::array commentStyle = {
+  R"(# ImGui style: "dark" / "light" / "classic" / "custom" (not supported yet))",
+  R"(# Default: "dark")"
 };
 
-static constexpr std::array commentGamePath = {
-  R"( Paths to game executables or directories.)",
-  R"( You can configure them in leprac.)"
+constexpr auto       keyGamePath     = "path";
+constexpr std::array commentGamePath = {
+  R"(# Paths to game executables or directories)",
+  R"(# You can configure them in leprac)"
 };
 
-static constexpr std::array commentFonts = {
-  R"( Fonts list for GUI (default []).)"
-};
+constexpr auto       keyFonts     = "fonts";
+constexpr std::array commentFonts = {R"(# Paths to custom font ttf/ttc for GUI)"
+                                     R"(# You can configure them in leprac)"};
 
-static constexpr std::array commentDebug = {
-  R"( Enable debug mode: true or false (default false).)"
+constexpr auto       keyDebug     = "debug";
+constexpr std::array commentDebug = {
+  R"(# Enable debug mode: true / false (default))"
 };
+}  // namespace
 
 void Config::sync() {
   syncLang();
@@ -50,53 +54,80 @@ void Config::load() {
   if (auto res = toml::try_parse(pathConfig); res.is_ok()) {
     tomlValue_ = res.unwrap();
 
-    auto lang = toml::find_or(tomlValue_, "language", "");
-    lang_     = me::enum_cast<Lang>(lang).value_or(lang_);
+    // If lang is not specified of is illegal, lang_ remains unchanged. lang_ is
+    // initialized std::nullopt. In this case, leprac prompts to ask which
+    // language user chooses
+    auto lang = toml::find_or(tomlValue_, keyLang, "");
+    lang_     = me::enum_cast<Lang>(lang);
 
-    auto style = toml::find_or(tomlValue_, "style", "dark");
+    auto style = toml::find_or(tomlValue_, keyStyle, "dark");
     style_     = me::enum_cast<Style>(style).value_or(style_);
 
-    magic_enum::enum_for_each<GameId>([&](auto val) {
-      constexpr GameId gameId = val;
-      auto key          = std::format("path{}", me::enum_name(gameId));
-      pathGame_[gameId] = toml::find_or(tomlValue_, key, "");
-    });
+    debug_ = toml::find_or(tomlValue_, keyDebug, false);
 
     pathFonts_ =
-      toml::find_or(tomlValue_, "pathFonts", std::vector<std::string>{});
-    debug_ = toml::find_or(tomlValue_, "debug", false);
+      toml::find_or(tomlValue_, keyFonts, std::vector<std::string>{});
+
+    auto pathValue = tomlValue_[keyGamePath];
+    magic_enum::enum_for_each<GameId>([&](auto val) {
+      constexpr GameId gameId = val;
+      pathGame_[gameId] = toml::find_or(pathValue, me::enum_name(gameId), "");
+    });
   }
 }
 
 void Config::save() {
   sync();
-  ranges::copy(commentConfig, std::back_inserter(tomlValue_.comments()));
-  ranges::copy(commentLanguage, std::back_inserter(tomlValue_["language"].comments()));
-  ranges::copy(commentStyle, std::back_inserter(tomlValue_["style"].comments()));
-  ranges::copy(commentGamePath, std::back_inserter(tomlValue_["pathLe01"].comments()));
-  ranges::copy(commentFonts, std::back_inserter(tomlValue_["pathFonts"].comments()));
-  ranges::copy(commentDebug, std::back_inserter(tomlValue_["debug"].comments()));
-  std::ofstream fileConfig(pathConfig);
-  fileConfig << format(tomlValue_);
+  tomlValue_.comments().assign(commentConfig.begin(), commentConfig.end());
+  tomlValue_[keyGamePath].comments().assign(
+    commentGamePath.begin(), commentGamePath.end()
+  );
+  tomlValue_[keyStyle].comments().assign(
+    commentStyle.begin(), commentStyle.end()
+  );
+  tomlValue_[keyLang].comments().assign(commentLang.begin(), commentLang.end());
+  tomlValue_[keyFonts].comments().assign(
+    commentFonts.begin(), commentFonts.end()
+  );
+  tomlValue_[keyDebug].comments().assign(
+    commentDebug.begin(), commentDebug.end()
+  );
+
+  std::ofstream      ofs(pathConfig);
+  std::istringstream iss(format(tomlValue_));
+  std::string        line, prev_line;
+
+  while (std::getline(iss, line)) {
+    if (!prev_line.empty()
+        && prev_line[0] != '#'
+        && !line.empty()
+        && line[0] == '#') {
+      ofs << "\n";
+    }
+    ofs << line + "\n";
+    prev_line = line;
+  }
 }
 
-void Config::syncLang() { tomlValue_["language"] = me::enum_name(lang_); }
+void Config::syncLang() {
+  if (lang_) {
+    tomlValue_[keyLang] = me::enum_name(*lang_);
+  } else {
+    tomlValue_[keyLang] = "";
+  }
+}
 
-void Config::syncStyle() { tomlValue_["style"] = me::enum_name(style_); }
+void Config::syncStyle() { tomlValue_[keyStyle] = me::enum_name(style_); }
 
 void Config::syncPathGame() {
+  auto& pathValue = tomlValue_[keyGamePath];
   me::enum_for_each<GameId>([&](auto val) {
-    constexpr GameId gameId = val;
-    auto             key = std::format("path{}", me::enum_name(gameId));
-    tomlValue_[key]      = pathGame_[gameId];
+    constexpr GameId gameId                       = val;
+    pathValue[std::string{me::enum_name(gameId)}] = pathGame_[gameId];
   });
 }
 
-void Config::syncPathFonts() {
-  tomlValue_["pathFonts"] = pathFonts_;
-}
+void Config::syncPathFonts() { tomlValue_[keyFonts] = pathFonts_; }
 
-void Config::syncDebug() {
-  tomlValue_["debug"] = debug_;
-}
+void Config::syncDebug() { tomlValue_[keyDebug] = debug_; }
 }  // namespace leprac

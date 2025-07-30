@@ -36,7 +36,7 @@ AllowShortFunctionsOnASingleLine: All
 AllowShortIfStatementsOnASingleLine: AllIfsAndElse
 AllowShortLambdasOnASingleLine: All
 AllowShortLoopsOnASingleLine: true
-# AllowShortNamespacesOnASingleLine: true
+AllowShortNamespacesOnASingleLine: true
 AlwaysBreakBeforeMultilineStrings: false
 AttributeMacros: [ ]
 BinPackArguments: false
@@ -87,7 +87,7 @@ IncludeIsMainSourceRegex: ''
 IndentAccessModifiers: false
 IndentCaseBlocks: false
 IndentCaseLabels: false
-# IndentExportBlock: true
+IndentExportBlock: true
 IndentExternBlock: NoIndent
 IndentGotoLabels: false
 IndentPPDirectives: AfterHash
@@ -108,7 +108,7 @@ KeepEmptyLines:
   AtEndOfFile: false
   AtStartOfBlock: false
   AtStartOfFile: false
-# KeepFormFeed: false
+KeepFormFeed: false
 LambdaBodyIndentation: OuterScope
 LineEnding: LF
 MacroBlockBegin: ''
@@ -135,10 +135,9 @@ PackConstructorInitializers: NextLine
 PointerAlignment: Left
 QualifierAlignment: Right
 ReferenceAlignment: Pointer
-# ReflowComments: Always
-ReflowComments: true
+ReflowComments: Always
 RemoveBracesLLVM: false
-# RemoveEmptyLinesInUnwrappedLines: true
+RemoveEmptyLinesInUnwrappedLines: true
 RemoveParentheses: ReturnStatement
 RemoveSemicolon: true
 RequiresClausePosition: WithFollowing
@@ -146,9 +145,6 @@ RequiresExpressionIndentation: OuterScope
 SeparateDefinitionBlocks: Always
 ShortNamespaceLines: 0
 SkipMacroDefinitionBody: false
-#SortIncludes:
-#  Enabled: true
-#  IgnoreCase: true
 SortIncludes: CaseInsensitive
 SortUsingDeclarations: Lexicographic
 SpaceAfterCStyleCast: true
@@ -174,10 +170,10 @@ SpacesInParens: Never
 SpacesInSquareBrackets: false
 StatementAttributeLikeMacros: [ ]
 StatementMacros: [ ]
-# TemplateNames: []
+TemplateNames: [ ]
 TypeNames: [ ]
 TypenameMacros: [ ]
 UseTab: Never
-# VariableTemplates: []
+VariableTemplates: [ ]
 WhitespaceSensitiveMacros: [ ]
-# WrapNamespaceBodyWithEmptyLines: Never
+WrapNamespaceBodyWithEmptyLines: Never

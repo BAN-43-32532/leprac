@@ -1,9 +1,11 @@
-#include "game.h"
-
+module;
+#include <format>
+#include <libmem/libmem.hpp>
+#include <optional>
 #include <Windows.h>
 #include <winternl.h>
-
-#include "magic_enum/magic_enum_utility.hpp"
+module leprac.game;
+import magic_enum;
 
 namespace leprac {
 struct THREAD_BASIC_INFORMATION {
@@ -23,22 +25,16 @@ struct TEB {
 
 std::string toProcessName(GameId game) {
   // TODO: Confirm if the names are correct
-  switch (game) {
-  case GameId::Le01: return "Le01.exe";
-  case GameId::Le02: return "Le02.exe";
-  case GameId::Le03: return "Le03.exe";
-  case GameId::Le04: return "Le04.exe";
-  case GameId::Uso : return "Uso.exe";
-  default          : throw std::invalid_argument("Invalid GameId");
-  }
+  return std::format("{}.exe", me::enum_name(game));
 }
 
 std::vector<GameInfo> Game::detectRunningGame() {
   std::vector<GameInfo> result;
-  magic_enum::enum_for_each<GameId>([&](auto val) {
-    GameId gameId  = val;
-    auto   process = libmem::FindProcess(toProcessName(gameId).c_str());
-    if (process) { result.emplace_back(gameId, *process); }
+  me::enum_for_each<GameId>([&](auto val) {
+    GameId gameId = val;
+    if (auto process = libmem::FindProcess(toProcessName(gameId).c_str())) {
+      result.emplace_back(gameId, *process);
+    }
   });
   return result;
 }

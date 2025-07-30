@@ -1,11 +1,13 @@
 #include <backends/imgui_impl_dx11.h>
 #include <backends/imgui_impl_win32.h>
+#include <cstdio>
 #include <d3d11.h>
 #include <imgui.h>
-#include <string>
+#include <iostream>
 #include <tchar.h>
+#include <Windows.h>
 
-#include "config.h"
+import leprac.config;
 
 static ID3D11Device*           g_pd3dDevice{};
 static ID3D11DeviceContext*    g_pd3dDeviceContext{};
@@ -46,7 +48,7 @@ int WINAPI WinMain(HINSTANCE hinstance, HINSTANCE, LPSTR, int) {
   RegisterClassExW(&wc);
   HWND hwnd = ::CreateWindowW(
     wc.lpszClassName,
-    L"Dear ImGui DirectX11 Example",
+    L"leprac",
     WS_OVERLAPPEDWINDOW,
     100,
     100,

@@ -1,21 +1,21 @@
-[submodule "external/imgui"]
-	path = external/imgui
-	url = https://github.com/ocornut/imgui.git
-[submodule "external/embed"]
-	path = external/embed
-	url = https://github.com/batterycenter/embed.git
 [submodule "external/curl"]
 	path = external/curl
 	url = https://github.com/curl/curl.git
+[submodule "external/embed"]
+	path = external/embed
+	url = https://github.com/batterycenter/embed.git
+[submodule "external/imgui"]
+	path = external/imgui
+	url = https://github.com/ocornut/imgui.git
 [submodule "external/json"]
 	path = external/json
 	url = https://github.com/nlohmann/json.git
-[submodule "external/toml11"]
-	path = external/toml11
-	url = https://github.com/ToruNiina/toml11.git
-[submodule "external/minhook"]
-	path = external/minhook
-	url = https://github.com/TsudaKageyu/minhook.git
 [submodule "external/magic_enum"]
 	path = external/magic_enum
 	url = https://github.com/Neargye/magic_enum.git
+[submodule "external/minhook"]
+	path = external/minhook
+	url = https://github.com/TsudaKageyu/minhook.git
+[submodule "external/toml11"]
+	path = external/toml11
+	url = https://github.com/ToruNiina/toml11.git

@@ -1,6 +1,6 @@
-#include "asset.h"
-
+module;
 #include <battery/embed.hpp>
+module leprac.asset;
 
 namespace leprac {
 bool Asset::load() {

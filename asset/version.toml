@@ -2,11 +2,11 @@
 
 [le01]
 0_01a = false
-1_00a = false
-1_01a = false
-1_10a = false
-1_11a = false
-1_20a = false
+1_00a = true
+1_01a = true
+1_10a = true
+1_11a = true
+1_20a = true
 
 [le02]
 0_01a = false

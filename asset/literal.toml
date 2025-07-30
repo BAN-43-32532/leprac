@@ -1,3 +1,8 @@
+[lang_name]
+en = "English"
+zh = "中文"
+ja = "日本語"
+
 [number]
 en = "12345678910"
 zh = "一二三四五六七八九十"
