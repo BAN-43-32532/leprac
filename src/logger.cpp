@@ -2,9 +2,10 @@ module;
 #include <algorithm>
 #include <chrono>
 #include <filesystem>
+#include <magic_enum/magic_enum_all.hpp>
 module leprac.logger;
 import leprac.common;
-import magic_enum;
+// import magic_enum;
 import leprac.config;
 
 namespace leprac {

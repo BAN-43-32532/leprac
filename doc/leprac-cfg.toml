@@ -2,6 +2,9 @@
 # Auto-generated alongside leprac on first launch
 # You can either modify settings in leprac or edit this file directly
 
+height = 600
+width = 800
+
 # Language for launcher and overlay GUI: "en" / "zh" / "ja"
 # If omitted, leprac prompts on launch
 language = "zh"

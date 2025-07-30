@@ -1,11 +1,13 @@
 module;
 #include <format>
 #include <libmem/libmem.hpp>
+#include <magic_enum/magic_enum_all.hpp>
 #include <optional>
 #include <Windows.h>
 #include <winternl.h>
 module leprac.game;
-import magic_enum;
+
+// import magic_enum;
 
 namespace leprac {
 struct THREAD_BASIC_INFORMATION {
@@ -33,7 +35,7 @@ std::vector<GameInfo> Game::detectRunningGame() {
   me::enum_for_each<GameId>([&](auto val) {
     GameId gameId = val;
     if (auto process = libmem::FindProcess(toProcessName(gameId).c_str())) {
-      result.emplace_back(gameId, *process);
+      result.emplace_back(gameId, *process, *libmem::GetThread(&*process));
     }
   });
   return result;
@@ -78,24 +80,28 @@ std::vector<std::wstring> getWindowTitles(libmem::Process const& process) {
 std::optional<std::wstring> Game::getGameTitle(libmem::Process const& process) {
   auto titles = getWindowTitles(process);
   if (titles.empty()) {
-    logBuffer.println("No windows found for PID: {}", process.pid);
+    Logger::log(
+      Logger::Level::Error, "No windows found for PID: {}", process.pid
+    );
     return std::nullopt;
   }
   for (auto const& title: titles) {
     if (title.contains(L".ver")) { return title; }
   }
-  logBuffer.println("No window seems to be the game");
+  Logger::log(Logger::Level::Error, "No window seems to be the game");
   return std::nullopt;
 }
 
 std::optional<TEB> getTEB(GameInfo gameInfo) {
-  logBuffer.println("Tid: {}", gameInfo.main_thread.tid);
+  Logger::log(Logger::Level::Error, "Tid: {}", gameInfo.main_thread.tid);
   THREAD_BASIC_INFORMATION tbi{};
 
   auto hThread =
     OpenThread(THREAD_QUERY_INFORMATION, FALSE, gameInfo.main_thread.tid);
   if (!hThread) {
-    logBuffer.println("OpenThread failed, error: {}", GetLastError());
+    Logger::log(
+      Logger::Level::Error, "OpenThread failed, error: {}", GetLastError()
+    );
     return std::nullopt;
   }
   auto status = NtQueryInformationThread(
@@ -103,24 +109,28 @@ std::optional<TEB> getTEB(GameInfo gameInfo) {
   );
   CloseHandle(hThread);
   if (status != 0) {
-    logBuffer.println(
-      "NtQueryInformationThread failed with status: {:#x}", status
+    Logger::log(
+      Logger::Level::Error,
+      "NtQueryInformationThread failed with status: {:#x}",
+      status
     );
     return std::nullopt;
   }
-  logBuffer.println("TEB Base Address: {}", tbi.TebBaseAddress);
+  Logger::log(Logger::Level::Error, "TEB Base Address: {}", tbi.TebBaseAddress);
 
   auto tebData = libmem::ReadMemory<TEB>(
     &gameInfo.process, reinterpret_cast<libmem::Address>(tbi.TebBaseAddress)
   );
   if (!tebData) {
-    logBuffer.println("ReadMemory failed, error: {}", GetLastError());
+    Logger::log(
+      Logger::Level::Error, "ReadMemory failed, error: {}", GetLastError()
+    );
     return std::nullopt;
   }
   uint64_t stackBase  = tebData->StackBase;
   uint64_t stackLimit = tebData->StackLimit;
-  logBuffer.println("StackBase: {:#x}", stackBase);
-  logBuffer.println("StackLimit: {:#x}", stackLimit);
+  Logger::log(Logger::Level::Error, "StackBase: {:#x}", stackBase);
+  Logger::log(Logger::Level::Error, "StackLimit: {:#x}", stackLimit);
   return tebData;
 }
 
@@ -137,7 +147,7 @@ std::vector<uint8_t> Game::getStackSignature(libmem::Process const& process) {
   combined.insert(combined.end(), literal_prefix.begin(), literal_prefix.end());
   combined.insert(combined.end(), titleBytes, titleBytes + titleByteCount);
 
-  print_hex(combined);
+  // print_hex(combined);
   return combined;
 }
 
@@ -155,7 +165,7 @@ std::optional<libmem::Address> getStackAddress(
     if (VirtualQueryEx(
           hProcess, reinterpret_cast<LPCVOID>(base), &mbi, sizeof(mbi)
         )) {
-      // logBuffer.println(
+      // Logger::log(Logger::Level::Error ,
       //   "Region Base: {}, Size: {:#x}, Type: {:#x}, Protect: {:#x}",
       //   mbi.BaseAddress,
       //   mbi.RegionSize,
@@ -171,7 +181,9 @@ std::optional<libmem::Address> getStackAddress(
       base    = reinterpret_cast<uint64_t>(mbi.BaseAddress) + mbi.RegionSize;
       offset += mbi.RegionSize;
     } else {
-      logBuffer.println("VirtualQueryEx failed: {}", GetLastError());
+      Logger::log(
+        Logger::Level::Error, "VirtualQueryEx failed: {}", GetLastError()
+      );
       CloseHandle(hProcess);
       return std::nullopt;
     }

@@ -27,13 +27,14 @@ class Logger {
 
   inline static bool   debug_{};
   inline static bool   console_{};
-  static std::ofstream ofs_;
+  inline static std::ofstream ofs_;
 };
 }  // namespace leprac
 
 class ConsoleManager {
  public:
   static void Attach() {
+    SetConsoleOutputCP(CP_UTF8);
     if (attached_) return;
     if (!AllocConsole()) return;
 

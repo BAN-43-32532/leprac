@@ -2,10 +2,10 @@ module;
 #include <filesystem>
 #include <libmem/libmem.hpp>
 #include <string>
-
+#include <magic_enum/magic_enum_all.hpp>
 export module leprac.common;
 
-import magic_enum;
+// import magic_enum;
 
 export namespace leprac {
 namespace fs     = std::filesystem;

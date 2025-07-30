@@ -8,6 +8,6 @@ class Literal {
   static void syncLang();
 
  private:
-  static Lang lang_;
+  inline static Lang lang_;
 };
 }  // namespace leprac

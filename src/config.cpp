@@ -1,9 +1,10 @@
 module;
 #include <ranges>
 #include <toml.hpp>
+#include <magic_enum/magic_enum_all.hpp>
 module leprac.config;
 
-import magic_enum;
+// import magic_enum;
 
 namespace leprac {
 namespace {

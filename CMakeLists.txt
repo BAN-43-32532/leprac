@@ -71,13 +71,15 @@ function(add_imgui)
 endfunction()
 
 function(add_json)
-    set(NLOHMANN_JSON_BUILD_MODULES ON CACHE BOOL "" FORCE)
+#    set(NLOHMANN_JSON_BUILD_MODULES ON CACHE BOOL "" FORCE)
     add_subdirectory(${EXT_DIR}/json)
-    target_link_libraries(leprac PRIVATE nlohmann_json_modules)
+    target_link_libraries(leprac PRIVATE nlohmann_json::nlohmann_json)
+#    target_link_libraries(leprac PRIVATE nlohmann_json_modules)
+
 endfunction()
 
 function(add_libmem)
-    # It doesn't work with add_subdirectory(libmem); either with version > "5.0.2"
+    # It doesn't work with add_subdirectory(libmem); neither with version > 5.0.2
     set(LIBMEM_DOWNLOAD_VERSION "5.0.2" CACHE STRING "" FORCE)
     FetchContent_Declare(
             libmem-config
@@ -92,8 +94,8 @@ endfunction()
 
 function(add_magic_enum)
     target_include_directories(leprac PRIVATE ${EXT_DIR}/magic_enum/include)
-    target_sources(leprac PUBLIC FILE_SET CXX_MODULES FILES
-            ${EXT_DIR}/magic_enum/module/magic_enum.cppm)
+#    target_sources(leprac PUBLIC FILE_SET CXX_MODULES FILES
+#            ${EXT_DIR}/magic_enum/module/magic_enum.cppm)
 endfunction()
 
 function(add_minhook)
