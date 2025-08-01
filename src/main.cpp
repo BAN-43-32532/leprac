@@ -7,7 +7,7 @@ import leprac.launcher;
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
   // leprac::Logger::init();
   // leprac::Config::init();
-  // leprac::Launcher launcher;
-  // launcher.init();
+  leprac::Launcher launcher;
+  launcher.init();
   return 0;
 }
