@@ -151,7 +151,7 @@ std::vector<uint8_t> Game::getStackSignature(libmem::Process const& process) {
   return combined;
 }
 
-std::optional<libmem::Address> getStackAddress(
+std::optional<libmem::Address> Game::getStackAddress(
   libmem::Process const&      process,
   libmem::Address             address,
   std::vector<uint8_t> const& pattern
