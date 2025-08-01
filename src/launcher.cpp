@@ -9,203 +9,194 @@ module;
 module leprac.launcher;
 
 namespace leprac {
-void Launcher::init() {
-  ImGui_ImplWin32_EnableDpiAwareness();
-  float main_scale = ImGui_ImplWin32_GetDpiScaleForMonitor(
-    MonitorFromPoint({}, MONITOR_DEFAULTTOPRIMARY)
-  );
-  WNDCLASSEXW wc = {
-    sizeof(wc),
-    CS_CLASSDC,
-    WndProc,
-    0L,
-    0L,
-    GetModuleHandle(nullptr),
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    L"leprac",
-    nullptr
-  };
-  RegisterClassExW(&wc);
-  auto windowStyle = WS_POPUP | WS_THICKFRAME;
-  RECT workArea{};
-  SystemParametersInfoW(SPI_GETWORKAREA, 0, &workArea, 0);
-  int screen_width  = workArea.right - workArea.left;
-  int screen_height = workArea.bottom - workArea.top;
-
-  int window_width  = static_cast<int>(1280 * main_scale);
-  int window_height = static_cast<int>(800 * main_scale);
-
-  int pos_x = workArea.left + (screen_width - window_width) / 2;
-  int pos_y = workArea.top + (screen_height - window_height) / 2;
-
-  // 4. 创建窗口
-  HWND hwnd = CreateWindowW(
-      wc.lpszClassName,
-      L"leprac",
-      windowStyle,
-      pos_x,
-      pos_y,
-      window_width,
-      window_height,
-      nullptr,
-      nullptr,
-      wc.hInstance,
-      nullptr
-  );
-
-  if (!CreateDeviceD3D(hwnd)) {
-    CleanupDeviceD3D();
-    UnregisterClassW(wc.lpszClassName, wc.hInstance);
-    throw std::exception("Failed to create device");
-  }
-
-  ShowWindow(hwnd, SW_SHOWDEFAULT);
-  UpdateWindow(hwnd);
-
-  IMGUI_CHECKVERSION();
-  ImGui::CreateContext();
-  ImGuiIO& io = ImGui::GetIO();
-  (void) io;
-  io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-
-  std::string strstyle = "dark";
-  if (strstyle == "dark") ImGui::StyleColorsDark();
-  else if (strstyle == "light") ImGui::StyleColorsLight();
-  else if (strstyle == "classic") ImGui::StyleColorsClassic();
-
-  ImGuiStyle& style = ImGui::GetStyle();
-  style.ScaleAllSizes(main_scale);
-  style.FontScaleDpi = main_scale;
-
-  ImGui_ImplWin32_Init(hwnd);
-  ImGui_ImplDX11_Init(d3dDevice, d3dDeviceContext);
-
-  // Load Fonts
-  // - If no fonts are loaded, dear imgui will use the default font. You can
-  // also load multiple fonts and use ImGui::PushFont()/PopFont() to select
-  // them.
-  // - AddFontFromFileTTF() will return the ImFont* so you can store it if you
-  // need to select the font among multiple.
-  // - If the file cannot be loaded, the function will return a nullptr. Please
-  // handle those errors in your application (e.g. use an assertion, or display
-  // an error and quit).
-  // - Use '#define IMGUI_ENABLE_FREETYPE' in your imconfig file to use Freetype
-  // for higher quality font rendering.
-  // - Read 'docs/FONTS.md' for more instructions and details.
-  // - Remember that in C/C++ if you want to include a backslash \ in a string
-  // literal you need to write a double backslash \\ !
-  // style.FontSizeBase = 20.0f;
-  // io.Fonts->AddFontDefault();
-  // io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\segoeui.ttf");
-  // io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf");
-  // io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf");
-  // io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf");
-  // ImFont* font =
-  // io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf");
-  // IM_ASSERT(font != nullptr);
-
-  ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
-  bool done = false;
-  while (!done) {
-    MSG msg;
-    while (::PeekMessage(&msg, nullptr, 0U, 0U, PM_REMOVE)) {
-      TranslateMessage(&msg);
-      ::DispatchMessage(&msg);
-      if (msg.message == WM_QUIT) done = true;
-    }
-    if (done) break;
-
-    if (SwapChainOccluded
-        && SwapChain->Present(0, DXGI_PRESENT_TEST) == DXGI_STATUS_OCCLUDED) {
-      Sleep(10);
-      continue;
-    }
-    SwapChainOccluded = false;
-
-    if (ResizeWidth != 0 && ResizeHeight != 0) {
-      CleanupRenderTarget();
-      SwapChain->ResizeBuffers(
-        0, ResizeWidth, ResizeHeight, DXGI_FORMAT_UNKNOWN, 0
-      );
-      ResizeWidth = ResizeHeight = 0;
-      CreateRenderTarget();
-    }
-
-    ImGui_ImplDX11_NewFrame();
-    ImGui_ImplWin32_NewFrame();
-    ImGui::NewFrame();
-
-    ImGuiIO& io = ImGui::GetIO();
-    ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
-    ImGui::SetNextWindowSize(io.DisplaySize, ImGuiCond_Always);
-    ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration
-                           | ImGuiWindowFlags_NoMove
-                           | ImGuiWindowFlags_NoBringToFrontOnFocus;
-
-    ImGui::Begin("##Fullscreen", nullptr, flags);
-    ImGui::Text("Overlay!");
-    ImGui::ShowDemoWindow();
-    ImGui::End();
-
-    ImGui::Render();
-
-    float const clear_color_with_alpha[4] = {
-      clear_color.x * clear_color.w,
-      clear_color.y * clear_color.w,
-      clear_color.z * clear_color.w,
-      clear_color.w
-    };
-    d3dDeviceContext->OMSetRenderTargets(1, &mainRenderTargetView, nullptr);
-    d3dDeviceContext->ClearRenderTargetView(
-      mainRenderTargetView, clear_color_with_alpha
-    );
-    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
-    HRESULT hr        = SwapChain->Present(1, 0);  // Present with vsync
-    // HRESULT hr = g_pSwapChain->Present(0, 0); // Present without vsync
-    SwapChainOccluded = (hr == DXGI_STATUS_OCCLUDED);
-  }
-
-  ImGui_ImplDX11_Shutdown();
-  ImGui_ImplWin32_Shutdown();
-  ImGui::DestroyContext();
-
-  CleanupDeviceD3D();
-  DestroyWindow(hwnd);
-  UnregisterClassW(wc.lpszClassName, wc.hInstance);
-
-
-
-
-
-
-  ///////////////////////////////
-  ///
-  ///
-  ///////
-  ImGuiStyle &style = ImGui::GetStyle();
-  style.ScaleAllSizes(1.5f);
-
-  UI::setImGuiFont();
-
-  auto process = libmem::FindProcess("Le03.exe");
-
-
-  if (!process) {
-    logBuffer.println("Process not found");
-    return SDL_APP_CONTINUE;
-  }
-
-  if (auto result = getStackAddress(*process, tebData->StackLimit, combined)) {
-    logBuffer.println("Target address: {:#x}", *result);
-  } else {
-    logBuffer.println("Failed to get thread stack");
-  }
-}
+// void Launcher::init() {
+//   ImGui_ImplWin32_EnableDpiAwareness();
+//   float main_scale = ImGui_ImplWin32_GetDpiScaleForMonitor(
+//     MonitorFromPoint({}, MONITOR_DEFAULTTOPRIMARY)
+//   );
+//   WNDCLASSEXW wc = {
+//     sizeof(wc),
+//     CS_CLASSDC,
+//     WndProc,
+//     0L,
+//     0L,
+//     GetModuleHandle(nullptr),
+//     nullptr,
+//     nullptr,
+//     nullptr,
+//     nullptr,
+//     L"leprac",
+//     nullptr
+//   };
+//   RegisterClassExW(&wc);
+//   auto windowStyle = WS_POPUP | WS_THICKFRAME;
+//   RECT workArea{};
+//   SystemParametersInfoW(SPI_GETWORKAREA, 0, &workArea, 0);
+//   int screen_width  = workArea.right - workArea.left;
+//   int screen_height = workArea.bottom - workArea.top;
+//
+//   int window_width  = static_cast<int>(1280 * main_scale);
+//   int window_height = static_cast<int>(800 * main_scale);
+//
+//   int pos_x = workArea.left + (screen_width - window_width) / 2;
+//   int pos_y = workArea.top + (screen_height - window_height) / 2;
+//
+//   // 4. 创建窗口
+//   HWND hwnd = CreateWindowW(
+//       wc.lpszClassName,
+//       L"leprac",
+//       windowStyle,
+//       pos_x,
+//       pos_y,
+//       window_width,
+//       window_height,
+//       nullptr,
+//       nullptr,
+//       wc.hInstance,
+//       nullptr
+//   );
+//
+//   if (!CreateDeviceD3D(hwnd)) {
+//     CleanupDeviceD3D();
+//     UnregisterClassW(wc.lpszClassName, wc.hInstance);
+//     throw std::exception("Failed to create device");
+//   }
+//
+//   ShowWindow(hwnd, SW_SHOWDEFAULT);
+//   UpdateWindow(hwnd);
+//
+//   IMGUI_CHECKVERSION();
+//   ImGui::CreateContext();
+//   ImGuiIO& io = ImGui::GetIO();
+//   (void) io;
+//   io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+//
+//   std::string strstyle = "dark";
+//   if (strstyle == "dark") ImGui::StyleColorsDark();
+//   else if (strstyle == "light") ImGui::StyleColorsLight();
+//   else if (strstyle == "classic") ImGui::StyleColorsClassic();
+//
+//   ImGuiStyle& style = ImGui::GetStyle();
+//   style.ScaleAllSizes(main_scale);
+//   style.FontScaleDpi = main_scale;
+//
+//   ImGui_ImplWin32_Init(hwnd);
+//   ImGui_ImplDX11_Init(d3dDevice, d3dDeviceContext);
+//
+//   // Load Fonts
+//   // - If no fonts are loaded, dear imgui will use the default font. You can
+//   // also load multiple fonts and use ImGui::PushFont()/PopFont() to select
+//   // them.
+//   // - AddFontFromFileTTF() will return the ImFont* so you can store it if you
+//   // need to select the font among multiple.
+//   // - If the file cannot be loaded, the function will return a nullptr. Please
+//   // handle those errors in your application (e.g. use an assertion, or display
+//   // an error and quit).
+//   // - Use '#define IMGUI_ENABLE_FREETYPE' in your imconfig file to use Freetype
+//   // for higher quality font rendering.
+//   // - Read 'docs/FONTS.md' for more instructions and details.
+//   // - Remember that in C/C++ if you want to include a backslash \ in a string
+//   // literal you need to write a double backslash \\ !
+//   // style.FontSizeBase = 20.0f;
+//   // io.Fonts->AddFontDefault();
+//   // io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\segoeui.ttf");
+//   // io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf");
+//   // io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf");
+//   // io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf");
+//   // ImFont* font =
+//   // io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf");
+//   // IM_ASSERT(font != nullptr);
+//
+//   ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+//
+//   bool done = false;
+//   while (!done) {
+//     MSG msg;
+//     while (::PeekMessage(&msg, nullptr, 0U, 0U, PM_REMOVE)) {
+//       TranslateMessage(&msg);
+//       ::DispatchMessage(&msg);
+//       if (msg.message == WM_QUIT) done = true;
+//     }
+//     if (done) break;
+//
+//     if (SwapChainOccluded
+//         && SwapChain->Present(0, DXGI_PRESENT_TEST) == DXGI_STATUS_OCCLUDED) {
+//       Sleep(10);
+//       continue;
+//     }
+//     SwapChainOccluded = false;
+//
+//     if (ResizeWidth != 0 && ResizeHeight != 0) {
+//       CleanupRenderTarget();
+//       SwapChain->ResizeBuffers(
+//         0, ResizeWidth, ResizeHeight, DXGI_FORMAT_UNKNOWN, 0
+//       );
+//       ResizeWidth = ResizeHeight = 0;
+//       CreateRenderTarget();
+//     }
+//
+//     ImGui_ImplDX11_NewFrame();
+//     ImGui_ImplWin32_NewFrame();
+//     ImGui::NewFrame();
+//
+//     ImGuiIO& io = ImGui::GetIO();
+//     ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
+//     ImGui::SetNextWindowSize(io.DisplaySize, ImGuiCond_Always);
+//     ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration
+//                            | ImGuiWindowFlags_NoMove
+//                            | ImGuiWindowFlags_NoBringToFrontOnFocus;
+//
+//     ImGui::Begin("##Fullscreen", nullptr, flags);
+//     ImGui::Text("Overlay!");
+//     ImGui::ShowDemoWindow();
+//     ImGui::End();
+//
+//     ImGui::Render();
+//
+//     float const clear_color_with_alpha[4] = {
+//       clear_color.x * clear_color.w,
+//       clear_color.y * clear_color.w,
+//       clear_color.z * clear_color.w,
+//       clear_color.w
+//     };
+//     d3dDeviceContext->OMSetRenderTargets(1, &mainRenderTargetView, nullptr);
+//     d3dDeviceContext->ClearRenderTargetView(
+//       mainRenderTargetView, clear_color_with_alpha
+//     );
+//     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+//
+//     HRESULT hr        = SwapChain->Present(1, 0);  // Present with vsync
+//     // HRESULT hr = g_pSwapChain->Present(0, 0); // Present without vsync
+//     SwapChainOccluded = (hr == DXGI_STATUS_OCCLUDED);
+//   }
+//
+//   ImGui_ImplDX11_Shutdown();
+//   ImGui_ImplWin32_Shutdown();
+//   ImGui::DestroyContext();
+//
+//   CleanupDeviceD3D();
+//   DestroyWindow(hwnd);
+//   UnregisterClassW(wc.lpszClassName, wc.hInstance);
+//
+//   ImGuiStyle &style = ImGui::GetStyle();
+//   style.ScaleAllSizes(1.5f);
+//
+//   UI::setImGuiFont();
+//
+//   auto process = libmem::FindProcess("Le03.exe");
+//
+//
+//   if (!process) {
+//     logBuffer.println("Process not found");
+//     return SDL_APP_CONTINUE;
+//   }
+//
+//   if (auto result = getStackAddress(*process, tebData->StackLimit, combined)) {
+//     logBuffer.println("Target address: {:#x}", *result);
+//   } else {
+//     logBuffer.println("Failed to get thread stack");
+//   }
+// }
 
 void Launcher::UI() {
   // 1. 设置全局样式（可选，调整分割线、间距等）
@@ -351,21 +342,21 @@ void Launcher::CleanupRenderTarget() {
 extern IMGUI_IMPL_API LRESULT
   ImGui_ImplWin32_WndProcHandler(HWND, UINT, WPARAM, LPARAM);
 
-LRESULT WINAPI
-Launcher::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-  if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam)) return true;
-  switch (msg) {
-  // case WM_NCHITTEST: return HTCAPTION;
-  case WM_SIZE:
-    if (wParam == SIZE_MINIMIZED) return 0;
-    ResizeWidth  = static_cast<UINT>(LOWORD(lParam));
-    ResizeHeight = static_cast<UINT>(HIWORD(lParam));
-    return 0;
-  case WM_SYSCOMMAND:
-    if (wParam & 0xfff0 == SC_KEYMENU) return 0;
-    break;
-  case WM_DESTROY: PostQuitMessage(0); return 0;
-  }
-  return DefWindowProcW(hWnd, msg, wParam, lParam);
-}
+// LRESULT WINAPI
+// Launcher::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+//   if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam)) return true;
+//   switch (msg) {
+//   // case WM_NCHITTEST: return HTCAPTION;
+//   case WM_SIZE:
+//     if (wParam == SIZE_MINIMIZED) return 0;
+//     ResizeWidth  = static_cast<UINT>(LOWORD(lParam));
+//     ResizeHeight = static_cast<UINT>(HIWORD(lParam));
+//     return 0;
+//   case WM_SYSCOMMAND:
+//     if (wParam & 0xfff0 == SC_KEYMENU) return 0;
+//     break;
+//   case WM_DESTROY: PostQuitMessage(0); return 0;
+//   }
+//   return DefWindowProcW(hWnd, msg, wParam, lParam);
+// }
 }  // namespace leprac
