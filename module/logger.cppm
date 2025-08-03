@@ -12,21 +12,53 @@ class Logger {
  public:
   Logger() = delete;
   enum class Level { Info, Warn, Error, Debug };
-  static void init(fs::path log_file);
+  static void init();
+  static void deinit();
 
-  template<typename... Args>
+  template<class... Args>
   static void log(Level lvl, std::format_string<Args...> fmt, Args&&... args) {
+    if (lvl == Level::Debug && !debug_) return;
     std::print(ofs_, "{}", prefix(lvl));
     std::println(ofs_, fmt, std::forward<Args>(args)...);
+    flush();
   }
 
-  void syncDebug();
+  template<class... Args>
+  static void info(std::format_string<Args...> fmt, Args&&... args) {
+    log(Level::Info, fmt, std::forward<Args>(args)...);
+  }
+
+  template<class... Args>
+  static void warn(std::format_string<Args...> fmt, Args&&... args) {
+    log(Level::Warn, fmt, std::forward<Args>(args)...);
+  }
+
+  template<class... Args>
+  static void error(std::format_string<Args...> fmt, Args&&... args) {
+    log(Level::Error, fmt, std::forward<Args>(args)...);
+  }
+
+  template<class... Args>
+  static void debug(std::format_string<Args...> fmt, Args&&... args) {
+    log(Level::Debug, fmt, std::forward<Args>(args)...);
+  }
+
+  template<class... Args>
+  static void throwError(std::format_string<Args...> fmt, Args&&... args) {
+    auto msg = std::format(fmt, std::forward<Args>(args)...);
+    error("{}", msg);
+    deinit();
+    throw std::runtime_error(msg);
+  }
+
+  static void syncDebug();
 
  private:
   static std::string prefix(Level lvl);
+  static void        flush();
 
-  inline static bool   debug_{};
-  inline static bool   console_{};
+  inline static bool          debug_{};
+  inline static bool          console_{};
   inline static std::ofstream ofs_;
 };
 }  // namespace leprac

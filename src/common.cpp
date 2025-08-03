@@ -1,4 +1,6 @@
 module;
+#include <chrono>
+#include <format>
 #include <string>
 #include <Windows.h>
 module leprac.common;
@@ -36,5 +38,12 @@ bool is32bit(libmem::Process const& process) {
   IsWow64Process(hProcess, &isWow64);
   CloseHandle(hProcess);
   return isWow64;
+}
+
+std::string timestamp() {
+  return std::format(
+    "{:%Y-%m-%d %H:%M:%S}",
+    floor<std::chrono::seconds>(std::chrono::system_clock::now())
+  );
 }
 }  // namespace leprac

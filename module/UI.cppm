@@ -30,9 +30,7 @@ class UI {
       "C:/Windows/Fonts/segoeui.ttf", 16.0f, &font_cfg
     );
     if (!font_en_default) {
-      Logger::log(
-        Logger::Level::Error, "Failed to load font {}", fonts[0].second
-      );
+      Logger::error("Failed to load font {}", fonts[0].second);
     }
 
     font_cfg.MergeMode   = true;
@@ -43,9 +41,7 @@ class UI {
       io.Fonts->GetGlyphRangesChineseFull()
     );
     if (!font_zh_default) {
-      Logger::log(
-        Logger::Level::Error, "Failed to load font {}", fonts[1].second
-      );
+      Logger::error("Failed to load font {}", fonts[1].second);
     }
 
     auto font_ja_default = io.Fonts->AddFontFromFileTTF(
@@ -55,9 +51,7 @@ class UI {
       io.Fonts->GetGlyphRangesJapanese()
     );
     if (!font_ja_default) {
-      Logger::log(
-        Logger::Level::Error, "Failed to load font {}", fonts[2].second
-      );
+      Logger::error("Failed to load font {}", fonts[2].second);
     }
 
     io.Fonts->Build();

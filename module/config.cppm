@@ -2,7 +2,7 @@ module;
 #include <string>
 #include <vector>
 
-#include "toml.hpp"
+#include <toml.hpp>
 
 export module leprac.config;
 
@@ -11,6 +11,10 @@ import leprac.common;
 export namespace leprac {
 class Config {
  public:
+  Config() = delete;
+  static void init();
+  static void deinit();
+
   static void sync();
   static void load();
   static void save();

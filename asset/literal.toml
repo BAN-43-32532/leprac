@@ -86,37 +86,37 @@ ja = "得点"
 [power]
 en = "Power"
 zh = "火力"
-ja = ""
+ja = "" # TODO
 
 [power1]
 en = "Main Power"
 zh = "主火力"
-ja = ""
+ja = "" # TODO
 
 [power2]
 en = "Sub Power"
 zh = "次火力"
-ja = ""
+ja = "" # TODO
 
 [iframe]
 en = "Player Inv Frame"
 zh = "自机无敌帧"
-ja = ""
+ja = "" # TODO
 
 [shoot_dur]
 en = "Shooting Duration"
 zh = "射击持续时间"
-ja = ""
+ja = "" # TODO
 
 [flower_gauge]
 en = "Flower Gauge"
 zh = "云花槽"
-ja = ""
+ja = "" # TODO
 
 [spirit]
 en = "Spirit"
 zh = "灵魂"
-ja = ""
+ja = "" # TODO
 
 [tasouken]
 en = "A Single Glimmer"
@@ -166,19 +166,116 @@ ja = "{}面"
 [fmt.midnon]
 en = "Midnon {}"
 zh = "道中{}非"
-ja = ""
+ja = "" # TODO
 
 [fmt.midsp]
 en = "Midspell {}"
 zh = "道中{}符"
-ja = ""
+ja = "" # TODO
 
 [fmt.non]
 en = "Non {}"
 zh = "{}非"
-ja = ""
+ja = "" # TODO
 
 [fmt.spell]
 en = "Spell {}"
 zh = "{}牌"
-ja = ""
+ja = "" # TODO
+
+[UI.game]
+en = "Game"
+zh = "游戏"
+ja = "ゲーム"
+
+[UI.tool]
+en = "Tool"
+zh = "工具"
+ja = "ツール"
+
+[UI.setting]
+en = "Setting"
+zh = "设置"
+ja = "設定"
+
+[UI.setting.theme]
+en = "Theme"
+zh = "主题"
+ja = "テーマ"
+
+[UI.setting.resize_enable]
+en = "Resizable game window"
+zh = "使游戏窗口大小可调整"
+ja = "ゲーム画面のリサイズを有効化"
+
+[UI.setting.language]
+en = "Language"
+zh = "语言"
+ja = "言語"
+
+[UI.setting.check_update]
+en = "Check update"
+zh = "检查更新"
+ja = "更新確認"
+
+[UI.le01_name]
+en = "Len'en Mugenri ~ Evanescent Existence"
+zh = "连缘无现里 ～ Evanescent Existence"
+ja = "連縁无現里　～ Evanescent Existence"
+
+[UI.le02_name]
+en = "Len'en Tasouken ~ Earthen Miraculous Sword"
+zh = "连缘蛇丛剑 ～ Earthen Miraculous Sword"
+ja = "連縁蛇叢釼　～ Earthen Miraculous Sword"
+
+# In-game title of RMI and BPoHC are lower-case after the first word. Here for consistency all words are capitalized.
+# This is for UI, not for title recognition.
+[UI.le03_name]
+en = "Len'en Reiretsuden ~ Reactivate Majestical Imperial"
+zh = "连缘灵烈传 ～ Reactivate Majestical Imperial"
+ja = "連縁霊烈傳　～ Reactivate Majestical Imperial"
+
+[UI.le04_name]
+en = "Len'en Ten'eisenki ~ Brilliant Pagoda or Haze Castle"
+zh = "	连缘天影战记 ～ Brilliant Pagoda or Haze Castle"
+ja = "連縁天影戦記　～ Brilliant Pagoda or Haze Castle"
+
+[UI.uso_name]
+en = "Tabakata Usojikuu ~ Fools Rush In"
+zh = "束方嘘时空 ～ Fools Rush In"
+ja = "束方嘘時空　～ Fools Rush In"
+
+[UI.enable_SOCD]
+en = "Enable SOCD"
+zh = "开启 SOCD"
+ja = "SOCD有効化"
+
+[UI.enable_SOCD.help]
+en = "SOCD (Simultaneous Opposing Cardinal Directions) prioritizes the latest input when opposite directions are pressed simultaneously."
+zh = "SOCD 开启后，当相反方向键同时按下，优先响应最后按下的输入。"
+ja = "SOCDが有効時、相反する方向キーが同時押しされた場合、最後の入力を優先します。"
+
+[UI.setting.about]
+en = "About"
+zh = "关于"
+ja = "情報"
+
+[UI.setting.after_game_launch]
+en = "After game launch, leprac"
+zh = "游戏启动后，leprac"
+ja = "ゲーム起動後、lepracを"
+
+[UI.setting.after_game_launch.minimize]
+en = "Minimizes"
+zh = "最小化"
+ja = "最小化"
+
+[UI.setting.after_game_launch.close]
+en = "Closes"
+zh = "关闭"
+ja = "終了"
+
+[UI.setting.after_game_launch.remain]
+en = "Remains"
+zh = "保持开启"
+ja = "開いたまま"

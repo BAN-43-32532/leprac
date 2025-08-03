@@ -1,13 +1,44 @@
 module;
+#include <magic_enum/magic_enum_all.hpp>
+#include <toml.hpp>
 export module leprac.literal;
 import leprac.common;
+import leprac.asset;
+import leprac.config;
+import leprac.logger;
 
 export namespace leprac {
-class Literal {
- public:
-  static void syncLang();
+template<class... Keys>
+requires(std::convertible_to<Keys, std::string_view> && ...)
+char const* l(Keys const&... keys) {
+  auto p = &Asset::literal();
+  std::string tag{((std::string(keys) + ".") + ...)};
+  try {
+    // clang-format off
+    ((p = &p->at(keys)), ...);
+    // clang-format on
+  } catch (std::exception const& e) {
+    Logger::error("Literal {} not found ({})", tag, e.what());
+    return tag.c_str();
+  }
+  std::string lang{"en"};
+  if (Config::lang()) switch (Config::lang().value()) {
+    case Lang::en: lang = "en"; break;
+    case Lang::zh: lang = "zh"; break;
+    case Lang::ja: lang = "ja";
+    }
+  // Logger::log(Logger::Level::Warn, "test3");
+  // std::string lang{me::enum_name(Config::lang().value())};
 
- private:
-  inline static Lang lang_;
-};
+  if (p->contains(lang)) {
+    if (auto const& str = p->at(lang).as_string(); !str.empty()) return str.c_str();
+  }
+  Logger::log(
+    Logger::Level::Warn,
+    "Literal {} in \"{}\" not set. Fallback to English.",
+    tag,
+    lang
+  );
+  return p->at("en").as_string().c_str();
+}
 }  // namespace leprac

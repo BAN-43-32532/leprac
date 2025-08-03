@@ -3,27 +3,57 @@ module;
 #include <chrono>
 #include <filesystem>
 #include <magic_enum/magic_enum_all.hpp>
+#include <ostream>
 module leprac.logger;
 import leprac.common;
 // import magic_enum;
 import leprac.config;
 
 namespace leprac {
-void Logger::init(fs::path log_file) {
-  if (ofs_.is_open()) { ofs_.close(); }
-  ofs_.open(log_file, std::ios::app);
-  if (!ofs_) {
-    throw std::runtime_error("Failed to open log file: " + log_file.string());
+namespace {
+fs::path const    pathLog{"leprac-log.txt"};
+std::string const divLine(41, '=');
+auto const        logHeader = std::format(
+  "\n{}\n leprac v{} log - {} \n{}",
+  divLine,
+  VERSION,
+  timestamp(),
+  divLine
+);
+auto const logFooter =
+  std::format("{}\n{:^41}\n{}", divLine, "log terminates", divLine);
+}  // namespace
+
+void Logger::init() {
+  if (console_) {
+    // TODO
+  } else {
+    if (ofs_.is_open()) { ofs_.close(); }
+    ofs_.open(pathLog, std::ios::app);
+    if (!ofs_) {
+      throw std::runtime_error("Failed to open log file: " + pathLog.string());
+    }
+    std::println(ofs_, "{}", logHeader);
+    flush();
+  }
+}
+
+void Logger::deinit() {
+  if (console_) {
+    // TODO
+  } else {
+    std::println(ofs_, "{}", logFooter);
+    ofs_.close();
   }
 }
 
 void Logger::syncDebug() { debug_ = Config::debug(); }
 
 std::string Logger::prefix(Level lvl) {
-  using std::chrono::system_clock;
-  if (lvl == Level::Debug && !debug_) return {};
   std::string tag = std::format("[{}]", me::enum_name(lvl));
   ranges::transform(tag, tag.begin(), [](auto c) { return std::toupper(c); });
-  return std::format("{:<7} {:%Y-%m-%d %H:%M:%S} - ", tag, system_clock::now());
+  return std::format("{:<7} {} - ", tag, timestamp());
 }
+
+void Logger::flush() { ofs_.flush(); }
 }  // namespace leprac

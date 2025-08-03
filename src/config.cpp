@@ -1,14 +1,15 @@
 module;
+#include <magic_enum/magic_enum_all.hpp>
 #include <ranges>
 #include <toml.hpp>
-#include <magic_enum/magic_enum_all.hpp>
 module leprac.config;
+import leprac.logger;
 
 // import magic_enum;
 
 namespace leprac {
 namespace {
-constexpr auto       pathConfig    = "leprac-cfg.toml";
+fs::path const       pathConfig    = "leprac-cfg.toml";
 constexpr std::array commentConfig = {
   R"(# Config file for leprac in TOML format)",
   R"(# Auto-generated alongside leprac on first launch)",
@@ -42,6 +43,15 @@ constexpr std::array commentDebug = {
   R"(# Enable debug mode: true / false (default))"
 };
 }  // namespace
+
+void Config::init() {
+  Logger::debug("Config init");
+  load();
+}
+
+void Config::deinit() {
+  Logger::debug("Config deinit (no work to do)");
+}
 
 void Config::sync() {
   syncLang();

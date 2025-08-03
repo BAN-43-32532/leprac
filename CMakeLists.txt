@@ -20,6 +20,9 @@ target_include_directories(leprac PRIVATE ${EXT_DIR})
 set(WINDLL d3d11 dxgi dxguid ntdll)
 target_link_libraries(leprac PRIVATE ${WINDLL})
 target_compile_options(leprac PRIVATE /utf-8)
+target_compile_definitions(leprac PRIVATE UNICODE _UNICODE)
+
+target_sources(leprac PRIVATE ${CMAKE_SOURCE_DIR}/asset/icon/resource.rc)
 
 include(FetchContent)
 
@@ -54,7 +57,7 @@ function(add_embed)
     add_subdirectory(external/embed)
     set(B_PRODUCTION_MODE ON CACHE BOOL "" FORCE)
 
-    file(GLOB_RECURSE ASSET_FILES RELATIVE ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/asset/*)
+    file(GLOB_RECURSE ASSET_FILES RELATIVE ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/asset/*.toml)
     foreach (FILE IN LISTS ASSET_FILES)
         b_embed(leprac ${FILE})
     endforeach ()

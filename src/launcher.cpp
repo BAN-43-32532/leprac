@@ -10,6 +10,9 @@ module leprac.launcher;
 import leprac.config;
 import leprac.common;
 import leprac.logger;
+import leprac.literal;
+import leprac.asset;
+import leprac.UI;
 
 // Forward declare message handler from imgui_impl_win32.cpp
 extern IMGUI_IMPL_API LRESULT
@@ -25,82 +28,203 @@ UINT ResizeHeight{};
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 void Launcher::init() {
+  initWindow();
+  initImGui();
+  game_.init();
+}
+
+void Launcher::deinit() {
+  ImGui_ImplDX11_Shutdown();
+  ImGui_ImplWin32_Shutdown();
+  ImGui::DestroyContext();
+
+  CleanupDeviceD3D();
+  DestroyWindow(hwnd);
+  UnregisterClassW(wc.lpszClassName, wc.hInstance);
+}
+
+void Launcher::run() {
+  bool done = false;
+  while (!done) {
+    // Poll and handle messages (inputs, window resize, etc.)
+    // See the WndProc() function below for our to dispatch events to the Win32
+    // backend.
+    MSG msg;
+    while (PeekMessage(&msg, nullptr, 0U, 0U, PM_REMOVE)) {
+      TranslateMessage(&msg);
+      DispatchMessage(&msg);
+      if (msg.message == WM_QUIT) done = true;
+    }
+    if (done) break;
+
+    // Handle window being minimized or screen locked
+    if (SwapChainOccluded
+        && SwapChain->Present(0, DXGI_PRESENT_TEST) == DXGI_STATUS_OCCLUDED) {
+      Sleep(10);
+      continue;
+    }
+    SwapChainOccluded = false;
+
+    // Handle window resize (we don't resize directly in the WM_SIZE handler)
+    if (ResizeWidth != 0 && ResizeHeight != 0) {
+      CleanupRenderTarget();
+      SwapChain->ResizeBuffers(
+        0, ResizeWidth, ResizeHeight, DXGI_FORMAT_UNKNOWN, 0
+      );
+      ResizeWidth = ResizeHeight = 0;
+      CreateRenderTarget();
+    }
+
+    // Start the Dear ImGui frame
+    ImGui_ImplDX11_NewFrame();
+    ImGui_ImplWin32_NewFrame();
+    ImGui::NewFrame();
+
+    UI();
+
+    // Rendering
+    ImGui::Render();
+    ImVec4      clear_color               = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    float const clear_color_with_alpha[4] = {
+      clear_color.x * clear_color.w,
+      clear_color.y * clear_color.w,
+      clear_color.z * clear_color.w,
+      clear_color.w
+    };
+    d3dDeviceContext->OMSetRenderTargets(1, &mainRenderTargetView, nullptr);
+    d3dDeviceContext->ClearRenderTargetView(
+      mainRenderTargetView, clear_color_with_alpha
+    );
+    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+    // Present
+    HRESULT hr        = SwapChain->Present(1, 0);  // Present with vsync
+    SwapChainOccluded = (hr == DXGI_STATUS_OCCLUDED);
+  }
+}
+
+// void a() {
+//   auto process = libmem::FindProcess("Le03.exe");
+//
+//   if (!process) {
+//     logBuffer.println("Process not found");
+//     return SDL_APP_CONTINUE;
+//   }
+//
+//   if (auto result = getStackAddress(*process, tebData->StackLimit, combined))
+//   {
+//     logBuffer.println("Target address: {:#x}", *result);
+//   } else {
+//     logBuffer.println("Failed to get thread stack");
+//   }
+// }
+
+void Launcher::UI() {
+  ImGuiIO& io = ImGui::GetIO();
+  ImGui::SetNextWindowPos({}, ImGuiCond_Always);
+  ImGui::SetNextWindowSize(io.DisplaySize, ImGuiCond_Always);
+  auto flags = ImGuiWindowFlags_NoDecoration
+             | ImGuiWindowFlags_NoMove
+             | ImGuiWindowFlags_NoBringToFrontOnFocus
+             | ImGuiWindowFlags_NoSavedSettings;
+
+  ImGui::Begin("##Fullscreen", nullptr, flags);
+  ImGui::ShowDemoWindow();
+
+  if (ImGui::BeginTabBar("Main tab bar")) {
+    if (ImGui::BeginTabItem(l("UI", "game")))
+    {
+      ImGui::Text(l("UI", "le01_name"));
+      ImGui::Text(l("UI", "le02_name"));
+      ImGui::Text(l("UI", "le03_name"));
+      ImGui::Text(l("UI", "le04_name"));
+      ImGui::Text(l("UI", "uso_name"));
+      ImGui::EndTabItem();
+    }
+    if (ImGui::BeginTabItem(l("UI", "tool")))
+    {
+      ImGui::Text("Tool");
+      ImGui::EndTabItem();
+    }
+    if (ImGui::BeginTabItem(l("UI", "setting")))
+    {
+      ImGui::Text("Setting");
+      ImGui::EndTabItem();
+    }
+    ImGui::EndTabBar();
+  }
+
+  // ImGui::window
+
+  ImGui::End();
+}
+
+void Launcher::initWindow() {
   // Make process DPI aware and obtain main monitor scale
   ImGui_ImplWin32_EnableDpiAwareness();
   mainScale = ImGui_ImplWin32_GetDpiScaleForMonitor(
     MonitorFromPoint({}, MONITOR_DEFAULTTOPRIMARY)
   );
 
-  // Create application window
-  wc = {
+  auto hInstance = GetModuleHandle(nullptr);
+  wc             = {
     sizeof(wc),
     CS_CLASSDC,
     WndProc,
     0,
     0,
-    GetModuleHandle(nullptr),
-    nullptr,
+    hInstance,
+    LoadIcon(hInstance, MAKEINTRESOURCE(101)),
     nullptr,
     nullptr,
     nullptr,
     L"leprac",
-    nullptr
+    LoadIcon(hInstance, MAKEINTRESOURCE(101))
   };
-  RegisterClassExW(&wc);
-  hwnd = CreateWindowW(
+  RegisterClassEx(&wc);
+
+  // auto windowStyle = WS_POPUP | WS_THICKFRAME;
+  auto windowStyle = WS_TILEDWINDOW & ~WS_MAXIMIZEBOX;
+  RECT workArea{};
+  SystemParametersInfoW(SPI_GETWORKAREA, 0, &workArea, 0);
+  int screen_width  = workArea.right - workArea.left;
+  int screen_height = workArea.bottom - workArea.top;
+  int window_width  = static_cast<int>(1280 * mainScale);
+  int window_height = static_cast<int>(800 * mainScale);
+  int pos_x         = workArea.left + (screen_width - window_width) / 2;
+  int pos_y         = workArea.top + (screen_height - window_height) / 2;
+  hwnd              = CreateWindowW(
     wc.lpszClassName,
-    L"Dear ImGui DirectX11 Example",
-    WS_OVERLAPPEDWINDOW,
-    100,
-    100,
-    static_cast<int>(1280 * mainScale),
-    static_cast<int>(800 * mainScale),
+    L"leprac",
+    windowStyle,
+    pos_x,
+    pos_y,
+    window_width,
+    window_height,
     nullptr,
     nullptr,
     wc.hInstance,
     nullptr
   );
 
-  // auto windowStyle = WS_POPUP | WS_THICKFRAME;
-  // RECT workArea{};
-  // SystemParametersInfoW(SPI_GETWORKAREA, 0, &workArea, 0);
-  // int screen_width  = workArea.right - workArea.left;
-  // int screen_height = workArea.bottom - workArea.top;
-  // int window_width  = static_cast<int>(1280 * main_scale);
-  // int window_height = static_cast<int>(800 * main_scale);
-  // int pos_x = workArea.left + (screen_width - window_width) / 2;
-  // int pos_y = workArea.top + (screen_height - window_height) / 2;
-  // HWND hwnd = CreateWindowW(
-  //   wc.lpszClassName,
-  //   L"leprac",
-  //   windowStyle,
-  //   pos_x,
-  //   pos_y,
-  //   window_width,
-  //   window_height,
-  //   nullptr,
-  //   nullptr,
-  //   wc.hInstance,
-  //   nullptr
-  // );
-
   // Initialize Direct3D
   if (!CreateDeviceD3D(hwnd)) {
     CleanupDeviceD3D();
     UnregisterClassW(wc.lpszClassName, wc.hInstance);
-    throw std::exception("Failed to create device");
+    Logger::throwError("Failed to create device");
   }
 
   // Show the window
   ShowWindow(hwnd, SW_SHOWDEFAULT);
   UpdateWindow(hwnd);
+}
 
-  // Setup Dear ImGui context
+void Launcher::initImGui() {
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
-  ImGuiIO& io     = ImGui::GetIO();
-  // Enable Keyboard Controls
+  auto& io        = ImGui::GetIO();
   io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+  io.IniFilename  = nullptr;
 
   // Setup Dear ImGui style
   switch (Config::style()) {
@@ -108,20 +232,16 @@ void Launcher::init() {
   case Style::light  : ImGui::StyleColorsLight(); break;
   case Style::classic: ImGui::StyleColorsClassic(); break;
   case Style::custom:
-    // Logger::log(
-    //   Logger::Level::Warn,
-    //   "Custom is currently not supported. Fallback to Dark Mode."
-    // );
+    Logger::log(
+      Logger::Level::Warn,
+      "Custom is currently not supported. Fallback to Dark Mode."
+    );
     ImGui::StyleColorsDark();
   }
 
   // Setup scaling
   ImGuiStyle& style = ImGui::GetStyle();
-  // Bake a fixed style scale. (until we have a solution for dynamic style
-  // scaling, changing this requires resetting Style + calling this again)
   style.ScaleAllSizes(mainScale);
-  // Set initial font scale. (using io.ConfigDpiScaleFonts=true makes this
-  // unnecessary. We leave both here for documentation purpose)
   style.FontScaleDpi = mainScale;
 
   // Setup Platform/Renderer backends
@@ -145,142 +265,7 @@ void Launcher::init() {
   //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf");
   //IM_ASSERT(font != nullptr);
   // clang-format on
-
-  // Our state
-  ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
-  bool done = false;
-  while (!done) {
-    MSG msg;
-    while (::PeekMessage(&msg, nullptr, 0U, 0U, PM_REMOVE)) {
-      TranslateMessage(&msg);
-      DispatchMessage(&msg);
-      if (msg.message == WM_QUIT) done = true;
-    }
-    if (done) break;
-
-    if (SwapChainOccluded
-        && SwapChain->Present(0, DXGI_PRESENT_TEST) == DXGI_STATUS_OCCLUDED) {
-      Sleep(10);
-      continue;
-    }
-    SwapChainOccluded = false;
-
-    if (ResizeWidth != 0 && ResizeHeight != 0) {
-      CleanupRenderTarget();
-      SwapChain->ResizeBuffers(
-        0, ResizeWidth, ResizeHeight, DXGI_FORMAT_UNKNOWN, 0
-      );
-      ResizeWidth = ResizeHeight = 0;
-      CreateRenderTarget();
-    }
-
-    ImGui_ImplDX11_NewFrame();
-    ImGui_ImplWin32_NewFrame();
-    ImGui::NewFrame();
-
-    ImGuiIO& io = ImGui::GetIO();
-    ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
-    ImGui::SetNextWindowSize(io.DisplaySize, ImGuiCond_Always);
-    ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration
-                           | ImGuiWindowFlags_NoMove
-                           | ImGuiWindowFlags_NoBringToFrontOnFocus;
-
-    ImGui::Begin("##Fullscreen", nullptr, flags);
-    ImGui::Text("Overlay!");
-    ImGui::ShowDemoWindow();
-    ImGui::End();
-
-    ImGui::Render();
-
-    float const clear_color_with_alpha[4] = {
-      clear_color.x * clear_color.w,
-      clear_color.y * clear_color.w,
-      clear_color.z * clear_color.w,
-      clear_color.w
-    };
-    d3dDeviceContext->OMSetRenderTargets(1, &mainRenderTargetView, nullptr);
-    d3dDeviceContext->ClearRenderTargetView(
-      mainRenderTargetView, clear_color_with_alpha
-    );
-    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
-    HRESULT hr        = SwapChain->Present(1, 0);  // Present with vsync
-    SwapChainOccluded = (hr == DXGI_STATUS_OCCLUDED);
-  }
-}
-
-void Launcher::deinit() {
-  ImGui_ImplDX11_Shutdown();
-  ImGui_ImplWin32_Shutdown();
-  ImGui::DestroyContext();
-
-  CleanupDeviceD3D();
-  DestroyWindow(hwnd);
-  UnregisterClassW(wc.lpszClassName, wc.hInstance);
-}
-
-// void a() {
-//   ImGuiStyle& style = ImGui::GetStyle();
-//   style.ScaleAllSizes(1.5f);
-//
-//   UI::setImGuiFont();
-//
-//   auto process = libmem::FindProcess("Le03.exe");
-//
-//   if (!process) {
-//     logBuffer.println("Process not found");
-//     return SDL_APP_CONTINUE;
-//   }
-//
-//   if (auto result = getStackAddress(*process, tebData->StackLimit, combined))
-//   {
-//     logBuffer.println("Target address: {:#x}", *result);
-//   } else {
-//     logBuffer.println("Failed to get thread stack");
-//   }
-// }
-
-void Launcher::UI() {
-  // 1. 设置全局样式（可选，调整分割线、间距等）
-  ImGuiStyle& style             = ImGui::GetStyle();
-  style.ItemSpacing             = ImVec2(4, 4);  // 控件间距
-  style.FrameBorderSize         = 0.5f;          // 边框宽度
-  style.ItemInnerSpacing        = ImVec2(8, 4);  // 内部间距
-  style.SeparatorTextBorderSize = 0.5f;          // 分割线粗细
-
-  // 2. 开始一个无边框的全屏窗口（或你自己的窗口）
-  ImGui::Begin("##MainWindow", nullptr);
-
-  // 3. 顶部栏目（也可以用 MenuBar，或自定义一个子区域）
-  if (ImGui::BeginMenuBar()) {
-    ImGui::Text("🏠 首页");
-    ImGui::SameLine();
-    ImGui::Text("⚙️ 设置");
-    ImGui::SameLine();
-    ImGui::Text("❓ 帮助");
-    ImGui::EndMenuBar();
-  }
-
-  // 4. 留出一些垂直间距
-  ImGui::Dummy(ImVec2(0, 8));
-
-  // 5. 内容区域：一行行文本 + 细分割线
-  ImGui::BeginChild("ContentRegion", ImVec2(0, 0), false);
-  {
-    for (int i = 0; i < 20; ++i) {
-      ImGui::Text("这是第 %d 行内容，用于演示分割线", i + 1);
-
-      // 如果不是最后一行，画条细的横线做分割
-      if (i != 19) {
-        // 默认 Separator 已经很细，如需更细可自定义绘制
-        ImGui::Separator();
-      }
-    }
-  }
-  ImGui::EndChild();
-
-  ImGui::End();
+  UI::setImGuiFont();
 }
 
 // Helper functions

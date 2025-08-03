@@ -1,7 +1,6 @@
 module;
 #include <filesystem>
 #include <libmem/libmem.hpp>
-#include <string>
 #include <magic_enum/magic_enum_all.hpp>
 export module leprac.common;
 
@@ -35,6 +34,7 @@ enum class GameId {
 
 std::string to_utf8(std::wstring const &wstr);
 bool        is32bit(libmem::Process const &process);
+std::string timestamp();
 
 // void print_hex(std::vector<uint8_t> hex) {
 //   logBuffer.println("Data size: {} bytes:", hex.size());

@@ -30,22 +30,32 @@ std::string toProcessName(GameId game) {
   return std::format("{}.exe", me::enum_name(game));
 }
 
-std::vector<GameInfo> Game::detectRunningGame() {
-  std::vector<GameInfo> result;
+void Game::init() {}
+
+auto Game::getGameId() const { return gameId_; }
+
+auto Game::getProcess() const { return gameProcess_; }
+
+std::vector<GameId> Game::detectRunningGame() {
+  std::vector<GameId> result;
   me::enum_for_each<GameId>([&](auto val) {
     GameId gameId = val;
     if (auto process = libmem::FindProcess(toProcessName(gameId).c_str())) {
-      result.emplace_back(gameId, *process, *libmem::GetThread(&*process));
+      result.emplace_back(gameId);
     }
   });
   return result;
 }
 
 bool Game::completeGameInfo() {
-  auto main_thread = libmem::GetThread(&gameInfo_.process);
-  if (!main_thread) { return false; }
-  gameInfo_.main_thread = *main_thread;
-  return true;
+  if (auto process = libmem::FindProcess(toProcessName(gameId_).c_str())) {
+    gameProcess_ = *process;
+    return true;
+  }
+  Logger::log(
+    Logger::Level::Error, "{} process not found.", toProcessName(gameId_)
+  );
+  return false;
 }
 
 std::vector<std::wstring> getWindowTitles(libmem::Process const& process) {
@@ -92,12 +102,11 @@ std::optional<std::wstring> Game::getGameTitle(libmem::Process const& process) {
   return std::nullopt;
 }
 
-std::optional<TEB> getTEB(GameInfo gameInfo) {
-  Logger::log(Logger::Level::Error, "Tid: {}", gameInfo.main_thread.tid);
+std::optional<TEB> getTEB(libmem::Process const& process) {
+  libmem::Thread           mainThread = *libmem::GetThread(&process);
   THREAD_BASIC_INFORMATION tbi{};
 
-  auto hThread =
-    OpenThread(THREAD_QUERY_INFORMATION, FALSE, gameInfo.main_thread.tid);
+  auto hThread = OpenThread(THREAD_QUERY_INFORMATION, FALSE, mainThread.tid);
   if (!hThread) {
     Logger::log(
       Logger::Level::Error, "OpenThread failed, error: {}", GetLastError()
@@ -116,10 +125,10 @@ std::optional<TEB> getTEB(GameInfo gameInfo) {
     );
     return std::nullopt;
   }
-  Logger::log(Logger::Level::Error, "TEB Base Address: {}", tbi.TebBaseAddress);
+  Logger::log(Logger::Level::Debug, "TEB Base Address: {}", tbi.TebBaseAddress);
 
   auto tebData = libmem::ReadMemory<TEB>(
-    &gameInfo.process, reinterpret_cast<libmem::Address>(tbi.TebBaseAddress)
+    &process, reinterpret_cast<libmem::Address>(tbi.TebBaseAddress)
   );
   if (!tebData) {
     Logger::log(
@@ -129,8 +138,8 @@ std::optional<TEB> getTEB(GameInfo gameInfo) {
   }
   uint64_t stackBase  = tebData->StackBase;
   uint64_t stackLimit = tebData->StackLimit;
-  Logger::log(Logger::Level::Error, "StackBase: {:#x}", stackBase);
-  Logger::log(Logger::Level::Error, "StackLimit: {:#x}", stackLimit);
+  Logger::log(Logger::Level::Debug, "StackBase: {:#x}", stackBase);
+  Logger::log(Logger::Level::Debug, "StackLimit: {:#x}", stackLimit);
   return tebData;
 }
 

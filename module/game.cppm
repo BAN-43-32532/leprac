@@ -10,23 +10,20 @@ import leprac.logger;
 import leprac.common;
 
 export namespace leprac {
-struct GameInfo {
-  GameId          id;
-  libmem::Process process;
-  libmem::Thread  main_thread;
-};
-
-std::string toProcessName(GameId game);
+// struct GameInfo {
+//   GameId          gameId_;
+//   libmem::Process gameProcess_;
+//   libmem::Thread  main_thread;
+// };
 
 class Game {
  public:
   void init();
 
-  [[nodiscard]] auto getGameId() const { return gameInfo_.id; }
+  [[nodiscard]] auto getGameId() const;
+  [[nodiscard]] auto getProcess() const;
 
-  [[nodiscard]] auto getProcess() const { return gameInfo_.process; }
-
-  static std::vector<GameInfo> detectRunningGame();
+  static std::vector<GameId> detectRunningGame();
 
  private:
   bool                           completeGameInfo();
@@ -39,6 +36,7 @@ class Game {
 
   std::vector<uint8_t> getStackSignature(libmem::Process const &process);
 
-  GameInfo gameInfo_;
+  GameId          gameId_{};
+  std::optional<libmem::Process> gameProcess_;
 };
 }  // namespace leprac
