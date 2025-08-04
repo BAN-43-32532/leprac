@@ -1,13 +1,13 @@
-module;
+#ifndef LOGGER_H
+#define LOGGER_H
 #include <format>
 #include <fstream>
 #include <ostream>
 #include <Windows.h>
-export module leprac.logger;
 
-import leprac.common;
+#include "common.h"
 
-export namespace leprac {
+namespace leprac {
 class Logger {
  public:
   Logger() = delete;
@@ -86,3 +86,4 @@ class ConsoleManager {
  private:
   static inline bool attached_ = false;
 };
+#endif

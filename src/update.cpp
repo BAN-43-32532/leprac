@@ -1,12 +1,10 @@
-module;
+#include "update.h"
+
 #include <curl/curl.h>
 #include <iostream>
 #include <nlohmann/json.hpp>
 
-module leprac.update;
-
-import leprac.common;
-// import nlohmann.json;
+#include "common.h"
 
 namespace leprac {
 using json = nlohmann::json;

@@ -1,9 +1,9 @@
-module;
+#include "common.h"
+
 #include <chrono>
 #include <format>
 #include <string>
 #include <Windows.h>
-module leprac.common;
 
 namespace leprac {
 std::string to_utf8(std::wstring const& wstr) {

@@ -1,14 +1,12 @@
-module;
+#ifndef CONFIG_H
+#define CONFIG_H
 #include <string>
+#include <toml.hpp>
 #include <vector>
 
-#include <toml.hpp>
+#include "common.h"
 
-export module leprac.config;
-
-import leprac.common;
-
-export namespace leprac {
+namespace leprac {
 class Config {
  public:
   Config() = delete;
@@ -70,3 +68,4 @@ class Config {
   static void syncDebug();
 };
 }  // namespace leprac
+#endif

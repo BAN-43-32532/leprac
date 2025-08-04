@@ -1,11 +1,10 @@
-module;
+#include "config.h"
+
 #include <magic_enum/magic_enum_all.hpp>
 #include <ranges>
 #include <toml.hpp>
-module leprac.config;
-import leprac.logger;
 
-// import magic_enum;
+#include "logger.h"
 
 namespace leprac {
 namespace {
@@ -49,9 +48,7 @@ void Config::init() {
   load();
 }
 
-void Config::deinit() {
-  Logger::debug("Config deinit (no work to do)");
-}
+void Config::deinit() { Logger::debug("Config deinit (no work to do)"); }
 
 void Config::sync() {
   syncLang();

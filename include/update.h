@@ -1,9 +1,8 @@
-module;
+#ifndef UPDATE_H
+#define UPDATE_H
 #include <string>
 
-export module leprac.update;
-
-export namespace leprac {
+namespace leprac {
 class Update {
  public:
   static void checkForUpdate();
@@ -14,5 +13,5 @@ class Update {
   static void
   notifyUpdate(std::string const& latestVersion, std::string const& url);
 };
-
 }  // namespace leprac
+#endif

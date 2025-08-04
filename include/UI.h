@@ -1,12 +1,12 @@
-module;
+#ifndef UI_H
+#define UI_H
 #include <imgui.h>
 #include <utility>
 
-export module leprac.UI;
-import leprac.common;
-import leprac.logger;
+#include "common.h"
+#include "logger.h"
 
-export namespace leprac {
+namespace leprac {
 class UI {
  public:
   // private:
@@ -74,3 +74,4 @@ class UI {
 //   return false;
 // }
 }  // namespace leprac
+#endif

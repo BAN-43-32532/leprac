@@ -1,5 +1,4 @@
-module;
-module leprac.UI;
+#include "UI.h"
 
 namespace leprac {
 ;

@@ -1,12 +1,10 @@
-module;
+#ifndef COMMON_H
+#define COMMON_H
 #include <filesystem>
 #include <libmem/libmem.hpp>
 #include <magic_enum/magic_enum_all.hpp>
-export module leprac.common;
 
-// import magic_enum;
-
-export namespace leprac {
+namespace leprac {
 namespace fs     = std::filesystem;
 namespace ranges = std::ranges;
 namespace me     = magic_enum;
@@ -49,3 +47,4 @@ std::string timestamp();
 //   logBuffer.flush();
 // }
 }  // namespace leprac
+#endif

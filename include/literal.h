@@ -1,13 +1,14 @@
-module;
+#ifndef LITERAL_H
+#define LITERAL_H
 #include <magic_enum/magic_enum_all.hpp>
 #include <toml.hpp>
-export module leprac.literal;
-import leprac.common;
-import leprac.asset;
-import leprac.config;
-import leprac.logger;
 
-export namespace leprac {
+#include "asset.h"
+#include "common.h"
+#include "config.h"
+#include "logger.h"
+
+namespace leprac {
 template<class... Keys>
 requires(std::convertible_to<Keys, std::string_view> && ...)
 char const* l(Keys const&... keys) {
@@ -39,3 +40,4 @@ char const* l(Keys const&... keys) {
   return p->at("en").as_string().c_str();
 }
 }  // namespace leprac
+#endif

@@ -4,19 +4,16 @@ project(leprac LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $<1:${CMAKE_BINARY_DIR}/bin>)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY $<1:${CMAKE_BINARY_DIR}/bin>)
-#set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY $<1:${CMAKE_BINARY_DIR}/bin>)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 file(GLOB SRC CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/src/*.cpp)
 add_executable(leprac WIN32 ${SRC})
 
-file(GLOB MODULE CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/module/*.cppm)
-target_sources(leprac PUBLIC FILE_SET CXX_MODULES FILES ${MODULE})
-
 set(EXT_DIR ${CMAKE_SOURCE_DIR}/external)
 
-target_include_directories(leprac PRIVATE ${EXT_DIR})
+target_include_directories(leprac PRIVATE ${EXT_DIR} ${CMAKE_SOURCE_DIR}/include)
 set(WINDLL d3d11 dxgi dxguid ntdll)
 target_link_libraries(leprac PRIVATE ${WINDLL})
 target_compile_options(leprac PRIVATE /utf-8)
@@ -38,6 +35,7 @@ macro(external)
 endmacro()
 
 function(add_curl)
+    set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
     set(ENABLE_CURL_MANUAL OFF CACHE BOOL "" FORCE)
     set(BUILD_LIBCURL_DOCS OFF CACHE BOOL "" FORCE)
     set(BUILD_CURL_EXE OFF CACHE BOOL "" FORCE)
@@ -74,10 +72,8 @@ function(add_imgui)
 endfunction()
 
 function(add_json)
-#    set(NLOHMANN_JSON_BUILD_MODULES ON CACHE BOOL "" FORCE)
     add_subdirectory(${EXT_DIR}/json)
     target_link_libraries(leprac PRIVATE nlohmann_json::nlohmann_json)
-#    target_link_libraries(leprac PRIVATE nlohmann_json_modules)
 
 endfunction()
 
@@ -97,8 +93,6 @@ endfunction()
 
 function(add_magic_enum)
     target_include_directories(leprac PRIVATE ${EXT_DIR}/magic_enum/include)
-#    target_sources(leprac PUBLIC FILE_SET CXX_MODULES FILES
-#            ${EXT_DIR}/magic_enum/module/magic_enum.cppm)
 endfunction()
 
 function(add_minhook)

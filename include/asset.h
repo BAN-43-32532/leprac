@@ -1,9 +1,10 @@
-module;
+#ifndef ASSET_H
+#define ASSET_H
 #include <toml.hpp>
-export module leprac.asset;
-import leprac.common;
 
-export namespace leprac {
+#include "common.h"
+
+namespace leprac {
 class Asset {
  public:
   Asset() = delete;
@@ -33,3 +34,4 @@ class Asset {
   static inline std::unordered_map<GameId, toml::value> pattern_;
 };
 }  // namespace leprac
+#endif

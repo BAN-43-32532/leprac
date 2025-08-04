@@ -1,9 +1,9 @@
 #include <Windows.h>
 
-import leprac.logger;
-import leprac.asset;
-import leprac.config;
-import leprac.launcher;
+#include "asset.h"
+#include "config.h"
+#include "launcher.h"
+#include "logger.h"
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
   leprac::Logger::init();

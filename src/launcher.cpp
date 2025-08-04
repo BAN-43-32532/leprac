@@ -1,20 +1,18 @@
-module;
+#include "launcher.h"
+
 #include <backends/imgui_impl_dx11.h>
 #include <backends/imgui_impl_win32.h>
 #include <d3d11.h>
-#include <exception>
 #include <imgui.h>
-#include <string>
-// Why will build fail if I include unordered_map?? TODO
-#include <unordered_map>
 #include <Windows.h>
-module leprac.launcher;
-import leprac.config;
-import leprac.common;
-import leprac.logger;
-import leprac.literal;
-import leprac.asset;
-import leprac.UI;
+#include <unordered_map>
+
+#include "asset.h"
+#include "common.h"
+#include "config.h"
+#include "literal.h"
+#include "logger.h"
+#include "UI.h"
 
 // Forward declare message handler from imgui_impl_win32.cpp
 extern IMGUI_IMPL_API LRESULT
@@ -134,29 +132,20 @@ void Launcher::UI() {
   ImGui::ShowDemoWindow();
 
   if (ImGui::BeginTabBar("Main tab bar")) {
-    if (ImGui::BeginTabItem(l("UI", "game")))
-    {
-      // std::unordered_map<GameId, bool> gameSelected;
-      bool gameSelected[5];
-      // ImGui::Selectable(l("UI", "le01_name"), &gameSelected[GameId::Le01]);
-      // ImGui::Selectable(l("UI", "le02_name"), &gameSelected[GameId::Le02]);
-      // ImGui::Selectable(l("UI", "le03_name"), &gameSelected[GameId::Le03]);
-      // ImGui::Selectable(l("UI", "le04_name"), &gameSelected[GameId::Le04]);
-      // ImGui::Selectable(l("UI", "uso_name"), &gameSelected[GameId::Uso]);
-      ImGui::Selectable(l("UI", "le01_name"), &gameSelected[0]);
-      ImGui::Selectable(l("UI", "le02_name"), &gameSelected[1]);
-      ImGui::Selectable(l("UI", "le03_name"), &gameSelected[2]);
-      ImGui::Selectable(l("UI", "le04_name"), &gameSelected[3]);
-      ImGui::Selectable(l("UI", "uso_name"), &gameSelected[4]);
+    if (ImGui::BeginTabItem(l("UI", "game"))) {
+      std::unordered_map<GameId, bool> gameSelected;
+      ImGui::Selectable(l("UI", "le01_name"), &gameSelected[GameId::Le01]);
+      ImGui::Selectable(l("UI", "le02_name"), &gameSelected[GameId::Le02]);
+      ImGui::Selectable(l("UI", "le03_name"), &gameSelected[GameId::Le03]);
+      ImGui::Selectable(l("UI", "le04_name"), &gameSelected[GameId::Le04]);
+      ImGui::Selectable(l("UI", "uso_name"), &gameSelected[GameId::Uso]);
       ImGui::EndTabItem();
     }
-    if (ImGui::BeginTabItem(l("UI", "tool")))
-    {
+    if (ImGui::BeginTabItem(l("UI", "tool"))) {
       ImGui::Text("Tool");
       ImGui::EndTabItem();
     }
-    if (ImGui::BeginTabItem(l("UI", "setting")))
-    {
+    if (ImGui::BeginTabItem(l("UI", "setting"))) {
       ImGui::Text("Setting");
       ImGui::EndTabItem();
     }

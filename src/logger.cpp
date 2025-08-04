@@ -1,13 +1,12 @@
-module;
+#include "logger.h"
+
 #include <algorithm>
-#include <chrono>
 #include <filesystem>
 #include <magic_enum/magic_enum_all.hpp>
 #include <ostream>
-module leprac.logger;
-import leprac.common;
-// import magic_enum;
-import leprac.config;
+
+#include "common.h"
+#include "config.h"
 
 namespace leprac {
 namespace {

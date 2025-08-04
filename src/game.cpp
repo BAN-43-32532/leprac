@@ -1,13 +1,11 @@
-module;
+#include "game.h"
+
 #include <format>
 #include <libmem/libmem.hpp>
 #include <magic_enum/magic_enum_all.hpp>
 #include <optional>
 #include <Windows.h>
 #include <winternl.h>
-module leprac.game;
-
-// import magic_enum;
 
 namespace leprac {
 struct THREAD_BASIC_INFORMATION {

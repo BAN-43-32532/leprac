@@ -1,21 +1,13 @@
-module;
-
+#ifndef GAME_H
+#define GAME_H
 #include <libmem/libmem.hpp>
 #include <string>
 #include <vector>
 
-export module leprac.game;
+#include "common.h"
+#include "logger.h"
 
-import leprac.logger;
-import leprac.common;
-
-export namespace leprac {
-// struct GameInfo {
-//   GameId          gameId_;
-//   libmem::Process gameProcess_;
-//   libmem::Thread  main_thread;
-// };
-
+namespace leprac {
 class Game {
  public:
   void init();
@@ -36,7 +28,8 @@ class Game {
 
   std::vector<uint8_t> getStackSignature(libmem::Process const &process);
 
-  GameId          gameId_{};
+  GameId                         gameId_{};
   std::optional<libmem::Process> gameProcess_;
 };
 }  // namespace leprac
+#endif

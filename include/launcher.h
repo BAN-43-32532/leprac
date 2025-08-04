@@ -1,10 +1,11 @@
-module;
+#ifndef LAUNCHER_H
+#define LAUNCHER_H
 #include <d3d11.h>
 #include <Windows.h>
-export module leprac.launcher;
-import leprac.game;
 
-export namespace leprac {
+#include "game.h"
+
+namespace leprac {
 class Launcher {
  public:
   static void init();
@@ -36,3 +37,4 @@ class Launcher {
   static inline float mainScale{1};
 };
 }  // namespace leprac
+#endif
