@@ -39,7 +39,7 @@ jobs:
     - name: Collect artifacts
       run: |
         mkdir artifacts
-        copy "build\bin\leprac.exe" artifacts
+        copy "build\bin\Release\leprac.exe" artifacts
       shell: cmd
 
     - name: Upload artifacts
