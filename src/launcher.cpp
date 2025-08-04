@@ -5,6 +5,8 @@ module;
 #include <exception>
 #include <imgui.h>
 #include <string>
+// Why will build fail if I include unordered_map?? TODO
+#include <unordered_map>
 #include <Windows.h>
 module leprac.launcher;
 import leprac.config;
@@ -134,11 +136,18 @@ void Launcher::UI() {
   if (ImGui::BeginTabBar("Main tab bar")) {
     if (ImGui::BeginTabItem(l("UI", "game")))
     {
-      ImGui::Text(l("UI", "le01_name"));
-      ImGui::Text(l("UI", "le02_name"));
-      ImGui::Text(l("UI", "le03_name"));
-      ImGui::Text(l("UI", "le04_name"));
-      ImGui::Text(l("UI", "uso_name"));
+      // std::unordered_map<GameId, bool> gameSelected;
+      bool gameSelected[5];
+      // ImGui::Selectable(l("UI", "le01_name"), &gameSelected[GameId::Le01]);
+      // ImGui::Selectable(l("UI", "le02_name"), &gameSelected[GameId::Le02]);
+      // ImGui::Selectable(l("UI", "le03_name"), &gameSelected[GameId::Le03]);
+      // ImGui::Selectable(l("UI", "le04_name"), &gameSelected[GameId::Le04]);
+      // ImGui::Selectable(l("UI", "uso_name"), &gameSelected[GameId::Uso]);
+      ImGui::Selectable(l("UI", "le01_name"), &gameSelected[0]);
+      ImGui::Selectable(l("UI", "le02_name"), &gameSelected[1]);
+      ImGui::Selectable(l("UI", "le03_name"), &gameSelected[2]);
+      ImGui::Selectable(l("UI", "le04_name"), &gameSelected[3]);
+      ImGui::Selectable(l("UI", "uso_name"), &gameSelected[4]);
       ImGui::EndTabItem();
     }
     if (ImGui::BeginTabItem(l("UI", "tool")))
@@ -189,8 +198,8 @@ void Launcher::initWindow() {
   SystemParametersInfoW(SPI_GETWORKAREA, 0, &workArea, 0);
   int screen_width  = workArea.right - workArea.left;
   int screen_height = workArea.bottom - workArea.top;
-  int window_width  = static_cast<int>(1280 * mainScale);
-  int window_height = static_cast<int>(800 * mainScale);
+  int window_width  = static_cast<int>(720 * mainScale);
+  int window_height = static_cast<int>(960 * mainScale);
   int pos_x         = workArea.left + (screen_width - window_width) / 2;
   int pos_y         = workArea.top + (screen_height - window_height) / 2;
   hwnd              = CreateWindowW(

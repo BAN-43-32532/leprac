@@ -11,7 +11,7 @@ export namespace leprac {
 template<class... Keys>
 requires(std::convertible_to<Keys, std::string_view> && ...)
 char const* l(Keys const&... keys) {
-  auto p = &Asset::literal();
+  auto        p = &Asset::literal();
   std::string tag{((std::string(keys) + ".") + ...)};
   try {
     // clang-format off
@@ -19,7 +19,8 @@ char const* l(Keys const&... keys) {
     // clang-format on
   } catch (std::exception const& e) {
     Logger::error("Literal {} not found ({})", tag, e.what());
-    return tag.c_str();
+    return "error";
+    // return tag.c_str();
   }
   std::string lang{"en"};
   if (Config::lang()) switch (Config::lang().value()) {
@@ -31,14 +32,10 @@ char const* l(Keys const&... keys) {
   // std::string lang{me::enum_name(Config::lang().value())};
 
   if (p->contains(lang)) {
-    if (auto const& str = p->at(lang).as_string(); !str.empty()) return str.c_str();
+    if (auto const& str = p->at(lang).as_string(); !str.empty())
+      return str.c_str();
   }
-  Logger::log(
-    Logger::Level::Warn,
-    "Literal {} in \"{}\" not set. Fallback to English.",
-    tag,
-    lang
-  );
+  Logger::warn("Literal {} in \"{}\" not set. Fallback to English.", tag, lang);
   return p->at("en").as_string().c_str();
 }
 }  // namespace leprac
