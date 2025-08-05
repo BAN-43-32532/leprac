@@ -36,12 +36,11 @@ auto Game::getProcess() const { return gameProcess_; }
 
 std::vector<GameId> Game::detectRunningGame() {
   std::vector<GameId> result;
-  me::enum_for_each<GameId>([&](auto val) {
-    GameId gameId = val;
+  for (auto gameId: me::enum_values<GameId>()) {
     if (auto process = libmem::FindProcess(toProcessName(gameId).c_str())) {
       result.emplace_back(gameId);
     }
-  });
+  }
   return result;
 }
 

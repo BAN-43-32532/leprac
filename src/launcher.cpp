@@ -4,8 +4,8 @@
 #include <backends/imgui_impl_win32.h>
 #include <d3d11.h>
 #include <imgui.h>
-#include <Windows.h>
 #include <unordered_map>
+#include <Windows.h>
 
 #include "asset.h"
 #include "common.h"
@@ -128,32 +128,31 @@ void Launcher::UI() {
              | ImGuiWindowFlags_NoBringToFrontOnFocus
              | ImGuiWindowFlags_NoSavedSettings;
 
-  ImGui::Begin("##Fullscreen", nullptr, flags);
+  ImGui::Begin("###Fullscreen", nullptr, flags);
   ImGui::ShowDemoWindow();
 
   if (ImGui::BeginTabBar("Main tab bar")) {
-    if (ImGui::BeginTabItem(l("UI", "game"))) {
+    if (ImGui::BeginTabItem(lbl("UI", "game"))) {
       std::unordered_map<GameId, bool> gameSelected;
-      ImGui::Selectable(l("UI", "le01_name"), &gameSelected[GameId::Le01]);
-      ImGui::Selectable(l("UI", "le02_name"), &gameSelected[GameId::Le02]);
-      ImGui::Selectable(l("UI", "le03_name"), &gameSelected[GameId::Le03]);
-      ImGui::Selectable(l("UI", "le04_name"), &gameSelected[GameId::Le04]);
-      ImGui::Selectable(l("UI", "uso_name"), &gameSelected[GameId::Uso]);
+
+      ImGui::Selectable(lbl("UI", "le01_name"), &gameSelected[GameId::Le01]);
+      ImGui::Selectable(lbl("UI", "le02_name"), &gameSelected[GameId::Le02]);
+      ImGui::Selectable(lbl("UI", "le03_name"), &gameSelected[GameId::Le03]);
+      ImGui::Selectable(lbl("UI", "le04_name"), &gameSelected[GameId::Le04]);
+      ImGui::Selectable(lbl("UI", "uso_name"), &gameSelected[GameId::Uso]);
       ImGui::EndTabItem();
     }
-    if (ImGui::BeginTabItem(l("UI", "tool"))) {
+    if (ImGui::BeginTabItem(lbl("UI", "tool"))) {
       ImGui::Text("Tool");
       ImGui::EndTabItem();
     }
-    if (ImGui::BeginTabItem(l("UI", "setting"))) {
-      ImGui::Text("Setting");
+    if (ImGui::BeginTabItem(lbl("UI", "setting"))) {
+      UI::StyleSelect();
+      UI::LangSelect();
       ImGui::EndTabItem();
     }
     ImGui::EndTabBar();
   }
-
-  // ImGui::window
-
   ImGui::End();
 }
 
@@ -246,23 +245,25 @@ void Launcher::initImGui() {
   ImGui_ImplWin32_Init(hwnd);
   ImGui_ImplDX11_Init(d3dDevice, d3dDeviceContext);
 
-  // clang-format off
-  // Load Fonts
-  // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
-  // - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
-  // - If the file cannot be loaded, the function will return a nullptr. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
-  // - Use '#define IMGUI_ENABLE_FREETYPE' in your imconfig file to use Freetype for higher quality font rendering.
-  // - Read 'docs/FONTS.md' for more instructions and details.
-  // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
-  //style.FontSizeBase = 20.0f;
-  //io.Fonts->AddFontDefault();
-  //io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\segoeui.ttf");
-  //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf");
-  //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf");
-  //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf");
-  //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf");
-  //IM_ASSERT(font != nullptr);
-  // clang-format on
+  // If no fonts are loaded, dear imgui will use the default font.
+  // You can also load multiple fonts
+  // and use ImGui::PushFont()/PopFont() to select them.
+  // AddFontFromFileTTF() will return the ImFont*
+  // so you can store it if you need to select the font among multiple.
+  // If the file cannot be loaded, the function will return a nullptr.
+  // Please handle those errors in your application (e.g. use an assertion,
+  // or display an error and quit).
+  // Use '#define IMGUI_ENABLE_FREETYPE' in your imconfig file
+  // to use Freetype for higher quality font rendering.
+  // Read 'docs/FONTS.md' for more instructions and details.
+  style.FontSizeBase = 20.0f;
+  io.Fonts->AddFontDefault();
+  io.Fonts->AddFontFromFileTTF("C:/Windows/Fonts/segoeui.ttf");
+  // io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf");
+  // io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf");
+  // io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf");
+  ImFont* font = io.Fonts->AddFontFromFileTTF("C:/Windows/Fonts/ArialUni.ttf");
+  IM_ASSERT(font != nullptr);
   UI::setImGuiFont();
 }
 

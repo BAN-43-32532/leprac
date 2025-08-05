@@ -65,8 +65,8 @@ void Config::load() {
     // If lang is not specified of is illegal, lang_ remains unchanged. lang_ is
     // initialized std::nullopt. In this case, leprac prompts to ask which
     // language user chooses
-    auto lang = toml::find_or(tomlValue_, keyLang, "");
-    lang_     = me::enum_cast<Lang>(lang);
+    auto lang = toml::find_or(tomlValue_, keyLang, "unk");
+    lang_     = me::enum_cast<Lang>(lang).value_or(lang_);
 
     auto style = toml::find_or(tomlValue_, keyStyle, "dark");
     style_     = me::enum_cast<Style>(style).value_or(style_);
@@ -77,10 +77,9 @@ void Config::load() {
       toml::find_or(tomlValue_, keyFonts, std::vector<std::string>{});
 
     auto pathValue = tomlValue_[keyGamePath];
-    magic_enum::enum_for_each<GameId>([&](auto val) {
-      constexpr GameId gameId = val;
+    for (auto gameId: me::enum_values<GameId>()) {
       pathGame_[gameId] = toml::find_or(pathValue, me::enum_name(gameId), "");
-    });
+    }
   }
 }
 
@@ -117,22 +116,15 @@ void Config::save() {
   }
 }
 
-void Config::syncLang() {
-  if (lang_) {
-    tomlValue_[keyLang] = me::enum_name(*lang_);
-  } else {
-    tomlValue_[keyLang] = "";
-  }
-}
+void Config::syncLang() { tomlValue_[keyLang] = me::enum_name(lang_); }
 
 void Config::syncStyle() { tomlValue_[keyStyle] = me::enum_name(style_); }
 
 void Config::syncPathGame() {
   auto& pathValue = tomlValue_[keyGamePath];
-  me::enum_for_each<GameId>([&](auto val) {
-    constexpr GameId gameId                       = val;
+  for (auto gameId: me::enum_values<GameId>()) {
     pathValue[std::string{me::enum_name(gameId)}] = pathGame_[gameId];
-  });
+  }
 }
 
 void Config::syncPathFonts() { tomlValue_[keyFonts] = pathFonts_; }

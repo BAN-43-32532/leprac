@@ -198,10 +198,10 @@ en = "Setting"
 zh = "设置"
 ja = "設定"
 
-[UI.setting.theme]
-en = "Theme"
-zh = "主题"
-ja = "テーマ"
+[UI.setting.style]
+en = "Style"
+zh = "风格"
+ja = "スタイル"
 
 [UI.setting.resize_enable]
 en = "Resizable game window"
@@ -237,7 +237,7 @@ ja = "連縁霊烈傳　～ Reactivate Majestical Imperial"
 
 [UI.le04_name]
 en = "Len'en Ten'eisenki ~ Brilliant Pagoda or Haze Castle"
-zh = "	连缘天影战记 ～ Brilliant Pagoda or Haze Castle"
+zh = "连缘天影战记 ～ Brilliant Pagoda or Haze Castle"
 ja = "連縁天影戦記　～ Brilliant Pagoda or Haze Castle"
 
 [UI.uso_name]

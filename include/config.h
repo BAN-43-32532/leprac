@@ -55,7 +55,7 @@ class Config {
  private:
   static inline toml::value tomlValue_;
 
-  static inline std::optional<Lang>                     lang_{};
+  static inline Lang                                    lang_{Lang::en};
   static inline Style                                   style_{Style::dark};
   static inline std::unordered_map<GameId, std::string> pathGame_{};
   static inline std::vector<std::string>                pathFonts_{};
