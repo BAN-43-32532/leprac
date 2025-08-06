@@ -7,24 +7,27 @@
 #define ASSET_PATH2(rel1, rel2) "asset/" #rel1 "/" #rel2 ".toml"
 
 namespace leprac {
-void Asset::init() { load(); }
+void Asset::init() {
+  Logger::info("Asset init");
+  load();
+}
 
 void Asset::load() {
   address_ = toml::parse_str(b::embed<ASSET_PATH(address)>().str());
   literal_ = toml::parse_str(b::embed<ASSET_PATH(literal)>().str());
   version_ = toml::parse_str(b::embed<ASSET_PATH(version)>().str());
 
-  frame_[GameId::Le01] =
+  frame_[Game::ID::Le01] =
     toml::parse_str(b::embed<ASSET_PATH2(le01, frame)>().str());
-  pattern_[GameId::Le01] =
+  pattern_[Game::ID::Le01] =
     toml::parse_str(b::embed<ASSET_PATH2(le01, pattern)>().str());
-  frame_[GameId::Le02] =
+  frame_[Game::ID::Le02] =
     toml::parse_str(b::embed<ASSET_PATH2(le02, frame)>().str());
-  pattern_[GameId::Le02] =
+  pattern_[Game::ID::Le02] =
     toml::parse_str(b::embed<ASSET_PATH2(le02, pattern)>().str());
-  frame_[GameId::Le03] =
+  frame_[Game::ID::Le03] =
     toml::parse_str(b::embed<ASSET_PATH2(le03, frame)>().str());
-  pattern_[GameId::Le03] =
+  pattern_[Game::ID::Le03] =
     toml::parse_str(b::embed<ASSET_PATH2(le03, pattern)>().str());
 }
 }  // namespace leprac

@@ -23,20 +23,20 @@ struct TEB {
   uint64_t StackLimit;
 };
 
-std::string toProcessName(GameId game) {
+std::string toProcessName(Game::ID game) {
   // TODO: Confirm if the names are correct
   return std::format("{}.exe", me::enum_name(game));
 }
 
 void Game::init() {}
 
-auto Game::getGameId() const { return gameId_; }
+auto Game::getID() const { return gameId_; }
 
-auto Game::getProcess() const { return gameProcess_; }
+auto Game::process() const { return gameProcess_; }
 
-std::vector<GameId> Game::detectRunningGame() {
-  std::vector<GameId> result;
-  for (auto gameId: me::enum_values<GameId>()) {
+std::vector<Game::ID> Game::detectRunningGames() {
+  std::vector<ID> result;
+  for (auto gameId: me::enum_values<ID>()) {
     if (auto process = libmem::FindProcess(toProcessName(gameId).c_str())) {
       result.emplace_back(gameId);
     }
@@ -49,9 +49,7 @@ bool Game::completeGameInfo() {
     gameProcess_ = *process;
     return true;
   }
-  Logger::log(
-    Logger::Level::Error, "{} process not found.", toProcessName(gameId_)
-  );
+  Logger::error("{} process not found.", toProcessName(gameId_));
   return false;
 }
 
@@ -87,15 +85,13 @@ std::vector<std::wstring> getWindowTitles(libmem::Process const& process) {
 std::optional<std::wstring> Game::getGameTitle(libmem::Process const& process) {
   auto titles = getWindowTitles(process);
   if (titles.empty()) {
-    Logger::log(
-      Logger::Level::Error, "No windows found for PID: {}", process.pid
-    );
+    Logger::error("No windows found for PID: {}", process.pid);
     return std::nullopt;
   }
   for (auto const& title: titles) {
     if (title.contains(L".ver")) { return title; }
   }
-  Logger::log(Logger::Level::Error, "No window seems to be the game");
+  Logger::error("No window seems to be the game");
   return std::nullopt;
 }
 
@@ -105,9 +101,7 @@ std::optional<TEB> getTEB(libmem::Process const& process) {
 
   auto hThread = OpenThread(THREAD_QUERY_INFORMATION, FALSE, mainThread.tid);
   if (!hThread) {
-    Logger::log(
-      Logger::Level::Error, "OpenThread failed, error: {}", GetLastError()
-    );
+    Logger::error("OpenThread failed, error: {}", GetLastError());
     return std::nullopt;
   }
   auto status = NtQueryInformationThread(
@@ -115,28 +109,22 @@ std::optional<TEB> getTEB(libmem::Process const& process) {
   );
   CloseHandle(hThread);
   if (status != 0) {
-    Logger::log(
-      Logger::Level::Error,
-      "NtQueryInformationThread failed with status: {:#x}",
-      status
-    );
+    Logger::error("NtQueryInformationThread failed with status: {:#x}", status);
     return std::nullopt;
   }
-  Logger::log(Logger::Level::Debug, "TEB Base Address: {}", tbi.TebBaseAddress);
+  Logger::debug("TEB Base Address: {}", tbi.TebBaseAddress);
 
   auto tebData = libmem::ReadMemory<TEB>(
     &process, reinterpret_cast<libmem::Address>(tbi.TebBaseAddress)
   );
   if (!tebData) {
-    Logger::log(
-      Logger::Level::Error, "ReadMemory failed, error: {}", GetLastError()
-    );
+    Logger::error("ReadMemory failed, error: {}", GetLastError());
     return std::nullopt;
   }
   uint64_t stackBase  = tebData->StackBase;
   uint64_t stackLimit = tebData->StackLimit;
-  Logger::log(Logger::Level::Debug, "StackBase: {:#x}", stackBase);
-  Logger::log(Logger::Level::Debug, "StackLimit: {:#x}", stackLimit);
+  Logger::debug("StackBase: {:#x}", stackBase);
+  Logger::debug("StackLimit: {:#x}", stackLimit);
   return tebData;
 }
 
@@ -187,9 +175,7 @@ std::optional<libmem::Address> Game::getStackAddress(
       base    = reinterpret_cast<uint64_t>(mbi.BaseAddress) + mbi.RegionSize;
       offset += mbi.RegionSize;
     } else {
-      Logger::log(
-        Logger::Level::Error, "VirtualQueryEx failed: {}", GetLastError()
-      );
+      Logger::error("VirtualQueryEx failed: {}", GetLastError());
       CloseHandle(hProcess);
       return std::nullopt;
     }

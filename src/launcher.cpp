@@ -8,7 +8,6 @@
 #include <Windows.h>
 
 #include "asset.h"
-#include "common.h"
 #include "config.h"
 #include "literal.h"
 #include "logger.h"
@@ -133,13 +132,13 @@ void Launcher::UI() {
 
   if (ImGui::BeginTabBar("Main tab bar")) {
     if (ImGui::BeginTabItem(lbl("UI", "game"))) {
-      std::unordered_map<GameId, bool> gameSelected;
+      std::unordered_map<Game::ID, bool> gameSelected;
 
-      ImGui::Selectable(lbl("UI", "le01_name"), &gameSelected[GameId::Le01]);
-      ImGui::Selectable(lbl("UI", "le02_name"), &gameSelected[GameId::Le02]);
-      ImGui::Selectable(lbl("UI", "le03_name"), &gameSelected[GameId::Le03]);
-      ImGui::Selectable(lbl("UI", "le04_name"), &gameSelected[GameId::Le04]);
-      ImGui::Selectable(lbl("UI", "uso_name"), &gameSelected[GameId::Uso]);
+      ImGui::Selectable(lbl("UI", "le01_name"), &gameSelected[Game::ID::Le01]);
+      ImGui::Selectable(lbl("UI", "le02_name"), &gameSelected[Game::ID::Le02]);
+      ImGui::Selectable(lbl("UI", "le03_name"), &gameSelected[Game::ID::Le03]);
+      ImGui::Selectable(lbl("UI", "le04_name"), &gameSelected[Game::ID::Le04]);
+      ImGui::Selectable(lbl("UI", "uso_name"), &gameSelected[Game::ID::Uso]);
       ImGui::EndTabItem();
     }
     if (ImGui::BeginTabItem(lbl("UI", "tool"))) {
@@ -171,14 +170,14 @@ void Launcher::initWindow() {
     0,
     0,
     hInstance,
-    LoadIcon(hInstance, MAKEINTRESOURCE(101)),
+    LoadIconW(hInstance, MAKEINTRESOURCEW(101)),
     nullptr,
     nullptr,
     nullptr,
     L"leprac",
     LoadIcon(hInstance, MAKEINTRESOURCE(101))
   };
-  RegisterClassEx(&wc);
+  RegisterClassExW(&wc);
 
   // auto windowStyle = WS_POPUP | WS_THICKFRAME;
   auto windowStyle = WS_TILEDWINDOW & ~WS_MAXIMIZEBOX;
@@ -208,7 +207,7 @@ void Launcher::initWindow() {
   if (!CreateDeviceD3D(hwnd)) {
     CleanupDeviceD3D();
     UnregisterClassW(wc.lpszClassName, wc.hInstance);
-    Logger::throwError("Failed to create device");
+    Logger::critical("Failed to create device");
   }
 
   // Show the window
@@ -225,14 +224,11 @@ void Launcher::initImGui() {
 
   // Setup Dear ImGui style
   switch (Config::style()) {
-  case Style::dark   : ImGui::StyleColorsDark(); break;
-  case Style::light  : ImGui::StyleColorsLight(); break;
-  case Style::classic: ImGui::StyleColorsClassic(); break;
-  case Style::custom:
-    Logger::log(
-      Logger::Level::Warn,
-      "Custom is currently not supported. Fallback to Dark Mode."
-    );
+  case UI::Style::dark   : ImGui::StyleColorsDark(); break;
+  case UI::Style::light  : ImGui::StyleColorsLight(); break;
+  case UI::Style::classic: ImGui::StyleColorsClassic(); break;
+  case UI::Style::custom:
+    Logger::warn("Custom is currently not supported. Fallback to Dark Mode.");
     ImGui::StyleColorsDark();
   }
 

@@ -11,6 +11,25 @@
 namespace leprac {
 class Literal {
  public:
+  // To add more languages, simply add the language code to Literal::Lang.
+  // It is recommended to use a 2-letter lowercase language code.
+  // Provide the translations in the asset/literal.toml file.
+  // At minimum, specify the language name under the [lang_name] section:
+  // [lang_name]
+  // en = "English"
+  // zh = ...
+  // ja = ...
+  // your_lang_code = "a UTF-8 name"
+  // If the translation for a tag is missing in the new language,
+  // it will fallback to English, with a warning logged.
+  // Note: you have to load a font that supports the language.
+  enum class Lang {
+    en,
+    zh,
+    ja,
+    // add more language codes here if needed
+  };
+
   // Returns "key1.key2" style tag for cache index
   template<class... Keys>
   requires(std::convertible_to<Keys, std::string_view> && ...)
@@ -83,7 +102,6 @@ char const* lbl(Keys const&... keys) {
       it == Literal::cacheLabel.end() || it->second.empty()) {
     Literal::cachingLabel(keys...);
   }
-  // Logger::info("{}", Literal::cacheLabel[t].c_str());
   return Literal::cacheLabel[t].c_str();
 }
 
@@ -94,14 +112,13 @@ void Literal::cachingLiteral(Keys const&... keys) {
   auto t = tag(keys...);
   try {
     // clang-format off
-      ((p = &p->at(keys)), ...);
+    ((p = &p->at(keys)), ...);
     // clang-format on
   } catch (std::exception const& e) {
     Logger::error("Literal {} not found ({})", t, e.what());
     cacheLiteral[t] = t;
   }
-  std::string lang{me::enum_name(Config::lang())};
-  if (lang == "unk") lang = "en";
+  std::string lang{me::enum_name<Lang>(Config::lang())};
   if (p->contains(lang) && !p->at(lang).as_string().empty()) {
     cacheLiteral[t] = p->at(lang).as_string();
   } else {

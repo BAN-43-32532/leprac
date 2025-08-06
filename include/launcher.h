@@ -31,7 +31,7 @@ class Launcher {
   static inline bool                    SwapChainOccluded{};
   static inline ID3D11RenderTargetView* mainRenderTargetView{};
 
-  static inline WNDCLASSEX wc{};
+  static inline WNDCLASSEXW wc{};
   static inline HWND       hwnd{};
 
   static inline float mainScale{1};

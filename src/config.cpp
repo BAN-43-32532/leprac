@@ -43,12 +43,11 @@ constexpr std::array commentDebug = {
 };
 }  // namespace
 
-void Config::init() {
-  Logger::debug("Config init");
-  load();
-}
+void Config::warmup() {}
 
-void Config::deinit() { Logger::debug("Config deinit (no work to do)"); }
+void Config::init() { load(); }
+
+void Config::deinit() {}
 
 void Config::sync() {
   syncLang();
@@ -66,10 +65,10 @@ void Config::load() {
     // initialized std::nullopt. In this case, leprac prompts to ask which
     // language user chooses
     auto lang = toml::find_or(tomlValue_, keyLang, "unk");
-    lang_     = me::enum_cast<Lang>(lang).value_or(lang_);
+    lang_     = me::enum_cast<Literal::Lang>(lang).value_or(lang_);
 
     auto style = toml::find_or(tomlValue_, keyStyle, "dark");
-    style_     = me::enum_cast<Style>(style).value_or(style_);
+    style_     = me::enum_cast<UI::Style>(style).value_or(style_);
 
     debug_ = toml::find_or(tomlValue_, keyDebug, false);
 
@@ -77,8 +76,8 @@ void Config::load() {
       toml::find_or(tomlValue_, keyFonts, std::vector<std::string>{});
 
     auto pathValue = tomlValue_[keyGamePath];
-    for (auto gameId: me::enum_values<GameId>()) {
-      pathGame_[gameId] = toml::find_or(pathValue, me::enum_name(gameId), "");
+    for (auto gameId: me::enum_values<Game::ID>()) {
+      pathGames_[gameId] = toml::find_or(pathValue, me::enum_name(gameId), "");
     }
   }
 }
@@ -115,6 +114,7 @@ void Config::save() {
     prev_line = line;
   }
 }
+std::vector<std::string>& Config::pathFonts() { return pathFonts_; }
 
 void Config::syncLang() { tomlValue_[keyLang] = me::enum_name(lang_); }
 
@@ -122,8 +122,8 @@ void Config::syncStyle() { tomlValue_[keyStyle] = me::enum_name(style_); }
 
 void Config::syncPathGame() {
   auto& pathValue = tomlValue_[keyGamePath];
-  for (auto gameId: me::enum_values<GameId>()) {
-    pathValue[std::string{me::enum_name(gameId)}] = pathGame_[gameId];
+  for (auto gameId: me::enum_values<Game::ID>()) {
+    pathValue[std::string{me::enum_name(gameId)}] = pathGames_[gameId];
   }
 }
 

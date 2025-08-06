@@ -2,7 +2,7 @@
 #define ASSET_H
 #include <toml.hpp>
 
-#include "common.h"
+#include "game.h"
 
 namespace leprac {
 class Asset {
@@ -12,16 +12,12 @@ class Asset {
   static void load();
 
   [[nodiscard]] static auto const& address() { return address_; }
-
-  [[nodiscard]] static auto& literal() { return literal_; }
-
+  [[nodiscard]] static auto const& literal() { return literal_; }
   [[nodiscard]] static auto const& version() { return version_; }
-
-  [[nodiscard]] static auto const& frame(GameId const gameId) {
+  [[nodiscard]] static auto const& frame(Game::ID const gameId) {
     return frame_[gameId];
   }
-
-  [[nodiscard]] static auto const& pattern(GameId const gameId) {
+  [[nodiscard]] static auto const& pattern(Game::ID const gameId) {
     return pattern_[gameId];
   }
 
@@ -30,8 +26,8 @@ class Asset {
   static inline toml::value literal_;
   static inline toml::value version_;
 
-  static inline std::unordered_map<GameId, toml::value> frame_;
-  static inline std::unordered_map<GameId, toml::value> pattern_;
+  static inline std::unordered_map<Game::ID, toml::value> frame_;
+  static inline std::unordered_map<Game::ID, toml::value> pattern_;
 };
 }  // namespace leprac
 #endif

@@ -11,9 +11,16 @@ AlignConsecutiveAssignments:
   AcrossEmptyLines: false
   AcrossComments: true
   AlignCompound: true
-  PadOperators: true
+  PadOperators: false
 AlignConsecutiveBitFields: AcrossComments
-AlignConsecutiveDeclarations: AcrossComments
+AlignConsecutiveDeclarations:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: true
+#  AlignFunctionDeclarations: false
+#  AlignFunctionPointers: false
+  AlignFunctionDeclarations: true
+  AlignFunctionPointers: true
 AlignConsecutiveMacros: AcrossComments
 AlignConsecutiveShortCaseStatements:
   Enabled: true
@@ -142,7 +149,7 @@ RemoveParentheses: ReturnStatement
 RemoveSemicolon: true
 RequiresClausePosition: WithFollowing
 RequiresExpressionIndentation: OuterScope
-SeparateDefinitionBlocks: Always
+SeparateDefinitionBlocks: Leave
 ShortNamespaceLines: 0
 SkipMacroDefinitionBody: false
 SortIncludes: CaseInsensitive

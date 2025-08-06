@@ -4,68 +4,64 @@
 #include <toml.hpp>
 #include <vector>
 
-#include "common.h"
+#include "game.h"
+#include "literal.h"
+#include "UI.h"
 
 namespace leprac {
 class Config {
  public:
   Config() = delete;
-  static void init();
-  static void deinit();
+  static void warmup();  // Load config for Logger
+  static void init();    // Prepare other config and detect if lang is specified
+  static void deinit();  // Sync and save to leprac-cfg.toml (with comments)
 
   static void sync();
   static void load();
   static void save();
 
-  static auto const& lang() { return lang_; }
-
-  static void setLang(Lang lang) {
-    lang_ = lang;
-    syncLang();
+  [[nodiscard]] static auto& logMode() { return logMode_; }
+  // assign only if minRingLines <= logRingLines <= maxRingLines
+  [[nodiscard]] static auto& logRingLines() {
+    static struct proxy {
+      operator uint32_t() const { return logRingLines_; }
+      uint32_t operator=(uint32_t logRingLines) const {
+        if (logRingLines >= minRingLines && logRingLines <= maxRingLines) {
+          logRingLines_ = logRingLines;
+        }
+        return logRingLines_;
+      }
+    } inst;
+    return inst;
   }
-
-  static auto const& style() { return style_; }
-
-  static void setStyle(Style style) {
-    style_ = style;
-    syncStyle();
-  }
-
-  static auto const& pathGame() { return pathGame_; }
-
-  static void setPathGame(GameId game, std::string const& path) {
-    pathGame_[game] = path;
-    syncPathGame();
-  }
-
-  static auto const& pathFonts() { return pathFonts_; }
-
-  static void setPathFonts(std::vector<std::string> const& fonts) {
-    pathFonts_ = fonts;
-    syncPathFonts();
-  }
-
-  static bool debug() { return debug_; }
-
-  static void setDebug(bool value) {
-    debug_ = value;
-    syncDebug();
-  }
+  [[nodiscard]] static auto& logLevel() { return logLevel_; }
+  [[nodiscard]] static auto& width() { return width_; }
+  [[nodiscard]] static auto& height() { return height_; }
+  [[nodiscard]] static auto& lang() { return lang_; }
+  [[nodiscard]] static auto& style() { return style_; }
+  [[nodiscard]] static auto& pathGames() { return pathGames_; }
+  [[nodiscard]] static auto& pathFonts() { return pathFonts_; }
 
  private:
   static inline toml::value tomlValue_;
 
-  static inline Lang                                    lang_{Lang::en};
-  static inline Style                                   style_{Style::dark};
-  static inline std::unordered_map<GameId, std::string> pathGame_{};
-  static inline std::vector<std::string>                pathFonts_{};
-  static inline bool                                    debug_{};
+  static inline auto     logMode_{Logger::Mode::Basic};
+  static inline uint32_t logRingLines_{100};
+  static inline auto     logLevel_{spdlog::level::info};
 
-  static void syncLang();
-  static void syncStyle();
-  static void syncPathGame();
-  static void syncPathFonts();
-  static void syncDebug();
+  static inline uint32_t width_{600};
+  static inline uint32_t height_{800};
+
+  static inline auto lang_{Literal::Lang::en};
+  static inline auto style_{UI::Style::dark};
+  static inline std::unordered_map<Game::ID, std::string> pathGames_{};
+  static inline std::vector<std::string>                  pathFonts_{};
+
+  // static void syncLang();
+  // static void syncStyle();
+  // static void syncPathGame();
+  // static void syncPathFonts();
+  // static void syncDebug();
 };
 }  // namespace leprac
 #endif

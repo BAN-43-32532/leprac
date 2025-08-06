@@ -1,37 +1,53 @@
-cmake_minimum_required(VERSION 3.28)
+cmake_minimum_required(VERSION 3.16)
 project(leprac LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 file(GLOB SRC CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/src/*.cpp)
-add_executable(leprac WIN32 ${SRC})
+add_executable(leprac WIN32 ${SRC} ${CMAKE_SOURCE_DIR}/asset/icon/resource.rc)
 
 set(EXT_DIR ${CMAKE_SOURCE_DIR}/external)
-
 target_include_directories(leprac PRIVATE ${EXT_DIR} ${CMAKE_SOURCE_DIR}/include)
-set(WINDLL d3d11 dxgi dxguid ntdll)
-target_link_libraries(leprac PRIVATE ${WINDLL})
-target_compile_options(leprac PRIVATE /utf-8)
-target_compile_definitions(leprac PRIVATE UNICODE _UNICODE)
 
-target_sources(leprac PRIVATE ${CMAKE_SOURCE_DIR}/asset/icon/resource.rc)
+# Required by launcher & overlay using ImGui DX11 & WIN32 backends. Len'en uses DX11.
+target_link_libraries(leprac PRIVATE d3d11 dxgi dxguid ntdll)
+
+# Seems ok if don't define them
+target_compile_definitions(leprac PRIVATE UNICODE _UNICODE)
 
 include(FetchContent)
 
+# I only build and test leprac with MSVC
+if (MSVC)
+    target_compile_options(leprac PRIVATE
+        /utf-8
+        $<$<CONFIG:Release>:/Ox>
+        $<$<CONFIG:Release>:/Gy>
+        $<$<CONFIG:Release>:/Gw>
+        $<$<CONFIG:Release>:/GL>
+    )
+    target_link_options(leprac PRIVATE
+        $<$<CONFIG:Release>:/OPT:REF>
+        $<$<CONFIG:Release>:/LTCG>
+    )
+endif ()
+
 macro(external)
-    add_curl()
-    add_embed()
-    add_imgui()
-    add_json()
-    add_libmem()
-    add_magic_enum()
-    add_minhook()
-    add_toml11()
+    add_curl() # Only for auto-update. May replace in the future
+    add_embed() # Asset data & literal embedding
+    add_imgui() # Launcher & overlay GUI
+    add_json() # Only for auto-update. May replace (maybe with rapidjson) in the future
+    add_libmem() # Memory manipulation
+    add_magic_enum() # Enum reflection
+    add_minhook() # Overlay injection
+    add_spdlog() # File / console logging
+    add_toml11() # Config & asset parsing
 endmacro()
 
 function(add_curl)
@@ -54,7 +70,6 @@ endfunction()
 function(add_embed)
     add_subdirectory(external/embed)
     set(B_PRODUCTION_MODE ON CACHE BOOL "" FORCE)
-
     file(GLOB_RECURSE ASSET_FILES RELATIVE ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/asset/*.toml)
     foreach (FILE IN LISTS ASSET_FILES)
         b_embed(leprac ${FILE})
@@ -63,12 +78,11 @@ endfunction()
 
 function(add_imgui)
     file(GLOB IMGUI_SRC CONFIGURE_DEPENDS ${EXT_DIR}/imgui/*.cpp)
-    set(IMGUI_IMPL_SRC
-            ${EXT_DIR}/imgui/backends/imgui_impl_win32.cpp
-            ${EXT_DIR}/imgui/backends/imgui_impl_dx11.cpp
-    )
     target_include_directories(leprac PRIVATE ${EXT_DIR}/imgui)
-    target_sources(leprac PRIVATE ${IMGUI_SRC} ${IMGUI_IMPL_SRC})
+    target_sources(leprac PRIVATE ${IMGUI_SRC}
+        ${EXT_DIR}/imgui/backends/imgui_impl_win32.cpp
+        ${EXT_DIR}/imgui/backends/imgui_impl_dx11.cpp
+    )
 endfunction()
 
 function(add_json)
@@ -78,15 +92,15 @@ function(add_json)
 endfunction()
 
 function(add_libmem)
-    # It doesn't work with add_subdirectory(libmem); neither with version > 5.0.2
+    # git clone & add_subdirectory doesn't work; neither with version > 5.0.2
     set(LIBMEM_DOWNLOAD_VERSION "5.0.2" CACHE STRING "" FORCE)
     FetchContent_Declare(
-            libmem-config
-            URL "https://raw.githubusercontent.com/rdbo/libmem/config-v1/libmem-config.cmake"
-            DOWNLOAD_NO_EXTRACT TRUE
+        libmem-config
+        URL "https://raw.githubusercontent.com/rdbo/libmem/config-v1/libmem-config.cmake"
+        DOWNLOAD_NO_EXTRACT TRUE
     )
     FetchContent_MakeAvailable(libmem-config)
-    list(APPEND CMAKE_PREFIX_PATH "${libmem-config_SOURCE_DIR}")
+    list(APPEND CMAKE_PREFIX_PATH ${libmem-config_SOURCE_DIR})
     find_package(libmem CONFIG REQUIRED)
     target_link_libraries(leprac PRIVATE libmem::libmem)
 endfunction()
@@ -98,6 +112,11 @@ endfunction()
 function(add_minhook)
     add_subdirectory(${EXT_DIR}/minhook)
     target_link_libraries(leprac PRIVATE minhook)
+endfunction()
+
+function(add_spdlog)
+    add_subdirectory(${EXT_DIR}/spdlog)
+    target_link_libraries(leprac PRIVATE spdlog::spdlog)
 endfunction()
 
 function(add_toml11)

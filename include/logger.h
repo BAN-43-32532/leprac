@@ -1,89 +1,86 @@
 #ifndef LOGGER_H
 #define LOGGER_H
-#include <format>
-#include <fstream>
-#include <ostream>
-#include <Windows.h>
+#include <spdlog/spdlog.h>
 
 #include "common.h"
 
 namespace leprac {
+constexpr uint32_t minRingLines = 10;
+constexpr uint32_t maxRingLines = 1000;
+
 class Logger {
  public:
+  enum class Mode {
+    Console,  // Open a console and display logs there; no file output.
+    Basic,    // Append logs to a file without limits.
+    Ring,     // Append logs to a file; only keep the latest several lines.
+  };
   Logger() = delete;
-  enum class Level { Info, Warn, Error, Debug };
   static void init();
   static void deinit();
 
+  // Intermediate states for dev; avoid high-freq output.
   template<class... Args>
-  static void log(Level lvl, std::format_string<Args...> fmt, Args&&... args) {
-    if (lvl == Level::Debug && !debug_) return;
-    std::print(ofs_, "{}", prefix(lvl));
-    std::println(ofs_, fmt, std::forward<Args>(args)...);
-    flush();
-  }
-
+  static void trace(spdlog::format_string_t<Args...> fmt, Args &&...args);
+  // General debug messages.
   template<class... Args>
-  static void info(std::format_string<Args...> fmt, Args&&... args) {
-    log(Level::Info, fmt, std::forward<Args>(args)...);
-  }
-
+  static void debug(spdlog::format_string_t<Args...> fmt, Args &&...args);
+  // General info for users, e.g. Config init; Le01 attached.
   template<class... Args>
-  static void warn(std::format_string<Args...> fmt, Args&&... args) {
-    log(Level::Warn, fmt, std::forward<Args>(args)...);
-  }
-
+  static void info(spdlog::format_string_t<Args...> fmt, Args &&...args);
+  // Recoverable mismatches, e.g. some literal in ja missing, fallback to en.
   template<class... Args>
-  static void error(std::format_string<Args...> fmt, Args&&... args) {
-    log(Level::Error, fmt, std::forward<Args>(args)...);
-  }
-
+  static void warn(spdlog::format_string_t<Args...> fmt, Args &&...args);
+  // Functional errors that don’t halt leprac.
   template<class... Args>
-  static void debug(std::format_string<Args...> fmt, Args&&... args) {
-    log(Level::Debug, fmt, std::forward<Args>(args)...);
-  }
-
+  static void error(spdlog::format_string_t<Args...> fmt, Args &&...args);
+  // Fatal errors: log -> errorBox -> std::atexit() -> std::exit().
   template<class... Args>
-  static void throwError(std::format_string<Args...> fmt, Args&&... args) {
-    auto msg = std::format(fmt, std::forward<Args>(args)...);
-    error("{}", msg);
-    deinit();
-    throw std::runtime_error(msg);
-  }
-
-  static void syncDebug();
+  static void critical(spdlog::format_string_t<Args...> fmt, Args &&...args);
 
  private:
-  static std::string prefix(Level lvl);
-  static void        flush();
+  static inline std::shared_ptr<spdlog::logger> logger_;
 
-  inline static bool          debug_{};
-  inline static bool          console_{};
-  inline static std::ofstream ofs_;
+  static void initConsole();
+  static void initBasic();
+  static void initRing();
+
+  static void flush();
 };
+
+template<class... Args>
+void Logger::trace(spdlog::format_string_t<Args...> fmt, Args &&...args) {
+  logger_->trace(fmt, std::forward<Args>(args)...);
+}
+
+template<class... Args>
+void Logger::debug(spdlog::format_string_t<Args...> fmt, Args &&...args) {
+  logger_->debug(fmt, std::forward<Args>(args)...);
+}
+
+template<class... Args>
+void Logger::info(spdlog::format_string_t<Args...> fmt, Args &&...args) {
+  logger_->info(fmt, std::forward<Args>(args)...);
+}
+
+template<class... Args>
+void Logger::warn(spdlog::format_string_t<Args...> fmt, Args &&...args) {
+  logger_->warn(fmt, std::forward<Args>(args)...);
+}
+
+template<class... Args>
+void Logger::error(spdlog::format_string_t<Args...> fmt, Args &&...args) {
+  logger_->error(fmt, std::forward<Args>(args)...);
+}
+
+template<class... Args>
+void Logger::critical(spdlog::format_string_t<Args...> fmt, Args &&...args) {
+  auto msg = fmt::format(fmt, std::forward<Args>(args)...);
+  logger_->critical(msg);
+  flush();
+  errorBox(msg);
+  std::exit(EXIT_FAILURE);
+}
 }  // namespace leprac
 
-class ConsoleManager {
- public:
-  static void Attach() {
-    SetConsoleOutputCP(CP_UTF8);
-    if (attached_) return;
-    if (!AllocConsole()) return;
-
-    FILE* stream;
-    freopen_s(&stream, "CONOUT$", "w", stdout);
-    freopen_s(&stream, "CONOUT$", "w", stderr);
-    freopen_s(&stream, "CONIN$", "r", stdin);
-    attached_ = true;
-  }
-
-  static void Detach() {
-    if (!attached_) return;
-    FreeConsole();
-    attached_ = false;
-  }
-
- private:
-  static inline bool attached_ = false;
-};
-#endif
+#endif  // LOGGER_H

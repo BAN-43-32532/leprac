@@ -1,3 +1,4 @@
+#include <atlstr.h>
 #include <Windows.h>
 
 #include "asset.h"
@@ -6,13 +7,14 @@
 #include "logger.h"
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
-  leprac::Logger::init();
-  leprac::Asset::init();
-  leprac::Config::init();
-  leprac::Launcher::init();
-  leprac::Launcher::run();
-  leprac::Launcher::deinit();
-  leprac::Config::deinit();
-  leprac::Logger::deinit();
+  using namespace leprac;
+  Logger::init();
+  Asset::init();
+  Config::init();
+  Launcher::init();
+  Launcher::run();
+  Launcher::deinit();
+  Config::deinit();
+  Logger::deinit();
   return 0;
 }

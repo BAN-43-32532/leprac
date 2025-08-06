@@ -4,6 +4,12 @@
 namespace leprac {
 class UI {
  public:
+  enum class Style {
+    dark,
+    light,
+    classic,
+    custom,  // TODO: Not supported yet. Currently fallback to dark.
+  };
   static void setImGuiFont();
 
   static void StyleSelect();
