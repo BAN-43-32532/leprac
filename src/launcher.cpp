@@ -283,10 +283,10 @@ bool Launcher::CreateDeviceD3D(HWND hWnd) {
   sd.Windowed           = TRUE;
   sd.SwapEffect         = DXGI_SWAP_EFFECT_DISCARD;
 
-  UINT                    createDeviceFlags = 0;
+  UINT                        createDeviceFlags = 0;
   // createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
-  D3D_FEATURE_LEVEL       featureLevel;
-  const D3D_FEATURE_LEVEL featureLevelArray[2] = {
+  D3D_FEATURE_LEVEL           featureLevel;
+  constexpr D3D_FEATURE_LEVEL featureLevelArray[2] = {
     D3D_FEATURE_LEVEL_11_0,
     D3D_FEATURE_LEVEL_10_0,
   };
@@ -379,6 +379,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       return 0;
     break;
   case WM_DESTROY: PostQuitMessage(0); return 0;
+  default        : Logger::trace("Unhandled message {}", msg);
   }
   return DefWindowProcW(hWnd, msg, wParam, lParam);
 }
