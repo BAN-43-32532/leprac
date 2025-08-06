@@ -22,14 +22,20 @@ void Logger::init() {
   Config::warmup();
   logger_->set_level(Config::logLevel());
   switch (Config::logMode()) {
-  case Mode::Console: initConsole(); break;
-  case Mode::Basic  : initBasic(); break;
-  case Mode::Ring   : initRing();
+  case LoggerMode::file:
+    if (Config::logLines() == -1) {
+      initBasic();
+    } else {
+      initRing();
+    }
+    break;
+  case LoggerMode::console: initConsole();
   }
   logger_->log(spdlog::level::off, logHeader);
 }
 
 void Logger::deinit() {
+  info("Logger deinit.");
   logger_->log(spdlog::level::off, logFooter);
   spdlog::shutdown();
 }
@@ -57,14 +63,9 @@ void Logger::initBasic() {
 
 void Logger::initRing() {
   auto ringSink =
-    std::make_shared<spdlog::sinks::ringbuffer_sink_st>(Config::logRingLines());
+    std::make_shared<spdlog::sinks::ringbuffer_sink_st>(Config::logLines());
   logger_ = std::make_shared<spdlog::logger>("ringLogger", ringSink);
 }
 
 void Logger::flush() { logger_->flush(); }
 }  // namespace leprac
-
-// namespace {
-// fs::path const    pathLog{"leprac-log.txt"};
-
-// }  // namespace

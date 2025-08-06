@@ -10,19 +10,12 @@
 namespace leprac {
 class Game {
  public:
-  enum class ID {
-    Le01,
-    Le02,
-    Le03,
-    Le04,
-    Uso,  // JynX call it Uso, while westerners may call it FRI
-  };
   void init();
 
   [[nodiscard]] auto getID() const;
   [[nodiscard]] auto process() const;
 
-  static std::vector<ID> detectRunningGames();
+  static std::vector<GameID> detectRunningGames();
 
  private:
   bool                           completeGameInfo();
@@ -35,8 +28,8 @@ class Game {
 
   std::vector<uint8_t> getStackSignature(libmem::Process const &process);
 
-  ID              gameId_{};
-  libmem::Process gameProcess_;
+  GameID gameId_{};
+  // libmem::Process gameProcess_;
 };
 }  // namespace leprac
 #endif

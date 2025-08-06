@@ -132,13 +132,13 @@ void Launcher::UI() {
 
   if (ImGui::BeginTabBar("Main tab bar")) {
     if (ImGui::BeginTabItem(lbl("UI", "game"))) {
-      std::unordered_map<Game::ID, bool> gameSelected;
+      std::unordered_map<GameID, bool> gameSelected;
 
-      ImGui::Selectable(lbl("UI", "le01_name"), &gameSelected[Game::ID::Le01]);
-      ImGui::Selectable(lbl("UI", "le02_name"), &gameSelected[Game::ID::Le02]);
-      ImGui::Selectable(lbl("UI", "le03_name"), &gameSelected[Game::ID::Le03]);
-      ImGui::Selectable(lbl("UI", "le04_name"), &gameSelected[Game::ID::Le04]);
-      ImGui::Selectable(lbl("UI", "uso_name"), &gameSelected[Game::ID::Uso]);
+      ImGui::Selectable(lbl("UI", "le01_name"), &gameSelected[GameID::Le01]);
+      ImGui::Selectable(lbl("UI", "le02_name"), &gameSelected[GameID::Le02]);
+      ImGui::Selectable(lbl("UI", "le03_name"), &gameSelected[GameID::Le03]);
+      ImGui::Selectable(lbl("UI", "le04_name"), &gameSelected[GameID::Le04]);
+      ImGui::Selectable(lbl("UI", "uso_name"), &gameSelected[GameID::Uso]);
       ImGui::EndTabItem();
     }
     if (ImGui::BeginTabItem(lbl("UI", "tool"))) {
@@ -223,14 +223,7 @@ void Launcher::initImGui() {
   io.IniFilename  = nullptr;
 
   // Setup Dear ImGui style
-  switch (Config::style()) {
-  case UI::Style::dark   : ImGui::StyleColorsDark(); break;
-  case UI::Style::light  : ImGui::StyleColorsLight(); break;
-  case UI::Style::classic: ImGui::StyleColorsClassic(); break;
-  case UI::Style::custom:
-    Logger::warn("Custom is currently not supported. Fallback to Dark Mode.");
-    ImGui::StyleColorsDark();
-  }
+  UI::setStyle(Config::style());
 
   // Setup scaling
   ImGuiStyle& style = ImGui::GetStyle();

@@ -5,16 +5,11 @@
 #include "common.h"
 
 namespace leprac {
-constexpr uint32_t minRingLines = 10;
-constexpr uint32_t maxRingLines = 1000;
+constexpr uint32_t minLogLines = 10;
+constexpr uint32_t maxLogLines = 1000;
 
 class Logger {
  public:
-  enum class Mode {
-    Console,  // Open a console and display logs there; no file output.
-    Basic,    // Append logs to a file without limits.
-    Ring,     // Append logs to a file; only keep the latest several lines.
-  };
   Logger() = delete;
   static void init();
   static void deinit();

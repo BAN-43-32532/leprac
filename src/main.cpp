@@ -1,4 +1,3 @@
-#include <atlstr.h>
 #include <Windows.h>
 
 #include "asset.h"

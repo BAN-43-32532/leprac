@@ -23,7 +23,7 @@ struct TEB {
   uint64_t StackLimit;
 };
 
-std::string toProcessName(Game::ID game) {
+std::string toProcessName(GameID game) {
   // TODO: Confirm if the names are correct
   return std::format("{}.exe", me::enum_name(game));
 }
@@ -32,11 +32,11 @@ void Game::init() {}
 
 auto Game::getID() const { return gameId_; }
 
-auto Game::process() const { return gameProcess_; }
+// auto Game::process() const { return gameProcess_; }
 
-std::vector<Game::ID> Game::detectRunningGames() {
-  std::vector<ID> result;
-  for (auto gameId: me::enum_values<ID>()) {
+std::vector<GameID> Game::detectRunningGames() {
+  std::vector<GameID> result;
+  for (auto gameId: me::enum_values<GameID>()) {
     if (auto process = libmem::FindProcess(toProcessName(gameId).c_str())) {
       result.emplace_back(gameId);
     }
@@ -45,10 +45,10 @@ std::vector<Game::ID> Game::detectRunningGames() {
 }
 
 bool Game::completeGameInfo() {
-  if (auto process = libmem::FindProcess(toProcessName(gameId_).c_str())) {
-    gameProcess_ = *process;
-    return true;
-  }
+  // if (auto process = libmem::FindProcess(toProcessName(gameId_).c_str())) {
+  //   gameProcess_ = *process;
+  //   return true;
+  // }
   Logger::error("{} process not found.", toProcessName(gameId_));
   return false;
 }

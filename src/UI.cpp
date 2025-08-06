@@ -8,6 +8,13 @@
 #include "literal.h"
 
 namespace leprac {
+void UI::setStyle(Style style) {
+  switch (style) {
+  case Style::dark   : ImGui::StyleColorsDark(); break;
+  case Style::light  : ImGui::StyleColorsLight(); break;
+  case Style::classic: ImGui::StyleColorsClassic(); break;
+  }
+}
 void UI::setImGuiFont() {
   ImGuiIO& io = ImGui::GetIO();
   io.Fonts->Clear();
@@ -59,24 +66,10 @@ void UI::StyleSelect() {
   static int idx = static_cast<int>(*me::enum_index(Config::style()));
   ImGui::Text(l("UI", "setting", "style"));
   ImGui::SameLine();
-  if (ImGui::Combo("###ComboStyle", &idx, "Dark\0Light\0Classic\0Custom")) {
-    switch (auto style = *me::enum_cast<Style>(idx)) {
-    case Style::dark:
-      Config::setStyle(style);
-      ImGui::StyleColorsDark();
-      break;
-    case Style::light:
-      Config::setStyle(style);
-      ImGui::StyleColorsLight();
-      break;
-    case Style::classic:
-      Config::setStyle(style);
-      ImGui::StyleColorsClassic();
-      break;
-    case Style::custom:
-      Logger::warn("Style custom is currently not supported.");
-      break;
-    }
+  if (ImGui::Combo("###ComboStyle", &idx, "Dark\0Light\0Classic")) {
+    auto style      = *me::enum_cast<Style>(idx);
+    Config::style() = style;
+    setStyle(style);
   }
 }
 
@@ -104,7 +97,7 @@ void UI::LangSelect() {
   ImGui::Text(l("UI", "setting", "language"));
   ImGui::SameLine();
   if (ImGui::Combo("###ComboLang", &idx, itemLang.data(), numLang)) {
-    Config::setLang(*me::enum_cast<Lang>(idx));
+    Config::lang() = *me::enum_cast<Lang>(idx);
     Literal::cacheClear();
   }
 }

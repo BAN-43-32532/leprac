@@ -1,15 +1,11 @@
 #ifndef UI_H
 #define UI_H
+#include "common.h"
 
 namespace leprac {
 class UI {
  public:
-  enum class Style {
-    dark,
-    light,
-    classic,
-    custom,  // TODO: Not supported yet. Currently fallback to dark.
-  };
+  static void setStyle(Style style);
   static void setImGuiFont();
 
   static void StyleSelect();
