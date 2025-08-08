@@ -1,6 +1,6 @@
-<h1 style="text-align: center">leprac</h1>
+<h1 align="center">leprac</h1>
 
-<p style="text-align: center">
+<p align="center">
   <img src="https://img.shields.io/github/license/BAN-43-32532/leprac" alt="license">
   <img src="https://img.shields.io/github/languages/top/BAN-43-32532/leprac
 " alt="c++">
