@@ -11,7 +11,12 @@
 namespace leprac {
 void Asset::init() {
   Logger::info("Asset init");
+  std::atexit(deinit);
   load();
+}
+void Asset::deinit() {
+  Logger::info("Asset deinit.");
+  Logger::info("Asset deinit done.");
 }
 
 void Asset::load() {

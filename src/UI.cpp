@@ -64,7 +64,7 @@ void UI::setImGuiFont() {
 
 void UI::StyleSelect() {
   static int idx = static_cast<int>(*me::enum_index(Config::style()));
-  ImGui::Text(l("UI", "setting", "style"));
+  ImGui::Text(txt("UI", "setting", "style"));
   ImGui::SameLine();
   if (ImGui::Combo("###ComboStyle", &idx, "Dark\0Light\0Classic")) {
     auto style      = *me::enum_cast<Style>(idx);
@@ -75,16 +75,14 @@ void UI::StyleSelect() {
 
 void UI::LangSelect() {
   static int idx = static_cast<int>(*me::enum_index(Config::lang()));
-  static constexpr size_t numLang = me::enum_count<Lang>() - 1;
+  static constexpr size_t numLang = me::enum_count<Lang>();
   static auto const       strLang = [] {
     std::array<std::string, numLang> tmp;
     size_t                           i = 0;
     for (auto name: me::enum_names<Lang>()) {
-      if (name != "unk") {
-        tmp[i] =
-          Asset::literal().at("lang_name").at(std::string(name)).as_string();
-        ++i;
-      }
+      tmp[i] =
+        Asset::literal().at("lang_name").at(std::string(name)).as_string();
+      ++i;
     }
     return tmp;
   }();
@@ -94,7 +92,7 @@ void UI::LangSelect() {
     return arr;
   }();
 
-  ImGui::Text(l("UI", "setting", "language"));
+  ImGui::Text(txt("UI", "setting", "language"));
   ImGui::SameLine();
   if (ImGui::Combo("###ComboLang", &idx, itemLang.data(), numLang)) {
     Config::lang() = *me::enum_cast<Lang>(idx);

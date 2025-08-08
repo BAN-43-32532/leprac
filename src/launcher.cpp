@@ -27,12 +27,15 @@ UINT ResizeHeight{};
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 void Launcher::init() {
+  Logger::info("Launcher init.");
+  std::atexit(deinit);
   initWindow();
   initImGui();
   game_.init();
 }
 
 void Launcher::deinit() {
+  Logger::info("Launcher deinit.");
   ImGui_ImplDX11_Shutdown();
   ImGui_ImplWin32_Shutdown();
   ImGui::DestroyContext();
@@ -40,6 +43,7 @@ void Launcher::deinit() {
   CleanupDeviceD3D();
   DestroyWindow(hwnd);
   UnregisterClassW(wc.lpszClassName, wc.hInstance);
+  Logger::info("Launcher deinit done.");
 }
 
 void Launcher::run() {
@@ -247,12 +251,12 @@ void Launcher::initImGui() {
   // Read 'docs/FONTS.md' for more instructions and details.
   style.FontSizeBase = 20.0f;
   io.Fonts->AddFontDefault();
-  io.Fonts->AddFontFromFileTTF("C:/Windows/Fonts/segoeui.ttf");
+  // io.Fonts->AddFontFromFileTTF("C:/Windows/Fonts/segoeui.ttf");
   // io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf");
   // io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf");
   // io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf");
-  ImFont* font = io.Fonts->AddFontFromFileTTF("C:/Windows/Fonts/ArialUni.ttf");
-  IM_ASSERT(font != nullptr);
+  // ImFont* font = io.Fonts->AddFontFromFileTTF("C:/Windows/Fonts/ArialUni.ttf");
+  // IM_ASSERT(font != nullptr);
   UI::setImGuiFont();
 }
 
@@ -368,7 +372,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     ResizeHeight = static_cast<UINT>(HIWORD(lParam));
     return 0;
   case WM_SYSCOMMAND:
-    if (wParam & 0xfff0 == SC_KEYMENU)  // Disable ALT application menu
+    if ((wParam & 0xfff0) == SC_KEYMENU)  // Disable ALT application menu
       return 0;
     break;
   case WM_DESTROY: PostQuitMessage(0); return 0;

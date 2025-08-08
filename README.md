@@ -1,10 +1,19 @@
-# leprac
+<h1 style="text-align: center">leprac</h1>
 
-A practice tool for [Len'en Project](https://lenen.wiki.gg/) shmups. 
+<p style="text-align: center">
+  <img src="https://img.shields.io/github/license/BAN-43-32532/leprac" alt="license">
+  <img src="https://img.shields.io/github/languages/top/BAN-43-32532/leprac
+" alt="c++">
+  <img src="https://img.shields.io/github/actions/workflow/status/BAN-43-32532/leprac/.github/workflows/cmake-single-platform.yml" alt="build">
+  <img src="https://img.shields.io/github/v/release/BAN-43-32532/leprac
+" alt="release">
+</p>
+
+A practice tool for [Len'en Project](https://lenen.wiki.gg/) shmups.
 
 **_Work in Progress..._**
 
-# Reference & Special Thanks
+## Reference & Special Thanks
 
 - [thprac](https://github.com/touhouworldcup/thprac) - _originally by Ack_
 

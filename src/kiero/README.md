@@ -1,3 +1,5 @@
+This is the source of kiero. I attempted to use it as d3d11 hook, yet it still needs some modification.
+
 <h1 align="center">kiero</h1>
 <p align="center">
   <a href="https://github.com/Rebzzel/kiero/blob/master/LICENSE">

@@ -24,7 +24,7 @@ class Literal {
   // Returns literal[key1][key2] as c_str
   template<class... Keys>
   requires(std::convertible_to<Keys, std::string_view> && ...)
-  friend char const* l(Keys const&... keys);
+  friend char const* txt(Keys const&... keys);
 
   // Returns "literal##key1.key2" style c_str for ImGui label
   template<class... Keys>
@@ -66,7 +66,7 @@ std::string str(Keys const&... keys) {
 
 template<class... Keys>
 requires(std::convertible_to<Keys, std::string_view> && ...)
-char const* l(Keys const&... keys) {
+char const* txt(Keys const&... keys) {
   auto t = tag(keys...);
   if (auto it = Literal::cacheLiteral.find(t);
       it == Literal::cacheLiteral.end() || it->second.empty()) {

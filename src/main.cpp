@@ -12,8 +12,5 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
   Config::init();
   Launcher::init();
   Launcher::run();
-  Launcher::deinit();
-  Config::deinit();
-  Logger::deinit();
   return 0;
 }

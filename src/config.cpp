@@ -86,7 +86,6 @@ void Config::init() {
 void Config::deinit() {
   Logger::info("Config deinit.");
   sync();
-  ;
   Logger::info("Config deinit done.");
 }
 

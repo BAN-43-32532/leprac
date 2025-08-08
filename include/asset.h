@@ -9,6 +9,7 @@ class Asset {
  public:
   Asset() = delete;
   static void init();
+  static void deinit();
   static void load();
 
   [[nodiscard]] static auto const& address() { return address_; }

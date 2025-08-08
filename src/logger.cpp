@@ -10,6 +10,7 @@
 namespace leprac {
 namespace {
 std::string const pathLog{"leprac-log.txt"};
+std::string const loggerName{"leprac"};
 std::string const divLine(41, '=');
 auto const        logHeader =
   std::format("\n{}\n leprac v{} log \n{}", divLine, VERSION, divLine);
@@ -20,7 +21,6 @@ auto const logFooter =
 void Logger::init() {
   std::atexit(deinit);
   Config::warmup();
-  logger_->set_level(Config::logLevel());
   switch (Config::logMode()) {
   case LoggerMode::file:
     if (Config::logLines() == -1) {
@@ -31,12 +31,15 @@ void Logger::init() {
     break;
   case LoggerMode::console: initConsole();
   }
+  logger_->set_pattern("[%Y-%m-%d %H:%M:%S] %^[%l]%$ [%n] %v");
+  logger_->set_level(Config::logLevel());
   logger_->log(spdlog::level::off, logHeader);
 }
 
 void Logger::deinit() {
   info("Logger deinit.");
   logger_->log(spdlog::level::off, logFooter);
+  info("Logger deinit done.");
   spdlog::shutdown();
 }
 
@@ -54,17 +57,17 @@ void Logger::initConsole() {
   FILE* stream;
   freopen_s(&stream, "CONOUT$", "w", stdout);
   freopen_s(&stream, "CONOUT$", "w", stderr);
-  logger_ = spdlog::stdout_color_st("console_logger");
+  logger_ = spdlog::stdout_color_st(loggerName);
 }
 
 void Logger::initBasic() {
-  logger_ = spdlog::basic_logger_st("basic_logger", pathLog);
+  logger_ = spdlog::basic_logger_st(loggerName, pathLog);
 }
 
 void Logger::initRing() {
   auto ringSink =
     std::make_shared<spdlog::sinks::ringbuffer_sink_st>(Config::logLines());
-  logger_ = std::make_shared<spdlog::logger>("ringLogger", ringSink);
+  logger_ = std::make_shared<spdlog::logger>(loggerName, ringSink);
 }
 
 void Logger::flush() { logger_->flush(); }

@@ -32,27 +32,27 @@ namespace leprac {
  *
  * [[game]]
  * id = "Le01"
- * version = "1.20a"
+ * version = "1_20a"
  * path = "./Le01.exe"
  *
  * [[game]]
  * id = "Le02"
- * version = "1.20a"
+ * version = "1_20a"
  * path = "./Le02.exe"
  *
  * [[game]]
  * id = "Le03"
- * version = "1.21a"
+ * version = "1_21a"
  * path = "./Le03.exe"
  *
  * [[game]]
  * id = "Le04"
- * version = "1.20f"
+ * version = "1_20f"
  * path = "./Le04.exe"
  *
  * [[game]]
  * id = "Uso"
- * version = "0.20a"
+ * version = "0_20b"
  * path = "./Uso.exe"
  */
 class Config {
@@ -120,14 +120,14 @@ class Config {
 
  private:
   static inline toml::value config_{};
-  static inline bool        parseSuccess_ = false;
+  static inline bool        parseSuccess_{};
 
   static inline auto     lang_{Lang::en};
   static inline auto     style_{Style::dark};
   static inline uint32_t width_{600};
   static inline uint32_t height_{800};
 
-  static inline auto logMode_{LoggerMode::file};
+  static inline auto logMode_{LoggerMode::console};
   static inline auto logLevel_{spdlog::level::info};
   static inline int  logLines_{-1};
 

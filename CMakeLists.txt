@@ -50,6 +50,8 @@ macro(external)
     add_toml11() # Config & asset parsing
 endmacro()
 
+add_subdirectory(hook)
+
 function(add_curl)
     set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
     set(ENABLE_CURL_MANUAL OFF CACHE BOOL "" FORCE)
