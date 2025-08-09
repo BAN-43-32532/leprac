@@ -1,4 +1,4 @@
-#include "common.h"
+#include "common.hpp"
 
 #include <atlstr.h>
 #include <string>

@@ -4,8 +4,8 @@
 #include <string>
 #include <vector>
 
-#include "common.h"
-#include "logger.h"
+#include "common.hpp"
+#include "logger.hpp"
 
 namespace leprac {
 class Game {

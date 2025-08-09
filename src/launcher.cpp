@@ -1,4 +1,4 @@
-#include "launcher.h"
+#include "launcher.hpp"
 
 #include <backends/imgui_impl_dx11.h>
 #include <backends/imgui_impl_win32.h>
@@ -6,9 +6,9 @@
 #include <imgui.h>
 #include <Windows.h>
 
-#include "config.h"
-#include "logger.h"
-#include "UI.h"
+#include "config.hpp"
+#include "logger.hpp"
+#include "UI.hpp"
 
 // Forward declare message handler from imgui_impl_win32.cpp
 extern IMGUI_IMPL_API LRESULT

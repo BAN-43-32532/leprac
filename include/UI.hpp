@@ -3,7 +3,7 @@
 #include <imgui.h>
 #include <stack>
 
-#include "common.h"
+#include "common.hpp"
 
 // Solution for widget centering, from
 // https://github.com/ocornut/imgui/discussions/3862#discussioncomment-8907750

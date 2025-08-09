@@ -1,4 +1,4 @@
-#include "literal.h"
+#include "literal.hpp"
 
 namespace leprac {
 void Literal::cacheClear() {

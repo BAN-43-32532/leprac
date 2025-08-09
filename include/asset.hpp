@@ -2,7 +2,7 @@
 #define ASSET_H
 #include <toml.hpp>
 
-#include "common.h"
+#include "common.hpp"
 
 namespace leprac {
 class Asset {

@@ -1,10 +1,10 @@
-#include "config.h"
+#include "config.hpp"
 
 #include <magic_enum/magic_enum_all.hpp>
 #include <ranges>
 #include <toml.hpp>
 
-#include "logger.h"
+#include "logger.hpp"
 
 namespace leprac {
 namespace {
@@ -80,9 +80,8 @@ void Config::init() {
   auto strLogMode  = toml::find_or(log, itemLogMode.key, "");
   logMode()        = me::enum_cast<LoggerMode>(strLogMode).value_or(logMode_);
   auto strLogLevel = toml::find_or(log, itemLogLevel.key, "");
-  logLevel() =
-    me::enum_cast<spdlog::level::level_enum>(strLogLevel).value_or(logLevel_);
-  logLines() = toml::find_or(log, itemLogLines.key, logLines_);
+  logLevel()       = me::enum_cast<level>(strLogLevel).value_or(logLevel_);
+  logLines()       = toml::find_or(log, itemLogLines.key, logLines_);
 
   if (config_.contains(itemGameInfo.key)) {
     for (auto const& gameInfoValue: config_.at(itemGameInfo.key).as_array()) {

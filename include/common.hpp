@@ -6,11 +6,17 @@
 #include <ranges>
 #include <Windows.h>
 
+#include "spdlog/common.h"
+
 namespace leprac {
 namespace fs     = std::filesystem;
 namespace ranges = std::ranges;
 namespace views  = std::views;
 namespace me     = magic_enum;
+using level      = spdlog::level::level_enum;
+
+template<typename T>
+concept CvtSV = std::convertible_to<T, std::string_view>;
 
 class Asset;
 class Config;
@@ -19,6 +25,7 @@ class Launcher;
 class Literal;
 class Logger;
 class UI;
+class Update;
 
 enum class GameID {
   Le01,
@@ -48,7 +55,7 @@ enum class Lang {
 };
 
 enum class LoggerMode {
-  // Append losgs to a file.
+  // Append logs to a file.
   // If logLines is positive, only keep the latest #logLines lines.
   // Otherwise, no line limits.
   // You can always claer the log file manually by clicking a button.
@@ -76,24 +83,52 @@ void errorBox(std::string const &text, std::string const &caption = "ERROR");
 
 bool is32bit(libmem::Process const &process);
 
-template<class... Args>
-requires(
-  sizeof...(Args) >= 1 && (std::convertible_to<Args, std::string_view> && ...)
-)
-std::string join(std::string_view sep, Args const &...args) {
-  size_t total_size = (std::string_view(args).size() + ... + 0)
-                    + (sizeof...(args) - 1) * sep.size();
-  std::string result;
-  result.reserve(total_size);
-  bool first = true;
-  (((first ? result : result.append(sep)).append(args), first = false), ...);
-  return result;
+// Use joinZeros for ImGui::Combo. There have to be two '\0' at the end.
+
+template<ranges::input_range R>
+requires ranges::common_range<R>
+      && std::convertible_to<ranges::range_value_t<R>, std::string_view>
+std::string join(std::string_view sep, R &&range) {
+  return range | views::join_with(sep) | ranges::to<std::string>();
 }
-template<typename T, size_t N>
-std::string join(std::string_view sep, std::array<T, N> const &arr) {
-  return [&]<size_t... I>(std::index_sequence<I...>) {
-    return join(sep, arr[I]...);
-  }(std::make_index_sequence<N>());
+
+template<ranges::input_range R>
+requires ranges::common_range<R>
+      && std::convertible_to<ranges::range_value_t<R>, std::string_view>
+std::string joinZeros(R &&range) {
+  return join({"\0", 1}, range).append(std::string_view("\0", 1));
 }
+
+template<class... T>
+requires(std::convertible_to<T, std::string_view> && ...)
+std::string join(std::string_view sep, T &&...args) {
+  std::array<std::string_view, sizeof...(T)> arr{std::forward<T>(args)...};
+  return join(sep, arr);
+}
+
+template<class... T>
+requires(std::convertible_to<T, std::string_view> && ...)
+std::string joinZeros(T &&...args) {
+  std::array<std::string_view, sizeof...(T)> arr{std::forward<T>(args)...};
+  return joinZeros(arr);
+}
+
+// Previous implementation
+// std::string join(std::string_view sep, std::string arg, auto const &...args)
+// requires(std::convertible_to<decltype(args), std::string_view> && ...) {
+//   if constexpr (sizeof...(args) > 0) {
+//     size_t size = arg.size()
+//                 + (std::string_view(args).size() + ...)
+//                 + sizeof...(args) * sep.size();
+//     arg.reserve(size);
+//     (arg.append(sep).append(args), ...);
+//   }
+//   return arg;
+// }
+//
+// std::string joinZeros(std::string arg, auto const &...args)
+// requires(std::convertible_to<decltype(args), std::string_view> && ...) {
+//   return join({"\0", 1}, arg, args...).append(std::string_view("\0", 1));
+// }
 }  // namespace leprac
 #endif

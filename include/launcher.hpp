@@ -3,7 +3,7 @@
 #include <d3d11.h>
 #include <Windows.h>
 
-#include "game.h"
+#include "game.hpp"
 
 namespace leprac {
 class Launcher {

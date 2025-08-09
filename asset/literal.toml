@@ -245,12 +245,12 @@ en = "Tabakata Usojikuu ~ Fools Rush In"
 zh = "束方嘘时空 ～ Fools Rush In"
 ja = "束方嘘時空　～ Fools Rush In"
 
-[UI.enable_SOCD]
+[UI.setting.enable_SOCD]
 en = "Enable SOCD"
 zh = "开启 SOCD"
 ja = "SOCD有効化"
 
-[UI.enable_SOCD.help]
+[UI.setting.enable_SOCD.help]
 en = "SOCD (Simultaneous Opposing Cardinal Directions) prioritizes the latest input when opposite directions are pressed simultaneously."
 zh = "SOCD 开启后，当相反方向键同时按下，优先响应最后按下的输入。"
 ja = "SOCDが有効時、相反する方向キーが同時押しされた場合、最後の入力を優先します。"

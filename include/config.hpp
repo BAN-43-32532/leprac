@@ -5,8 +5,8 @@
 #include <toml.hpp>
 #include <vector>
 
-#include "common.h"
-#include "logger.h"
+#include "common.hpp"
+#include "logger.hpp"
 
 namespace leprac {
 /**
@@ -127,7 +127,7 @@ class Config {
   static inline uint32_t height_{800};
 
   static inline auto logMode_{LoggerMode::file};
-  static inline auto logLevel_{spdlog::level::info};
+  static inline auto logLevel_{level::info};
   static inline int  logLines_{-1};
 
   static inline std::vector<GameInfo> gameInfos_{};

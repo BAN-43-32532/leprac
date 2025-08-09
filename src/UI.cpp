@@ -1,12 +1,12 @@
-#include "UI.h"
+#include "UI.hpp"
 
 #include <imgui.h>
 #include <magic_enum/magic_enum_all.hpp>
 
-#include "common.h"
-#include "config.h"
-#include "launcher.h"
-#include "literal.h"
+#include "common.hpp"
+#include "config.hpp"
+#include "launcher.hpp"
+#include "literal.hpp"
 
 namespace leprac {
 // Use ImGui::TextUnformatted(txt(keys)) to get faster while suppressing
@@ -19,6 +19,18 @@ constexpr auto pathSystemFonts = "C:/Windows/Fonts/";
 
 std::string gameNameTag(GameID id) {
   return std::format("{}_name", toLower(me::enum_name<GameID>(id)));
+}
+
+// ImGui demo implementation. I merged ImGui::SameLine() with it.
+static void HelpMarker(char const* desc) {
+  ImGui::SameLine();
+  ImGui::TextDisabled("(?)");
+  if (ImGui::BeginItemTooltip()) {
+    ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+    ImGui::TextUnformatted(desc);
+    ImGui::PopTextWrapPos();
+    ImGui::EndTooltip();
+  }
 }
 
 void UI::init() {
@@ -61,10 +73,11 @@ void UI::deinit() { Logger::info("UI deinit."); }
 void UI::mainMenu() {
   ImGui::SetNextWindowPos({}, ImGuiCond_Always);
   ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize, ImGuiCond_Always);
-  auto flags = ImGuiWindowFlags_NoDecoration
-             | ImGuiWindowFlags_NoMove
-             | ImGuiWindowFlags_NoBringToFrontOnFocus
-             | ImGuiWindowFlags_NoSavedSettings;
+  constexpr auto flags =
+    ImGuiWindowFlags_NoDecoration & ~ImGuiWindowFlags_NoScrollbar
+    | ImGuiWindowFlags_NoMove
+    | ImGuiWindowFlags_NoNavFocus
+    | ImGuiWindowFlags_NoBringToFrontOnFocus;
   ImGui::Begin("###MainMenu", nullptr, flags);
 
   if (ImGui::BeginTabBar("MainTabBar")) {
@@ -107,12 +120,40 @@ void UI::mainMenu_Game() {
 void UI::mainMenu_Tool() { center_(ImGui::Text("Tool")); }
 
 void UI::mainMenu_Setting() {
+  static auto strSetting = [](auto const&... keys) {
+    return str("UI", "setting", keys...);
+  };
+  static auto txtSetting = [](auto const&... keys) {
+    return txt("UI", "setting", keys...);
+  };
+  static auto lblSetting = [](auto const&... keys) {
+    return lbl("UI", "setting", keys...);
+  };
+
+  static bool test;
+  ImGui::Checkbox(lblSetting("enable_SOCD"), &test);
+  HelpMarker(txtSetting("enable_SOCD", "help"));
+  ImGui::Checkbox(lblSetting("resize_enable"), &test);
+  ImGui::Checkbox(lblSetting("check_update"), &test);
   mainMenu_Setting_StyleSelect();
   mainMenu_Setting_LangSelect();
+
+  ImGui::TextUnformatted(txtSetting("after_game_launch"));
+  ImGui::SameLine();
+  static int  a               = 0;
+  std::string afterGameLaunch = joinZeros(
+    strSetting("after_game_launch", "minimize"),
+    strSetting("after_game_launch", "close"),
+    strSetting("after_game_launch", "remain")
+  );
+  if (ImGui::Combo("###ComboAfterGameLaunch", &a, afterGameLaunch.c_str())) {}
+
+  ImGui::TextUnformatted(txtSetting("about"));
 }
 void UI::mainMenu_Game_Info(GameID gameID) {
   backButton();
   ImGui::SameLine();
+
   center_(ImGui::TextUnformatted(txt("UI", gameNameTag(gameID))));
   static bool selected{};
   if (ImGui::BeginTable(
@@ -136,7 +177,7 @@ void UI::mainMenu_Setting_StyleSelect() {
   static int idx = static_cast<int>(*me::enum_index(Config::style()));
   ImGui::TextUnformatted(txt("UI", "setting", "style"));
   ImGui::SameLine();
-  if (ImGui::Combo("###ComboStyle", &idx, "Dark\0Light\0Classic")) {
+  if (ImGui::Combo("###ComboStyle", &idx, "Dark\0Light\0Classic\0")) {
     auto style      = *me::enum_cast<Style>(idx);
     Config::style() = style;
     setStyle(style);
@@ -145,26 +186,14 @@ void UI::mainMenu_Setting_StyleSelect() {
 
 void UI::mainMenu_Setting_LangSelect() {
   static int idx = static_cast<int>(*me::enum_index(Config::lang()));
-  static constexpr size_t numLang = me::enum_count<Lang>();
-  static auto const       strLang = [] {
-    std::array<std::string, numLang> tmp;
-    size_t                           i = 0;
-    for (auto name: me::enum_names<Lang>()) {
-      tmp[i] =
-        Asset::literal().at("lang_name").at(std::string(name)).as_string();
-      ++i;
-    }
-    return tmp;
-  }();
-  static auto const itemLang = [] {
-    std::array<char const*, numLang> arr{};
-    for (size_t i = 0; i < numLang; ++i) { arr[i] = strLang[i].c_str(); }
-    return arr;
-  }();
 
   ImGui::TextUnformatted(txt("UI", "setting", "language"));
   ImGui::SameLine();
-  if (ImGui::Combo("###ComboLang", &idx, itemLang.data(), numLang)) {
+  auto langNames = me::enum_names<Lang>() | views::transform([](auto sv) {
+    return Asset::literal().at("lang_name").at(std::string(sv)).as_string();
+  });
+
+  if (ImGui::Combo("###ComboLang", &idx, joinZeros(langNames).c_str())) {
     Config::lang() = *me::enum_cast<Lang>(idx);
     Literal::cacheClear();
   }

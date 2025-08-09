@@ -1,9 +1,9 @@
 #include <Windows.h>
 
-#include "asset.h"
-#include "config.h"
-#include "launcher.h"
-#include "logger.h"
+#include "asset.hpp"
+#include "config.hpp"
+#include "launcher.hpp"
+#include "logger.hpp"
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
   using namespace leprac;

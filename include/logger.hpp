@@ -3,7 +3,7 @@
 #include <deque>
 #include <spdlog/spdlog.h>
 
-#include "common.h"
+#include "common.hpp"
 
 namespace leprac {
 constexpr uint32_t minLogLines = 10;
@@ -41,18 +41,15 @@ class Logger {
 
   struct LogEntry {
     spdlog::log_clock::time_point log_time;
-    spdlog::level::level_enum     lvl{spdlog::level::off};
+    level                         lvl{level::off};
     std::string                   msg;
   };
   // Save messages here before Logger::init() and will output after that
   static inline std::deque<LogEntry> buffer_;
 
   template<class... Args>
-  static void logBuffered(
-    spdlog::level::level_enum        lvl,
-    spdlog::format_string_t<Args...> fmt,
-    Args &&...args
-  );
+  static void
+  logBuffered(level lvl, spdlog::format_string_t<Args...> fmt, Args &&...args);
   static void drainBuffer();
 
   static void initConsole();
@@ -63,27 +60,27 @@ class Logger {
 
 template<class... Args>
 void Logger::trace(spdlog::format_string_t<Args...> fmt, Args &&...args) {
-  logBuffered(spdlog::level::trace, fmt, std::forward<Args>(args)...);
+  logBuffered(level::trace, fmt, std::forward<Args>(args)...);
 }
 
 template<class... Args>
 void Logger::debug(spdlog::format_string_t<Args...> fmt, Args &&...args) {
-  logBuffered(spdlog::level::debug, fmt, std::forward<Args>(args)...);
+  logBuffered(level::debug, fmt, std::forward<Args>(args)...);
 }
 
 template<class... Args>
 void Logger::info(spdlog::format_string_t<Args...> fmt, Args &&...args) {
-  logBuffered(spdlog::level::info, fmt, std::forward<Args>(args)...);
+  logBuffered(level::info, fmt, std::forward<Args>(args)...);
 }
 
 template<class... Args>
 void Logger::warn(spdlog::format_string_t<Args...> fmt, Args &&...args) {
-  logBuffered(spdlog::level::warn, fmt, std::forward<Args>(args)...);
+  logBuffered(level::warn, fmt, std::forward<Args>(args)...);
 }
 
 template<class... Args>
 void Logger::error(spdlog::format_string_t<Args...> fmt, Args &&...args) {
-  logBuffered(spdlog::level::err, fmt, std::forward<Args>(args)...);
+  logBuffered(level::err, fmt, std::forward<Args>(args)...);
 }
 
 template<class... Args>
@@ -99,7 +96,7 @@ void Logger::critical(spdlog::format_string_t<Args...> fmt, Args &&...args) {
 
 template<class... Args>
 void Logger::logBuffered(
-  spdlog::level::level_enum        lvl,
+  level                            lvl,
   spdlog::format_string_t<Args...> fmt,
   Args &&...args
 ) {
