@@ -36,9 +36,9 @@ auto Game::getID() const { return gameId_; }
 
 std::vector<GameID> Game::detectRunningGames() {
   std::vector<GameID> result;
-  for (auto gameId: me::enum_values<GameID>()) {
-    if (auto process = libmem::FindProcess(toProcessName(gameId).c_str())) {
-      result.emplace_back(gameId);
+  for (auto gameID: me::enum_values<GameID>()) {
+    if (auto process = libmem::FindProcess(toProcessName(gameID).c_str())) {
+      result.emplace_back(gameID);
     }
   }
   return result;

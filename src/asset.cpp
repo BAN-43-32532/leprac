@@ -15,8 +15,7 @@ void Asset::init() {
   load();
 }
 void Asset::deinit() {
-  Logger::info("Asset deinit.");
-  Logger::info("Asset deinit done.");
+  Logger::info("Asset deinit (no work to do).");
 }
 
 void Asset::load() {

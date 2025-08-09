@@ -4,12 +4,9 @@
 #include <backends/imgui_impl_win32.h>
 #include <d3d11.h>
 #include <imgui.h>
-#include <unordered_map>
 #include <Windows.h>
 
-#include "asset.h"
 #include "config.h"
-#include "literal.h"
 #include "logger.h"
 #include "UI.h"
 
@@ -18,19 +15,16 @@ extern IMGUI_IMPL_API LRESULT
   ImGui_ImplWin32_WndProcHandler(HWND, UINT, WPARAM, LPARAM);
 
 namespace leprac {
-namespace {
-UINT ResizeWidth{};
-UINT ResizeHeight{};
-}  // namespace
-
 // Forward declarations of helper functions
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 void Launcher::init() {
   Logger::info("Launcher init.");
   std::atexit(deinit);
+
   initWindow();
   initImGui();
+  UI::init();
   game_.init();
 }
 
@@ -40,69 +34,48 @@ void Launcher::deinit() {
   ImGui_ImplWin32_Shutdown();
   ImGui::DestroyContext();
 
-  CleanupDeviceD3D();
-  DestroyWindow(hwnd);
-  UnregisterClassW(wc.lpszClassName, wc.hInstance);
+  cleanupDeviceD3D();
+  DestroyWindow(hwnd_);
+  UnregisterClass(wc_.lpszClassName, wc_.hInstance);
   Logger::info("Launcher deinit done.");
 }
 
 void Launcher::run() {
-  bool done = false;
-  while (!done) {
+  while (true) {
     // Poll and handle messages (inputs, window resize, etc.)
-    // See the WndProc() function below for our to dispatch events to the Win32
-    // backend.
     MSG msg;
     while (PeekMessage(&msg, nullptr, 0U, 0U, PM_REMOVE)) {
       TranslateMessage(&msg);
       DispatchMessage(&msg);
-      if (msg.message == WM_QUIT) done = true;
+      if (msg.message == WM_QUIT) return;
     }
-    if (done) break;
 
     // Handle window being minimized or screen locked
-    if (SwapChainOccluded
-        && SwapChain->Present(0, DXGI_PRESENT_TEST) == DXGI_STATUS_OCCLUDED) {
-      Sleep(10);
+    if (swapChainOccluded
+        && swapChain->Present(0, DXGI_PRESENT_TEST) == DXGI_STATUS_OCCLUDED) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(16));
       continue;
     }
-    SwapChainOccluded = false;
+    swapChainOccluded = false;
 
     // Handle window resize (we don't resize directly in the WM_SIZE handler)
-    if (ResizeWidth != 0 && ResizeHeight != 0) {
-      CleanupRenderTarget();
-      SwapChain->ResizeBuffers(
-        0, ResizeWidth, ResizeHeight, DXGI_FORMAT_UNKNOWN, 0
-      );
-      ResizeWidth = ResizeHeight = 0;
-      CreateRenderTarget();
-    }
+    handleResize();
 
     // Start the Dear ImGui frame
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
 
-    UI();
+    UI::mainMenu();
 
     // Rendering
     ImGui::Render();
-    ImVec4      clear_color               = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-    float const clear_color_with_alpha[4] = {
-      clear_color.x * clear_color.w,
-      clear_color.y * clear_color.w,
-      clear_color.z * clear_color.w,
-      clear_color.w
-    };
     d3dDeviceContext->OMSetRenderTargets(1, &mainRenderTargetView, nullptr);
-    d3dDeviceContext->ClearRenderTargetView(
-      mainRenderTargetView, clear_color_with_alpha
-    );
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
     // Present
-    HRESULT hr        = SwapChain->Present(1, 0);  // Present with vsync
-    SwapChainOccluded = (hr == DXGI_STATUS_OCCLUDED);
+    HRESULT hr        = swapChain->Present(1, 0);  // Present with vsync
+    swapChainOccluded = (hr == DXGI_STATUS_OCCLUDED);
   }
 }
 
@@ -122,101 +95,62 @@ void Launcher::run() {
 //   }
 // }
 
-void Launcher::UI() {
-  ImGuiIO& io = ImGui::GetIO();
-  ImGui::SetNextWindowPos({}, ImGuiCond_Always);
-  ImGui::SetNextWindowSize(io.DisplaySize, ImGuiCond_Always);
-  auto flags = ImGuiWindowFlags_NoDecoration
-             | ImGuiWindowFlags_NoMove
-             | ImGuiWindowFlags_NoBringToFrontOnFocus
-             | ImGuiWindowFlags_NoSavedSettings;
-
-  ImGui::Begin("###Fullscreen", nullptr, flags);
-  ImGui::ShowDemoWindow();
-
-  if (ImGui::BeginTabBar("Main tab bar")) {
-    if (ImGui::BeginTabItem(lbl("UI", "game"))) {
-      std::unordered_map<GameID, bool> gameSelected;
-
-      ImGui::Selectable(lbl("UI", "le01_name"), &gameSelected[GameID::Le01]);
-      ImGui::Selectable(lbl("UI", "le02_name"), &gameSelected[GameID::Le02]);
-      ImGui::Selectable(lbl("UI", "le03_name"), &gameSelected[GameID::Le03]);
-      ImGui::Selectable(lbl("UI", "le04_name"), &gameSelected[GameID::Le04]);
-      ImGui::Selectable(lbl("UI", "uso_name"), &gameSelected[GameID::Uso]);
-      ImGui::EndTabItem();
-    }
-    if (ImGui::BeginTabItem(lbl("UI", "tool"))) {
-      ImGui::Text("Tool");
-      ImGui::EndTabItem();
-    }
-    if (ImGui::BeginTabItem(lbl("UI", "setting"))) {
-      UI::StyleSelect();
-      UI::LangSelect();
-      ImGui::EndTabItem();
-    }
-    ImGui::EndTabBar();
-  }
-  ImGui::End();
-}
-
 void Launcher::initWindow() {
   // Make process DPI aware and obtain main monitor scale
   ImGui_ImplWin32_EnableDpiAwareness();
-  mainScale = ImGui_ImplWin32_GetDpiScaleForMonitor(
+  mainScale_ = ImGui_ImplWin32_GetDpiScaleForMonitor(
     MonitorFromPoint({}, MONITOR_DEFAULTTOPRIMARY)
   );
 
   auto hInstance = GetModuleHandle(nullptr);
-  wc             = {
-    sizeof(wc),
+  wc_            = {
+    sizeof(wc_),
     CS_CLASSDC,
     WndProc,
     0,
     0,
     hInstance,
-    LoadIconW(hInstance, MAKEINTRESOURCEW(101)),
+    LoadIcon(hInstance, MAKEINTRESOURCE(101)),
     nullptr,
     nullptr,
     nullptr,
     L"leprac",
     LoadIcon(hInstance, MAKEINTRESOURCE(101))
   };
-  RegisterClassExW(&wc);
+  RegisterClassEx(&wc_);
 
   // auto windowStyle = WS_POPUP | WS_THICKFRAME;
   auto windowStyle = WS_TILEDWINDOW & ~WS_MAXIMIZEBOX;
   RECT workArea{};
-  SystemParametersInfoW(SPI_GETWORKAREA, 0, &workArea, 0);
-  int screen_width  = workArea.right - workArea.left;
-  int screen_height = workArea.bottom - workArea.top;
-  int window_width  = static_cast<int>(720 * mainScale);
-  int window_height = static_cast<int>(960 * mainScale);
-  int pos_x         = workArea.left + (screen_width - window_width) / 2;
-  int pos_y         = workArea.top + (screen_height - window_height) / 2;
-  hwnd              = CreateWindowW(
-    wc.lpszClassName,
+  SystemParametersInfo(SPI_GETWORKAREA, 0, &workArea, 0);
+  auto windowWidth =
+    static_cast<uint32_t>(static_cast<float>(Config::width()) * mainScale_);
+  auto windowHeight =
+    static_cast<uint32_t>(static_cast<float>(Config::height()) * mainScale_);
+  hwnd_ = CreateWindow(
+    wc_.lpszClassName,
     L"leprac",
     windowStyle,
-    pos_x,
-    pos_y,
-    window_width,
-    window_height,
+    (workArea.left + workArea.right - windowWidth) / 2,
+    (workArea.top + workArea.bottom - windowHeight) / 2,
+    windowWidth,
+    windowHeight,
     nullptr,
     nullptr,
-    wc.hInstance,
+    wc_.hInstance,
     nullptr
   );
 
   // Initialize Direct3D
-  if (!CreateDeviceD3D(hwnd)) {
-    CleanupDeviceD3D();
-    UnregisterClassW(wc.lpszClassName, wc.hInstance);
+  if (!createDeviceD3D()) {
+    cleanupDeviceD3D();
+    UnregisterClass(wc_.lpszClassName, wc_.hInstance);
     Logger::critical("Failed to create device");
   }
 
   // Show the window
-  ShowWindow(hwnd, SW_SHOWDEFAULT);
-  UpdateWindow(hwnd);
+  ShowWindow(hwnd_, SW_SHOWDEFAULT);
+  UpdateWindow(hwnd_);
 }
 
 void Launcher::initImGui() {
@@ -226,43 +160,14 @@ void Launcher::initImGui() {
   io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
   io.IniFilename  = nullptr;
 
-  // Setup Dear ImGui style
-  UI::setStyle(Config::style());
-
-  // Setup scaling
-  ImGuiStyle& style = ImGui::GetStyle();
-  style.ScaleAllSizes(mainScale);
-  style.FontScaleDpi = mainScale;
-
   // Setup Platform/Renderer backends
-  ImGui_ImplWin32_Init(hwnd);
+  ImGui_ImplWin32_Init(hwnd_);
   ImGui_ImplDX11_Init(d3dDevice, d3dDeviceContext);
-
-  // If no fonts are loaded, dear imgui will use the default font.
-  // You can also load multiple fonts
-  // and use ImGui::PushFont()/PopFont() to select them.
-  // AddFontFromFileTTF() will return the ImFont*
-  // so you can store it if you need to select the font among multiple.
-  // If the file cannot be loaded, the function will return a nullptr.
-  // Please handle those errors in your application (e.g. use an assertion,
-  // or display an error and quit).
-  // Use '#define IMGUI_ENABLE_FREETYPE' in your imconfig file
-  // to use Freetype for higher quality font rendering.
-  // Read 'docs/FONTS.md' for more instructions and details.
-  style.FontSizeBase = 20.0f;
-  io.Fonts->AddFontDefault();
-  // io.Fonts->AddFontFromFileTTF("C:/Windows/Fonts/segoeui.ttf");
-  // io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf");
-  // io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf");
-  // io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf");
-  // ImFont* font = io.Fonts->AddFontFromFileTTF("C:/Windows/Fonts/ArialUni.ttf");
-  // IM_ASSERT(font != nullptr);
-  UI::setImGuiFont();
 }
 
 // Helper functions
 
-bool Launcher::CreateDeviceD3D(HWND hWnd) {
+bool Launcher::createDeviceD3D() {
   // Setup swap chain
   DXGI_SWAP_CHAIN_DESC sd;
   ZeroMemory(&sd, sizeof(sd));
@@ -274,7 +179,7 @@ bool Launcher::CreateDeviceD3D(HWND hWnd) {
   sd.BufferDesc.RefreshRate.Denominator = 1;
   sd.Flags              = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
   sd.BufferUsage        = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-  sd.OutputWindow       = hWnd;
+  sd.OutputWindow       = hwnd_;
   sd.SampleDesc.Count   = 1;
   sd.SampleDesc.Quality = 0;
   sd.Windowed           = TRUE;
@@ -296,7 +201,7 @@ bool Launcher::CreateDeviceD3D(HWND hWnd) {
     2,
     D3D11_SDK_VERSION,
     &sd,
-    &SwapChain,
+    &swapChain,
     &d3dDevice,
     &featureLevel,
     &d3dDeviceContext
@@ -311,21 +216,21 @@ bool Launcher::CreateDeviceD3D(HWND hWnd) {
       2,
       D3D11_SDK_VERSION,
       &sd,
-      &SwapChain,
+      &swapChain,
       &d3dDevice,
       &featureLevel,
       &d3dDeviceContext
     );
   if (res != S_OK) return false;
-  CreateRenderTarget();
+  createRenderTarget();
   return true;
 }
 
-void Launcher::CleanupDeviceD3D() {
-  CleanupRenderTarget();
-  if (SwapChain) {
-    SwapChain->Release();
-    SwapChain = nullptr;
+void Launcher::cleanupDeviceD3D() {
+  cleanupRenderTarget();
+  if (swapChain) {
+    swapChain->Release();
+    swapChain = nullptr;
   }
   if (d3dDeviceContext) {
     d3dDeviceContext->Release();
@@ -337,19 +242,33 @@ void Launcher::CleanupDeviceD3D() {
   }
 }
 
-void Launcher::CreateRenderTarget() {
+void Launcher::createRenderTarget() {
   ID3D11Texture2D* pBackBuffer;
-  SwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
+  swapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
   d3dDevice->CreateRenderTargetView(
     pBackBuffer, nullptr, &mainRenderTargetView
   );
   pBackBuffer->Release();
 }
 
-void Launcher::CleanupRenderTarget() {
+void Launcher::cleanupRenderTarget() {
   if (mainRenderTargetView) {
     mainRenderTargetView->Release();
     mainRenderTargetView = nullptr;
+  }
+}
+
+void Launcher::handleResize() {
+  if (resizeWidth_ != 0 && resizeHeight_ != 0) {
+    cleanupRenderTarget();
+    swapChain->ResizeBuffers(
+      0, resizeWidth_, resizeHeight_, DXGI_FORMAT_UNKNOWN, 0
+    );
+    resizeWidth_ = resizeHeight_ = 0;
+    createRenderTarget();
+
+    Config::width()  = resizeWidth_;
+    Config::height() = resizeHeight_;
   }
 }
 
@@ -368,8 +287,8 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   // case WM_NCHITTEST: return HTCAPTION;
   case WM_SIZE:
     if (wParam == SIZE_MINIMIZED) return 0;
-    ResizeWidth  = static_cast<UINT>(LOWORD(lParam));  // Queue resize
-    ResizeHeight = static_cast<UINT>(HIWORD(lParam));
+    Launcher::resizeWidth()  = LOWORD(lParam);  // Queue resize
+    Launcher::resizeHeight() = HIWORD(lParam);
     return 0;
   case WM_SYSCOMMAND:
     if ((wParam & 0xfff0) == SC_KEYMENU)  // Disable ALT application menu
@@ -378,6 +297,6 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   case WM_DESTROY: PostQuitMessage(0); return 0;
   default        : Logger::trace("Unhandled message {}", msg);
   }
-  return DefWindowProcW(hWnd, msg, wParam, lParam);
+  return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 }  // namespace leprac

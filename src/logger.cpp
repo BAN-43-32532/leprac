@@ -11,46 +11,43 @@ namespace leprac {
 namespace {
 std::string const pathLog{"leprac-log.txt"};
 std::string const loggerName{"leprac"};
-std::string const divLine(41, '=');
-auto const        logHeader =
-  std::format("\n{}\n leprac v{} log \n{}", divLine, VERSION, divLine);
-auto const logFooter =
-  std::format("{}\n{:^41}\n{}", divLine, "log terminates", divLine);
 }  // namespace
 
 void Logger::init() {
-  std::atexit(deinit);
-  Config::warmup();
+  info("Logger init.");
+  // std::atexit(deinit); is called at main() so as to be before other deinits
   switch (Config::logMode()) {
-  case LoggerMode::file:
-    if (Config::logLines() == -1) {
-      initBasic();
-    } else {
-      initRing();
-    }
-    break;
+  case LoggerMode::file   : initFile(); break;
   case LoggerMode::console: initConsole();
   }
-  logger_->set_pattern("[%Y-%m-%d %H:%M:%S] %^[%l]%$ [%n] %v");
-  logger_->set_level(Config::logLevel());
-  logger_->log(spdlog::level::off, logHeader);
+  spdlog::set_pattern("[%Y-%m-%d %H:%M:%S] [%n] %^[%l]%$ %v");
+  spdlog::set_level(Config::logLevel());
+  drainBuffer();
 }
 
 void Logger::deinit() {
-  info("Logger deinit.");
-  logger_->log(spdlog::level::off, logFooter);
-  info("Logger deinit done.");
+  info("Logger deinit.\n");
+  if (logger_) { logger_->flush(); }
   spdlog::shutdown();
+}
+
+void Logger::drainBuffer() {
+  if (!logger_) {
+    debug("Tried drainBuffer when logger is null.");
+    return;
+  }
+  while (!buffer_.empty()) {
+    auto entry = buffer_.front();
+    buffer_.pop_front();
+    logger_->log(entry.log_time, {}, entry.lvl, entry.msg);
+  }
 }
 
 void Logger::initConsole() {
   SetConsoleOutputCP(CP_UTF8);
   if (!AllocConsole()) {
-    initBasic();
-    error(
-      "[Logger] Failed to allocate console. Fallback to basic logger (single "
-      "infinite log file)."
-    );
+    initFile();
+    error("Failed to allocate console. Fallback to file logger.");
     return;
   }
 
@@ -58,6 +55,13 @@ void Logger::initConsole() {
   freopen_s(&stream, "CONOUT$", "w", stdout);
   freopen_s(&stream, "CONOUT$", "w", stderr);
   logger_ = spdlog::stdout_color_st(loggerName);
+}
+void Logger::initFile() {
+  if (Config::logLines() == -1) {
+    initBasic();
+  } else {
+    initRing();
+  }
 }
 
 void Logger::initBasic() {
@@ -69,6 +73,4 @@ void Logger::initRing() {
     std::make_shared<spdlog::sinks::ringbuffer_sink_st>(Config::logLines());
   logger_ = std::make_shared<spdlog::logger>(loggerName, ringSink);
 }
-
-void Logger::flush() { logger_->flush(); }
 }  // namespace leprac

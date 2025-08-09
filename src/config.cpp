@@ -36,42 +36,38 @@ Config::Item const itemLogLines{
   "lines",
   R"(Max lines in log file. Valid: -1 (no limits), 10~1000)"
 };
+
+Config::Item const itemGameInfo{"game"};
+Config::Item const itemGameID{"id"};
+Config::Item const itemGameVersion{"version"};
+Config::Item const itemGamePath{"path"};
+
+Config::Item const itemFontInfo{"font"};
+Config::Item const itemFontPath{"path"};
+Config::Item const itemFontSize{"size"};
 }  // namespace
 
-void Config::warmup() {
-  auto res      = toml::try_parse(pathConfig);
-  parseSuccess_ = res.is_ok();
-  if (!parseSuccess_) { return; }
-  config_ = res.unwrap();
-
-  if (!config_.contains(itemLog.key)) { return; }
-  auto log = config_[itemLog.key];
-
-  auto strLogMode  = toml::find_or(log, itemLogMode.key, "");
-  logMode()        = me::enum_cast<LoggerMode>(strLogMode).value_or(logMode_);
-  auto strLogLevel = toml::find_or(log, itemLogLevel.key, "");
-  logLevel() =
-    me::enum_cast<spdlog::level::level_enum>(strLogLevel).value_or(logLevel_);
-  logLines() = toml::find_or(log, itemLogLines.key, logLines_);
-}
-
 void Config::init() {
-  Logger::info("Config init start.");
+  Logger::info("Config init.");
   std::atexit(deinit);
-  if (!parseSuccess_) {
+  if (auto res = toml::try_parse(pathConfig); res.is_err()) {
     Logger::warn(
-      "\"{}\" failed to parse. It may not exist or contain invalid formatting. "
+      "\"{}\" failed to parse. It may not exist or contain invalid format. "
       "Leprac will auto-generate a correct config file upon exit.",
       pathConfig
     );
     return;
+  } else {
+    config_ = res.unwrap();
   }
 
   auto strLang = toml::find_or(config_, itemLang.key, "");
   if (auto res = me::enum_cast<Lang>(strLang)) {
     lang() = *res;
   } else {
-    Logger::info("Language config not found. Prompt language selection window");
+    Logger::info(
+      "Language config not found. Prompt language selection window."
+    );
     // TODO: Prompt language selection window
   }
   auto strStyle = toml::find_or(config_, itemStyle.key, "");
@@ -79,18 +75,51 @@ void Config::init() {
   width()       = toml::find_or(config_, itemWidth.key, width_);
   height()      = toml::find_or(config_, itemHeight.key, height_);
 
-  // TODO: GameInfo and FontInfo
-  Logger::info("Config init done.");
+  if (!config_.contains(itemLog.key)) { return; }
+  auto log         = config_.at(itemLog.key);
+  auto strLogMode  = toml::find_or(log, itemLogMode.key, "");
+  logMode()        = me::enum_cast<LoggerMode>(strLogMode).value_or(logMode_);
+  auto strLogLevel = toml::find_or(log, itemLogLevel.key, "");
+  logLevel() =
+    me::enum_cast<spdlog::level::level_enum>(strLogLevel).value_or(logLevel_);
+  logLines() = toml::find_or(log, itemLogLines.key, logLines_);
+
+  if (config_.contains(itemGameInfo.key)) {
+    for (auto const& gameInfoValue: config_.at(itemGameInfo.key).as_array()) {
+      GameInfo gameInfo;
+      try {
+        gameInfo.id =
+          *me::enum_cast<GameID>(gameInfoValue.at(itemGameID.key).as_string());
+        gameInfo.version = gameInfoValue.at(itemGameVersion.key).as_string();
+        gameInfo.path    = gameInfoValue.at(itemGamePath.key).as_string();
+      } catch (std::exception const& e) {
+        Logger::warn("Invalid [[game]] item omitted. Exception: {}", e.what());
+      }
+      gameInfos_.emplace_back(gameInfo);
+    }
+  }
+
+  if (config_.contains(itemFontInfo.key)) {
+    for (auto const& fontInfoValue: config_.at(itemFontInfo.key).as_array()) {
+      FontInfo fontInfo;
+      try {
+        fontInfo.path = fontInfoValue.at(itemFontPath.key).as_string();
+        fontInfo.size = fontInfoValue.at(itemFontSize.key).as_integer();
+      } catch (std::exception const& e) {
+        Logger::warn("Invalid [[font]] item omitted. Exception: {}", e.what());
+      }
+      fontInfos_.emplace_back(fontInfo);
+    }
+  }
 }
 
 void Config::deinit() {
   Logger::info("Config deinit.");
   sync();
-  Logger::info("Config deinit done.");
 }
 
 void Config::sync() {
-  Logger::info("Config sync all items.");
+  Logger::info("Config sync.");
   syncLang();
   syncStyle();
   syncWidth();
@@ -102,7 +131,6 @@ void Config::sync() {
 
   syncGameInfos();
   syncFontInfos();
-  Logger::info("Config sync done.");
 }
 
 // void Config::save() {

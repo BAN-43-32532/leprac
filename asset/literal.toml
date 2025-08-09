@@ -279,3 +279,8 @@ ja = "終了"
 en = "Remains"
 zh = "保持开启"
 ja = "開いたまま"
+
+[UI.back]
+en = "Back"
+zh = "返回"
+ja = "戻る"

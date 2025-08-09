@@ -74,8 +74,7 @@ class Config {
   };
 
   Config() = delete;
-  static void warmup();  // Load config for Logger
-  static void init();    // Prepare other config and detect if lang is specified
+  static void init();    // Prepare config and detect if lang is specified
   static void deinit();  // Sync and save to leprac-cfg.toml (with comments)
 
   static void sync();
@@ -127,7 +126,7 @@ class Config {
   static inline uint32_t width_{600};
   static inline uint32_t height_{800};
 
-  static inline auto logMode_{LoggerMode::console};
+  static inline auto logMode_{LoggerMode::file};
   static inline auto logLevel_{spdlog::level::info};
   static inline int  logLines_{-1};
 
