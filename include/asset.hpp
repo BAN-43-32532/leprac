@@ -1,5 +1,5 @@
-#ifndef ASSET_H
-#define ASSET_H
+#ifndef ASSET_HPP
+#define ASSET_HPP
 #include <toml.hpp>
 
 #include "common.hpp"
@@ -31,4 +31,4 @@ class Asset {
   static inline std::unordered_map<GameID, toml::value> pattern_;
 };
 }  // namespace leprac
-#endif
+#endif  // ASSET_HPP

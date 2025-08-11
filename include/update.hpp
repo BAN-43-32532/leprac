@@ -1,5 +1,5 @@
-#ifndef UPDATE_H
-#define UPDATE_H
+#ifndef UPDATE_HPP
+#define UPDATE_HPP
 #include <string>
 
 namespace leprac {
@@ -14,4 +14,4 @@ class Update {
   notifyUpdate(std::string const& latestVersion, std::string const& url);
 };
 }  // namespace leprac
-#endif
+#endif  // UPDATE_HPP

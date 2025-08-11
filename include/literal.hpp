@@ -1,5 +1,5 @@
-#ifndef LITERAL_H
-#define LITERAL_H
+#ifndef LITERAL_HPP
+#define LITERAL_HPP
 #include <magic_enum/magic_enum_all.hpp>
 #include <toml.hpp>
 
@@ -103,4 +103,4 @@ void Literal::cachingLabel(T&&... keys) {
   cacheLabel[t] = std::format("{}###{}", str(keys...), t);
 }
 }  // namespace leprac
-#endif
+#endif  // LITERAL_HPP

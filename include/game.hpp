@@ -1,21 +1,32 @@
-#ifndef GAME_H
-#define GAME_H
+#ifndef GAME_HPP
+#define GAME_HPP
 #include <libmem/libmem.hpp>
 #include <string>
 #include <vector>
 
 #include "common.hpp"
-#include "logger.hpp"
 
 namespace leprac {
 class Game {
  public:
-  void init();
+  Game(GameID);
 
   [[nodiscard]] auto getID() const;
   [[nodiscard]] auto process() const;
 
   static std::vector<GameID> detectRunningGames();
+
+  // Replace the first '_' with '.'
+  static std::string versionToLiteral(std::string version);
+
+  // std::nullopt, invalid; true, supported; false, not supported.
+  static std::optional<bool>
+  isVersionSupported(GameID id, std::string const &version);
+
+  static std::vector<char>     loadBinary(std::string const &path);
+  // If this exe seems not a len'en game (no ID matches), return std::nullopt.
+  static std::optional<GameID> searchIDFromEXE(std::string const &path);
+  static std::string searchVersionFromEXE(GameID id, std::string const &path);
 
  private:
   bool                           completeGameInfo();
@@ -32,4 +43,4 @@ class Game {
   // libmem::Process gameProcess_;
 };
 }  // namespace leprac
-#endif
+#endif  // GAME_HPP

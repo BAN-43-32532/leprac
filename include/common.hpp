@@ -1,5 +1,5 @@
-#ifndef COMMON_H
-#define COMMON_H
+#ifndef COMMON_HPP
+#define COMMON_HPP
 #include <filesystem>
 #include <libmem/libmem.hpp>
 #include <magic_enum/magic_enum_all.hpp>
@@ -69,7 +69,10 @@ enum class Style {
   classic,
 };
 
-constexpr auto VERSION = "0.1.0";
+constexpr inline auto VERSION = "0.1.0";
+
+constexpr inline uint32_t minLogLines = 10;
+constexpr inline uint32_t maxLogLines = 1000;
 
 std::string  toString(std::wstring const &wstr);
 std::wstring toWstring(std::string const &str);
@@ -131,4 +134,4 @@ std::string joinZeros(T &&...args) {
 //   return join({"\0", 1}, arg, args...).append(std::string_view("\0", 1));
 // }
 }  // namespace leprac
-#endif
+#endif  // COMMON_HPP

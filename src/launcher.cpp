@@ -25,7 +25,7 @@ void Launcher::init() {
   initWindow();
   initImGui();
   UI::init();
-  game_.init();
+  // game_.init();
 }
 
 void Launcher::deinit() {
@@ -70,6 +70,10 @@ void Launcher::run() {
 
     // Rendering
     ImGui::Render();
+    constexpr float clear_color_with_alpha[4]{1, 1, 1, 0};
+    d3dDeviceContext->ClearRenderTargetView(
+      mainRenderTargetView, clear_color_with_alpha
+    );
     d3dDeviceContext->OMSetRenderTargets(1, &mainRenderTargetView, nullptr);
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
@@ -127,7 +131,8 @@ void Launcher::initWindow() {
     static_cast<uint32_t>(static_cast<float>(Config::width()) * mainScale_);
   auto windowHeight =
     static_cast<uint32_t>(static_cast<float>(Config::height()) * mainScale_);
-  hwnd_ = CreateWindow(
+  hwnd_ = CreateWindowEx(
+    WS_EX_LAYERED,
     wc_.lpszClassName,
     L"leprac",
     windowStyle,
@@ -140,6 +145,10 @@ void Launcher::initWindow() {
     wc_.hInstance,
     nullptr
   );
+
+  uint8_t alpha = 255;
+  // SetLayeredWindowAttributes(hwnd_, 0, alpha, LWA_ALPHA);
+  SetLayeredWindowAttributes(hwnd_, 0, alpha, LWA_ALPHA);
 
   // Initialize Direct3D
   if (!createDeviceD3D()) {

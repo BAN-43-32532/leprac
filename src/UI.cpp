@@ -2,11 +2,14 @@
 
 #include <imgui.h>
 #include <magic_enum/magic_enum_all.hpp>
+#include <portable-file-dialogs/portable-file-dialogs.h>
+#include <typeindex>
 
 #include "common.hpp"
 #include "config.hpp"
 #include "launcher.hpp"
 #include "literal.hpp"
+#include "user_custom_style.hpp"
 
 namespace leprac {
 // Use ImGui::TextUnformatted(txt(keys)) to get faster while suppressing
@@ -21,22 +24,11 @@ std::string gameNameTag(GameID id) {
   return std::format("{}_name", toLower(me::enum_name<GameID>(id)));
 }
 
-// ImGui demo implementation. I merged ImGui::SameLine() with it.
-static void HelpMarker(char const* desc) {
-  ImGui::SameLine();
-  ImGui::TextDisabled("(?)");
-  if (ImGui::BeginItemTooltip()) {
-    ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
-    ImGui::TextUnformatted(desc);
-    ImGui::PopTextWrapPos();
-    ImGui::EndTooltip();
-  }
-}
-
 void UI::init() {
   Logger::info("UI init.");
   std::atexit(deinit);
 
+  addCustomStyles();
   setStyle(Config::style());
   ImGuiStyle& style = ImGui::GetStyle();
   style.ScaleAllSizes(Launcher::mainScale());
@@ -155,22 +147,71 @@ void UI::mainMenu_Game_Info(GameID gameID) {
   ImGui::SameLine();
 
   center_(ImGui::TextUnformatted(txt("UI", gameNameTag(gameID))));
-  static bool selected{};
+  static int              idxSelected = -1;
+  static Config::GameInfo infoSelected{};
   if (ImGui::BeginTable(
         "GameInfoTable", 2, ImGuiTableFlags_Resizable | ImGuiTableFlags_Borders
       )) {
-    for (auto const& gameInfo: Config::gameInfos()) {
+    for (auto const& [i, gameInfo]: views::enumerate(Config::gameInfos())) {
       if (gameInfo.id != gameID) { continue; }
       ImGui::TableNextRow();
       ImGui::TableNextColumn();
+      bool selected{idxSelected == i};
       ImGui::Selectable(
-        gameInfo.version.c_str(), &selected, ImGuiSelectableFlags_SpanAllColumns
+        Game::versionToLiteral(gameInfo.version).c_str(),
+        &selected,
+        ImGuiSelectableFlags_SpanAllColumns
       );
+      if (selected) {
+        idxSelected  = i;
+        infoSelected = gameInfo;
+      } else if (idxSelected == i) {
+        idxSelected = -1;
+      }
       ImGui::TableNextColumn();
       ImGui::TextUnformatted(gameInfo.path.c_str());
     }
     ImGui::EndTable();
   }
+  if (ImGui::Button(lbl("UI", "game", "add"))) {
+    auto a = pfd::open_file(
+               "", "", {"EXE Files (.exe)", "*.exe"}, pfd::opt::multiselect
+    )
+               .result();
+    if (!a.empty()) {
+      Logger::debug("{}", a[0]);
+      Game::searchIDFromEXE(a[0]);
+      Game::searchVersionFromEXE(gameID, a[0]);
+    }
+  }
+  ImGui::SameLine();
+  if (ImGui::Button(lbl("UI", "game", "scan"))) {
+    auto a = pfd::select_folder("").result();
+    if (!a.empty()) Logger::debug("{}", a);
+  }
+  ImGui::SameLine();
+  static bool test{};
+  bool        notSupported =
+    idxSelected >= 0
+    && !Game::isVersionSupported(infoSelected.id, infoSelected.version)
+          .value_or(false);
+  if (notSupported) {
+    bool dummy{};
+    ImGui::BeginDisabled();
+    ImGui::Checkbox(lbl("UI", "game", "apply_leprac"), &dummy);
+    itemTooltip(txt("UI", "game", "not_supported"));
+    ImGui::EndDisabled();
+  } else if (ImGui::Checkbox(lbl("UI", "game", "apply_leprac"), &test)) {
+    ;
+  }
+  ImGui::BeginDisabled(idxSelected == -1);
+  if (ImGui::Button(lbl("UI", "game", "modify"))) { ; }
+  ImGui::SameLine();
+  if (ImGui::Button(lbl("UI", "game", "open_folder"))) { ; }
+  ImGui::SameLine();
+  if (ImGui::Button(lbl("UI", "game", "delete"))) { ; }
+  if (ImGui::Button(lbl("UI", "game", "launch"))) { ; }
+  ImGui::EndDisabled();
 }
 
 void UI::mainMenu_Setting_StyleSelect() {
@@ -204,12 +245,30 @@ void UI::backButton() {
   if (ImGui::Button(lbl("UI", "back"))) { stack_.pop(); }
 }
 
+void UI::itemTooltip(char const* text, float width) {
+  auto minWidth = min(width, ImGui::GetWindowWidth());
+  if (ImGui::BeginItemTooltip()) {
+    ImGui::PushTextWrapPos(minWidth);
+    ImGui::TextUnformatted(text);
+    ImGui::PopTextWrapPos();
+    ImGui::EndTooltip();
+  }
+}
+
+void UI::HelpMarker(char const* desc) {
+  ImGui::SameLine();
+  ImGui::TextDisabled("(?)");
+  itemTooltip(desc);
+}
+
 void UI::setStyle(Style style) {
   switch (style) {
   case Style::dark   : ImGui::StyleColorsDark(); break;
   case Style::light  : ImGui::StyleColorsLight(); break;
   case Style::classic: ImGui::StyleColorsClassic(); break;
   }
+  // Logger::debug("{}", customStyles.contains("Example Style"));
+  // customStyles["Example Style2"]();
 }
 
 void UI::setImGuiFont() {

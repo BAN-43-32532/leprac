@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(leprac LANGUAGES CXX)
+project(leprac LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -14,6 +14,7 @@ add_executable(leprac WIN32 ${SRC} ${CMAKE_SOURCE_DIR}/asset/icon/resource.rc)
 
 set(EXT_DIR ${CMAKE_SOURCE_DIR}/external)
 target_include_directories(leprac PRIVATE ${EXT_DIR} ${CMAKE_SOURCE_DIR}/include)
+target_include_directories(leprac PRIVATE asset/style)
 
 # Required by launcher & overlay using ImGui DX11 & WIN32 backends. Len'en uses DX11.
 target_link_libraries(leprac PRIVATE d3d11 dxgi dxguid ntdll)
@@ -39,6 +40,7 @@ if (MSVC)
 endif ()
 
 macro(external)
+    add_aho_corasick() # For custom style parsing (& maybe pattern match)
     add_curl() # Only for auto-update. May replace in the future
     add_embed() # Asset data & literal embedding
     add_imgui() # Launcher & overlay GUI
@@ -47,10 +49,15 @@ macro(external)
     add_magic_enum() # Enum reflection
     add_minhook() # Overlay injection
     add_spdlog() # File / console logging
+    # portable-file-dialogs: File dialog
     add_toml11() # Config & asset parsing
 endmacro()
 
 add_subdirectory(hook)
+
+function(add_aho_corasick)
+    target_include_directories(leprac PRIVATE ${EXT_DIR}/aho_corasick/src)
+endfunction()
 
 function(add_curl)
     set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)

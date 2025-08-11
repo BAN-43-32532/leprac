@@ -1,14 +1,11 @@
-#ifndef LOGGER_H
-#define LOGGER_H
+#ifndef LOGGER_HPP
+#define LOGGER_HPP
 #include <deque>
 #include <spdlog/spdlog.h>
 
 #include "common.hpp"
 
 namespace leprac {
-constexpr uint32_t minLogLines = 10;
-constexpr uint32_t maxLogLines = 1000;
-
 class Logger {
  public:
   Logger() = delete;
@@ -111,5 +108,4 @@ void Logger::logBuffered(
   }
 }
 }  // namespace leprac
-
-#endif  // LOGGER_H
+#endif  // LOGGER_HPP

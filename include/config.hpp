@@ -1,12 +1,11 @@
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef CONFIG_HPP
+#define CONFIG_HPP
 #include <spdlog/spdlog.h>
 #include <string>
 #include <toml.hpp>
 #include <vector>
 
 #include "common.hpp"
-#include "logger.hpp"
 
 namespace leprac {
 /**
@@ -134,4 +133,4 @@ class Config {
   static inline std::vector<FontInfo> fontInfos_{};
 };
 }  // namespace leprac
-#endif
+#endif  // CONFIG_HPP

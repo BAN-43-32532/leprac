@@ -1,5 +1,5 @@
-#ifndef LAUNCHER_H
-#define LAUNCHER_H
+#ifndef LAUNCHER_HPP
+#define LAUNCHER_HPP
 #include <d3d11.h>
 #include <Windows.h>
 
@@ -29,7 +29,7 @@ class Launcher {
 
   static void handleResize();
 
-  static inline Game game_{};
+  // static inline Game game_{};
 
   static inline ID3D11Device*           d3dDevice{};
   static inline ID3D11DeviceContext*    d3dDeviceContext{};
@@ -46,4 +46,4 @@ class Launcher {
   static inline float mainScale_{1};
 };
 }  // namespace leprac
-#endif
+#endif  // LAUNCHER_HPP

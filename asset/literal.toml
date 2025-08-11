@@ -183,46 +183,55 @@ en = "Spell {}"
 zh = "{}牌"
 ja = "" # TODO
 
+# TabBar
 [UI.game]
 en = "Game"
 zh = "游戏"
 ja = "ゲーム"
 
+# TabBar
 [UI.tool]
 en = "Tool"
 zh = "工具"
 ja = "ツール"
 
+# TabBar
 [UI.setting]
 en = "Setting"
 zh = "设置"
 ja = "設定"
 
+# Combo
 [UI.setting.style]
 en = "Style"
 zh = "风格"
 ja = "スタイル"
 
+# Checkbox
 [UI.setting.resize_enable]
 en = "Resizable game window"
 zh = "使游戏窗口大小可调整"
 ja = "ゲーム画面のリサイズを有効化"
 
+# Combo
 [UI.setting.language]
 en = "Language"
 zh = "语言"
 ja = "言語"
 
+# Checkbox
 [UI.setting.check_update]
 en = "Check update"
 zh = "检查更新"
 ja = "更新確認"
 
+# Label
 [UI.le01_name]
 en = "Len'en Mugenri ~ Evanescent Existence"
 zh = "连缘无现里 ～ Evanescent Existence"
 ja = "連縁无現里　～ Evanescent Existence"
 
+# Label
 [UI.le02_name]
 en = "Len'en Tasouken ~ Earthen Miraculous Sword"
 zh = "连缘蛇丛剑 ～ Earthen Miraculous Sword"
@@ -230,57 +239,134 @@ ja = "連縁蛇叢釼　～ Earthen Miraculous Sword"
 
 # In-game title of RMI and BPoHC are lower-case after the first word. Here for consistency all words are capitalized.
 # This is for UI, not for title recognition.
+
+# Label
 [UI.le03_name]
 en = "Len'en Reiretsuden ~ Reactivate Majestical Imperial"
 zh = "连缘灵烈传 ～ Reactivate Majestical Imperial"
 ja = "連縁霊烈傳　～ Reactivate Majestical Imperial"
 
+# Label
 [UI.le04_name]
 en = "Len'en Ten'eisenki ~ Brilliant Pagoda or Haze Castle"
 zh = "连缘天影战记 ～ Brilliant Pagoda or Haze Castle"
 ja = "連縁天影戦記　～ Brilliant Pagoda or Haze Castle"
 
+# Label
 [UI.uso_name]
 en = "Tabakata Usojikuu ~ Fools Rush In"
 zh = "束方嘘时空 ～ Fools Rush In"
 ja = "束方嘘時空　～ Fools Rush In"
 
+# Checkbox
 [UI.setting.enable_SOCD]
 en = "Enable SOCD"
 zh = "开启 SOCD"
 ja = "SOCD有効化"
 
+# Help
 [UI.setting.enable_SOCD.help]
 en = "SOCD (Simultaneous Opposing Cardinal Directions) prioritizes the latest input when opposite directions are pressed simultaneously."
 zh = "SOCD 开启后，当相反方向键同时按下，优先响应最后按下的输入。"
 ja = "SOCDが有効時、相反する方向キーが同時押しされた場合、最後の入力を優先します。"
 
+# Label
 [UI.setting.about]
 en = "About"
 zh = "关于"
 ja = "情報"
 
+# Combo
 [UI.setting.after_game_launch]
 en = "After game launch, leprac"
 zh = "游戏启动后，leprac"
 ja = "ゲーム起動後、lepracを"
 
+# Combo
 [UI.setting.after_game_launch.minimize]
 en = "Minimizes"
 zh = "最小化"
 ja = "最小化"
 
+# Combo
 [UI.setting.after_game_launch.close]
 en = "Closes"
 zh = "关闭"
 ja = "終了"
 
+# Combo
 [UI.setting.after_game_launch.remain]
 en = "Remains"
 zh = "保持开启"
 ja = "開いたまま"
 
+# Checkbox
+[UI.setting.hide_game_path]
+en = "Hide game path in launcher"
+zh = "在启动器页面隐藏游戏路径"
+ja = ""
+
+# Help
+[UI.setting.hide_game_path.help]
+en = "In case you don't want to expose your private info"
+zh = ""
+ja = ""
+
+# Button
 [UI.back]
 en = "Back"
 zh = "返回"
 ja = "戻る"
+
+# Button
+[UI.game.add]
+en = "Add"
+zh = "添加"
+ja = ""
+
+# Button
+[UI.game.modify]
+en = "Modify"
+zh = "修改"
+ja = ""
+
+# Checkbox
+[UI.game.apply_leprac]
+en = "Apply leprac"
+zh = "应用 leprac 练习器"
+ja = ""
+
+# Label
+[UI.game.not_supported]
+en = "leprac currently doesn't support this game version. You may still launch without leprac applied."
+zh = "leprac 暂不支持此游戏版本。仍可在不应用 leprac 的情况下启动游戏。"
+ja = ""
+
+# Button
+[UI.game.open_folder]
+en = "Open Folder"
+zh = "打开文件夹"
+ja = ""
+
+# Button
+[UI.game.delete]
+en = "Delete"
+zh = "删除"
+ja = ""
+
+# Button
+[UI.game.scan]
+en = "Scan for games"
+zh = "扫描游戏"
+ja = ""
+
+# Button
+[UI.game.select_folder]
+en = "Select Folder"
+zh = "选择文件夹"
+ja = ""
+
+[UI.game.launch]
+en = "Launch"
+zh = "启动"
+ja = ""

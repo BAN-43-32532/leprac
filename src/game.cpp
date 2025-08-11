@@ -7,6 +7,9 @@
 #include <Windows.h>
 #include <winternl.h>
 
+#include "asset.hpp"
+#include "logger.hpp"
+
 namespace leprac {
 struct THREAD_BASIC_INFORMATION {
   NTSTATUS  ExitStatus;
@@ -28,7 +31,7 @@ std::string toProcessName(GameID game) {
   return std::format("{}.exe", me::enum_name(game));
 }
 
-void Game::init() {}
+// void Game::init() {}
 
 auto Game::getID() const { return gameId_; }
 
@@ -42,6 +45,97 @@ std::vector<GameID> Game::detectRunningGames() {
     }
   }
   return result;
+}
+
+std::string Game::versionToLiteral(std::string version) {
+  auto pos = version.find('_');
+  if (pos == std::string_view::npos) { return version; }
+  version[pos] = '.';
+  return version;
+}
+
+std::optional<bool>
+Game::isVersionSupported(GameID id, std::string const& version) {
+  auto keyGame = toLower(me::enum_name(id));
+  if (auto game = Asset::version().at(keyGame); game.contains(version)) {
+    return game.at(version).as_boolean();
+  }
+  return std::nullopt;
+}
+
+std::vector<char> Game::loadBinary(std::string const& path) {
+  std::ifstream file(path, std::ios::binary | std::ios::ate);
+  if (!file.is_open()) {
+    Logger::error("Failed to open file {}. Check if it is occupied.", path);
+    return {};
+  }
+  auto size = file.tellg();
+  if (size <= 0) {
+    Logger::error(
+      "Failed to get the size of file {} (got nonpositive size).", path
+    );
+    return {};
+  }
+  file.seekg(0, std::ios::beg);
+
+  std::vector<char> data(size);
+  if (!file.read(data.data(), size)) {
+    Logger::error("Failed to read file {}.", path);
+    return {};
+  }
+  return data;
+}
+
+std::optional<GameID> Game::searchIDFromEXE(std::string const& path) {
+  auto data = loadBinary(path);
+  if (data.empty()) {
+    Logger::error("Failed to find the game ID of exe file {}", path);
+    return std::nullopt;
+  }
+  for (auto [id, sv]: me::enum_entries<GameID>()) {
+    std::boyer_moore_horspool_searcher searcher(sv.begin(), sv.end());
+    if (std::search(data.begin(), data.end(), searcher) != data.end()) {
+      Logger::debug("{} found (str)", sv);
+      return id;
+    }
+    Logger::debug("{} not found (str)", sv);
+  }
+  Logger::error("Failed to find the game ID of exe file {}", path);
+  return std::nullopt;
+}
+
+std::string Game::searchVersionFromEXE(GameID id, std::string const& path) {
+  auto data = loadBinary(path);
+  if (data.empty()) {
+    Logger::error("Failed to find the game version of exe file {}", path);
+    return {};
+  }
+  auto gameTag = toLower(me::enum_name(id));
+  Logger::debug("{}", gameTag);
+  for (auto str:
+       Asset::version().at(gameTag).as_table() | views::keys | views::reverse) {
+    str = versionToLiteral(str);
+    std::string wstr(
+      reinterpret_cast<char const*>(toWstring(str).data()),
+      str.size() * sizeof(wchar_t)
+    );
+    std::boyer_moore_horspool_searcher searcher(wstr.begin(), wstr.end());
+    auto it = std::search(data.begin(), data.end(), searcher);
+    if (it != data.end()) {
+      Logger::debug("{} found (str)", str);
+      return str;
+    }
+    Logger::debug("{} not found (str)", str);
+    searcher = std::boyer_moore_horspool_searcher(str.begin(), str.end());
+    it       = std::search(data.begin(), data.end(), searcher);
+    if (it != data.end()) {
+      Logger::debug("{} found (wstr)", str);
+      return str;
+    }
+    Logger::debug("{} not found (wstr)", str);
+  }
+  Logger::error("Failed to find the game version of exe file {}", path);
+  return {};
 }
 
 bool Game::completeGameInfo() {

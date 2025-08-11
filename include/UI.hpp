@@ -1,5 +1,5 @@
-#ifndef UI_H
-#define UI_H
+#ifndef UI_HPP
+#define UI_HPP
 #include <imgui.h>
 #include <stack>
 
@@ -87,10 +87,11 @@ class UI {
   };
 
   // Usage (example):
-  // if (FrameRound(10)) {
+  // {
+  //   FrameRound fr(5);
   //   if (ImGui::Button("label")) { ... }
   // }
-  class FrameRound: Wrapper {
+  class FrameRound: public Wrapper {
    public:
     explicit FrameRound(float radius): radius_(radius) {
       radiusOld_                      = ImGui::GetStyle().FrameRounding;
@@ -119,6 +120,10 @@ class UI {
   static void mainMenu_Setting_LangSelect();
 
   static void backButton();
+  static void
+  itemTooltip(char const* text, float width = ImGui::GetFontSize() * 35.0f);
+  // ImGui demo implementation. I merged ImGui::SameLine() with it.
+  static void HelpMarker(char const* desc);
 
   static void setStyle(Style style);
   static void setImGuiFont();
@@ -127,4 +132,4 @@ class UI {
   static inline std::stack<Page> stack_{};
 };
 }  // namespace leprac
-#endif
+#endif  // UI_HPP
