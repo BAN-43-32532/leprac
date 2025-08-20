@@ -25,9 +25,7 @@ kiero::Status::Enum kiero::init(RenderType::Enum _renderType) {
     return Status::AlreadyInitializedError;
   }
 
-  LogToFile(
-    "kiero::init: Requested render type: {}", static_cast<int>(_renderType)
-  );
+  LogToFile("kiero::init: Requested render type: {}", static_cast<int>(_renderType));
 
   if (_renderType != RenderType::None) {
     if (_renderType >= RenderType::D3D9 && _renderType <= RenderType::D3D12) {
@@ -71,18 +69,14 @@ kiero::Status::Enum kiero::init(RenderType::Enum _renderType) {
         }
 
         void* D3D11CreateDeviceAndSwapChain;
-        if ((D3D11CreateDeviceAndSwapChain =
-               ::GetProcAddress(libD3D11, "D3D11CreateDeviceAndSwapChain"))
-            == NULL) {
+        if ((D3D11CreateDeviceAndSwapChain = ::GetProcAddress(libD3D11, "D3D11CreateDeviceAndSwapChain")) == NULL) {
           ::DestroyWindow(window);
           ::UnregisterClass(windowClass.lpszClassName, windowClass.hInstance);
           return Status::UnknownError;
         }
 
         D3D_FEATURE_LEVEL       featureLevel;
-        const D3D_FEATURE_LEVEL featureLevels[] = {
-          D3D_FEATURE_LEVEL_10_1, D3D_FEATURE_LEVEL_11_0
-        };
+        const D3D_FEATURE_LEVEL featureLevels[] = {D3D_FEATURE_LEVEL_10_1, D3D_FEATURE_LEVEL_11_0};
 
         DXGI_RATIONAL refreshRate;
         refreshRate.Numerator   = 60;
@@ -114,8 +108,20 @@ kiero::Status::Enum kiero::init(RenderType::Enum _renderType) {
         ID3D11Device*        device;
         ID3D11DeviceContext* context;
 
-        if (static_cast<
-              long(__stdcall*)(IDXGIAdapter*, D3D_DRIVER_TYPE, HMODULE, UINT, const D3D_FEATURE_LEVEL*, UINT, UINT, const DXGI_SWAP_CHAIN_DESC*, IDXGISwapChain**, ID3D11Device**, D3D_FEATURE_LEVEL*, ID3D11DeviceContext**)>(D3D11CreateDeviceAndSwapChain)(
+        if (static_cast<long(__stdcall*)(
+              IDXGIAdapter*,
+              D3D_DRIVER_TYPE,
+              HMODULE,
+              UINT,
+              const D3D_FEATURE_LEVEL*,
+              UINT,
+              UINT,
+              const DXGI_SWAP_CHAIN_DESC*,
+              IDXGISwapChain**,
+              ID3D11Device**,
+              D3D_FEATURE_LEVEL*,
+              ID3D11DeviceContext**
+            )>(D3D11CreateDeviceAndSwapChain)(
               NULL,
               D3D_DRIVER_TYPE_HARDWARE,
               NULL,
@@ -145,17 +151,9 @@ kiero::Status::Enum kiero::init(RenderType::Enum _renderType) {
         LogToFile("{}", ss.str());
 
         g_methodsTable = (uint150_t*) ::calloc(205, sizeof(uint150_t));
-        ::memcpy(
-          g_methodsTable, *(uint150_t**) swapChain, 18 * sizeof(uint150_t)
-        );
-        ::memcpy(
-          g_methodsTable + 18, *(uint150_t**) device, 43 * sizeof(uint150_t)
-        );
-        ::memcpy(
-          g_methodsTable + 18 + 43,
-          *(uint150_t**) context,
-          144 * sizeof(uint150_t)
-        );
+        ::memcpy(g_methodsTable, *(uint150_t**) swapChain, 18 * sizeof(uint150_t));
+        ::memcpy(g_methodsTable + 18, *(uint150_t**) device, 43 * sizeof(uint150_t));
+        ::memcpy(g_methodsTable + 18 + 43, *(uint150_t**) context, 144 * sizeof(uint150_t));
 
         MH_Initialize();
 
@@ -208,16 +206,14 @@ void kiero::shutdown() {
   }
 }
 
-kiero::Status::Enum
-kiero::bind(uint16_t _index, void** _original, void* _function) {
+kiero::Status::Enum kiero::bind(uint16_t _index, void** _original, void* _function) {
   // TODO: Need own detour function
 
   assert(_original != NULL && _function != NULL);
 
   if (g_renderType != RenderType::None) {
     void* target = (void*) g_methodsTable[_index];
-    if (MH_CreateHook(target, _function, _original) != MH_OK
-        || MH_EnableHook(target) != MH_OK) {
+    if (MH_CreateHook(target, _function, _original) != MH_OK || MH_EnableHook(target) != MH_OK) {
       return Status::UnknownError;
     }
 
@@ -228,9 +224,7 @@ kiero::bind(uint16_t _index, void** _original, void* _function) {
 }
 
 void kiero::unbind(uint16_t _index) {
-  if (g_renderType != RenderType::None) {
-    MH_DisableHook((void*) g_methodsTable[_index]);
-  }
+  if (g_renderType != RenderType::None) { MH_DisableHook((void*) g_methodsTable[_index]); }
 }
 
 kiero::RenderType::Enum kiero::getRenderType() { return g_renderType; }

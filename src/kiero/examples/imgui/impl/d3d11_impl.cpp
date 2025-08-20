@@ -16,11 +16,7 @@
 typedef long(__stdcall* Present)(IDXGISwapChain*, UINT, UINT);
 static Present oPresent = NULL;
 
-long __stdcall hkPresent11(
-  IDXGISwapChain* pSwapChain,
-  UINT            SyncInterval,
-  UINT            Flags
-) {
+long __stdcall hkPresent11(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags) {
   LogToFile("=== hkPresent11 called ===");
 
   static bool init = false;
@@ -34,15 +30,11 @@ long __stdcall hkPresent11(
     }
 
     LogToFile(
-      "SwapChain: Width={}, Height={}, Windowed={}",
-      desc.BufferDesc.Width,
-      desc.BufferDesc.Height,
-      desc.Windowed
+      "SwapChain: Width={}, Height={}, Windowed={}", desc.BufferDesc.Width, desc.BufferDesc.Height, desc.Windowed
     );
 
     ID3D11Device* device = nullptr;
-    if (FAILED(pSwapChain->GetDevice(__uuidof(ID3D11Device), (void**) &device)
-        )) {
+    if (FAILED(pSwapChain->GetDevice(__uuidof(ID3D11Device), (void**) &device))) {
       LogToFile("Failed to get D3D11 device from swap chain");
       return oPresent(pSwapChain, SyncInterval, Flags);
     }

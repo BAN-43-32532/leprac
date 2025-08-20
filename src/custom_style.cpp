@@ -1,6 +1,8 @@
 #include "custom_style.hpp"
 
-#include <aho_corasick/aho_corasick.hpp>
+#include <fstream>
+
+#include "aho_corasick.hpp"
 
 namespace leprac {
 namespace {
@@ -79,9 +81,7 @@ auto trieMember = [] {
 
 auto trieColorEnum = [] {
   aho_corasick::trie trie;
-  for (auto name: me::enum_names<ImGuiCol_>()) {
-    trie.insert(std::string(name));
-  }
+  for (auto name: me::enum_names<ImGuiCol_>()) { trie.insert(std::string(name)); }
   return std::move(trie.only_whole_words());
 }();
 
@@ -120,40 +120,32 @@ std::vector<float> parseNumbers(std::string_view str) {
   std::vector<float> nums;
   size_t             i = 0;
   while (i < str.size()) {
-    for (static std::string ch("-.");
-         i < str.size() && !(std::isdigit(str[i]) || ch.contains(str[i]));
-         ++i) {}
+    for (static std::string ch("-."); i < str.size() && !(std::isdigit(str[i]) || ch.contains(str[i])); ++i) {}
     if (i >= str.size()) { break; }
 
     size_t start = i;
-    for (static std::string ch(".eE+-");
-         i < str.size() && (std::isdigit(str[i]) || ch.contains(str[i]));
-         ++i) {}
+    for (static std::string ch(".eE+-"); i < str.size() && (std::isdigit(str[i]) || ch.contains(str[i])); ++i) {}
     if (i < str.size() && (str[i] == 'f' || str[i] == 'F')) i++;
 
     std::string strNum(str.substr(start, i - start));
     try {
       nums.emplace_back(std::stof(strNum));
-    } catch (...) {
-      Logger::warn("Invalid number format {} in custom style", strNum);
-    }
+    } catch (...) { Logger::warn("Invalid number format {} in custom style", strNum); }
   }
   return nums;
 }
 
-void parseCustomStyle(std::string path) {
+void parseCustomStyle(std::string const &path) {
   std::ifstream file(path);
   if (!file) {
-    Logger::error(
-      "Failed to read custom style file. Fallback to ImGui built-in style."
-    );
+    Logger::error("Failed to read custom style file. Fallback to ImGui built-in style.");
     return;
   }
   std::string data = readRemoveComment(file);
 
   for (auto &member: trieMember.parse_text(data)) {
-    auto key      = member.get_keyword();
-    auto info     = reflectStyle.at(key);
+    auto key  = member.get_keyword();
+    auto info = reflectStyle.at(key);
 
     try {
       auto strValue = getStrValue(data, member.get_end());
@@ -175,24 +167,18 @@ void parseCustomStyle(std::string path) {
         auto ptr = stylePtr<ImGuiHoveredFlags>(info.offset);
         *ptr     = parseEnum<ImGuiHoveredFlags_>(strValue);
       }
-    } catch (std::exception const &error) {
-      Logger::error("Custom style exception: {}", error.what());
-    }
+    } catch (std::exception const &error) { Logger::error("Custom style exception: {}", error.what()); }
   }
 
   for (auto const &colorEnum: trieColorEnum.parse_text(data)) {
-    auto key      = colorEnum.get_keyword();
+    auto key = colorEnum.get_keyword();
 
     try {
       auto strValue = getStrValue(data, colorEnum.get_end());
       auto numbers  = parseNumbers(strValue);
       if (numbers.size() != 4) { throw; }
-      ImGui::GetStyle().Colors[*me::enum_cast<ImGuiCol_>(key)] = {
-        numbers[0], numbers[1], numbers[2], numbers[3]
-      };
-    } catch (std::exception const &error) {
-      Logger::error("Custom style exception: {}", error.what());
-    }
+      ImGui::GetStyle().Colors[*me::enum_cast<ImGuiCol_>(key)] = {numbers[0], numbers[1], numbers[2], numbers[3]};
+    } catch (std::exception const &error) { Logger::error("Custom style exception: {}", error.what()); }
   }
 
   // for (auto const colorName: trieColorName.parse_text(data)) {

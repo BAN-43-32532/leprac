@@ -1,6 +1,3 @@
 ﻿#pragma once
 
-namespace impl
-{
-	void showExampleWindow(const char* comment);
-}
+namespace impl { void showExampleWindow(char const* comment); }  // namespace impl

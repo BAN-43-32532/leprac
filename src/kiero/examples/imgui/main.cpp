@@ -21,13 +21,8 @@ int kieroExampleThread() {
 
       if (uint150_t* methodsTable = kiero::getMethodsTable()) {
         std::stringstream ss;
-        ss
-          << "[5] Methods table address: 0x"
-          << std::hex
-          << reinterpret_cast<uintptr_t>(methodsTable);
-        for (int i = 0; i < 10; i++) {
-          ss << "\n    [" << i << "] 0x" << std::hex << methodsTable[i];
-        }
+        ss << "[5] Methods table address: 0x" << std::hex << reinterpret_cast<uintptr_t>(methodsTable);
+        for (int i = 0; i < 10; i++) { ss << "\n    [" << i << "] 0x" << std::hex << methodsTable[i]; }
         LogToFile("{}", ss.str());
       }
       return 1;
@@ -41,9 +36,7 @@ BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD fdwReason, LPVOID) {
   switch (fdwReason) {
   case DLL_PROCESS_ATTACH:
     LogToFile("[0] DLL_PROCESS_ATTACH");
-    CreateThread(
-      NULL, 0, (LPTHREAD_START_ROUTINE) kieroExampleThread, NULL, 0, NULL
-    );
+    CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) kieroExampleThread, NULL, 0, NULL);
     break;
   case DLL_PROCESS_DETACH: LogToFile("[!] DLL_PROCESS_DETACH"); break;
   }

@@ -3,7 +3,6 @@
 #include <spdlog/spdlog.h>
 #include <string>
 #include <toml.hpp>
-#include <vector>
 
 #include "common.hpp"
 
@@ -54,8 +53,16 @@ namespace leprac {
  * version = "0_20b"
  * path = "./Uso.exe"
  */
+template<class T>
+concept Enum = std::is_enum_v<T>;
+
 class Config {
  public:
+  // No need to parse comments when reading config
+  struct wo_comment_config: toml::type_config {
+    using comment_type = toml::discard_comments;
+  };
+
   struct Item {
     std::string key;
     std::string comment;
@@ -72,65 +79,125 @@ class Config {
     uint32_t    size;
   };
 
+  template<Enum T>
+  class ProxyEnum {
+   public:
+    explicit ProxyEnum(toml::value& value, T dflt): value_(value), dflt_(dflt) {}
+
+    [[nodiscard]] explicit(false) operator T() const { return me::enum_cast<T>(value_.as_string()).value_or(dflt_); }
+
+    auto& operator=(T value) {
+      value_ = me::enum_name(value);
+      return *this;
+    }
+
+   private:
+    toml::value& value_;
+    T            dflt_;
+  };
+
+  template<std::integral T>
+  class ProxyInt {
+   public:
+    explicit ProxyInt(toml::value& value, T dflt, std::function<bool(T)> pred):
+      value_(value), dflt_(dflt), pred_(pred) {}
+
+    [[nodiscard]] explicit(false) operator T() const {
+      if (auto value = value_.as_integer(); std::in_range<T>(value)) {
+        auto val = static_cast<T>(value_.as_integer());
+        return pred_(val) ? val : dflt_;
+      }
+      return dflt_;
+    }
+
+    auto& operator=(T value) {
+      if (pred_(value)) { value_ = value; }
+      return *this;
+    }
+
+   private:
+    toml::value&           value_;
+    T                      dflt_;
+    std::function<bool(T)> pred_;
+  };
+
   Config() = delete;
   static void init();    // Prepare config and detect if lang is specified
   static void deinit();  // Sync and save to leprac-cfg.toml (with comments)
 
-  static void sync();
-  // static void save();
+  static void save();
 
-  [[nodiscard]] static auto& lang() { return lang_; }
-  [[nodiscard]] static auto& style() { return style_; }
-  [[nodiscard]] static auto& width() { return width_; }
-  [[nodiscard]] static auto& height() { return height_; }
+  static ProxyEnum<Lang>&    lang();
+  static ProxyEnum<Style>&   style();
+  static ProxyInt<uint32_t>& width();
+  static ProxyInt<uint32_t>& height();
 
-  [[nodiscard]] static auto& logMode() { return logMode_; }
-  [[nodiscard]] static auto& logLevel() { return logLevel_; }
-  // assign only if logLines == 1 or minLogLines <= logLines <= maxLogLines
-  [[nodiscard]] static auto& logLines() {
-    static struct proxy {
-      operator int() const { return logLines_; }
-      int operator=(int logLines) const {
-        if (logLines == -1
-            || logLines >= minLogLines && logLines <= maxLogLines) {
-          logLines_ = logLines;
-        }
-        return logLines_;
-      }
-    } inst;
-    return inst;
-  }
+  static ProxyEnum<LogMode>& logMode();
+  static ProxyEnum<level>&   logLevel();
+  static ProxyInt<int>&      logLines();
 
-  [[nodiscard]] static auto& gameInfos() { return gameInfos_; }
-  [[nodiscard]] static auto& fontInfos() { return fontInfos_; }
+  static auto& gameInfos() { return gameInfos_; }
 
-  static void syncLang();
-  static void syncStyle();
-  static void syncWidth();
-  static void syncHeight();
-
-  static void syncLogMode();
-  static void syncLogLevel();
-  static void syncLogLines();
-
-  static void syncGameInfos();
-  static void syncFontInfos();
+  static auto& fontInfos() { return fontInfos_; }
 
  private:
-  static inline toml::value config_{};
-  static inline bool        parseSuccess_{};
-
-  static inline auto     lang_{Lang::en};
-  static inline auto     style_{Style::dark};
-  static inline uint32_t width_{600};
-  static inline uint32_t height_{800};
-
-  static inline auto logMode_{LoggerMode::file};
-  static inline auto logLevel_{level::info};
-  static inline int  logLines_{-1};
+  static inline toml::value root_{};
 
   static inline std::vector<GameInfo> gameInfos_{};
   static inline std::vector<FontInfo> fontInfos_{};
+
+  static inline std::string pathConfig = "leprac-cfg.toml";
+  static inline std::array  commentConfig{
+    R"( Config file for leprac in TOML format)",
+    R"( Auto-generated alongside leprac on first launch)",
+    R"( You can modify settings in leprac or edit this file directly)"
+  };
+
+  static inline Item const itemLang{"language", R"('en' / 'zh' / 'ja' (Prompts on launch if missing))"};
+  static inline Item const itemStyle{"style", R"(ImGui style: 'dark' (default) / 'light' / 'classic')"};
+  static inline Item const itemWidth{"width"};
+  static inline Item const itemHeight{"height"};
+
+  static inline Item const itemLog{"log"};
+  static inline Item const itemLogMode{"mode", R"('file' (default) / 'console')"};
+  static inline Item const itemLogLevel{"level", R"(spdlog valid level ('info', 'debug', etc.))"};
+  static inline Item const itemLogLines{"lines", R"(Max lines in log file. Valid: -1 (no limits), 10~1000)"};
+
+  static inline Item const itemGame{"game"};
+  static inline Item const itemGameID{"id"};
+  static inline Item const itemGameVersion{"version"};
+  static inline Item const itemGamePath{"path"};
+
+  static inline Item const itemFont{"font"};
+  static inline Item const itemFontPath{"path"};
+  static inline Item const itemFontSize{"size"};
+
+  template<class... T>
+  // requires(std::same_as<std::decay_t<T>, Item> && ...)
+  static toml::value& config(T&&... item);
+  static void         setStringLiteral(toml::value& v);
+  // Merge toml::value b into a.
+  static void         mergeTOML(toml::value& a, toml::value const& b);
+  template<class... T>
+  // requires(std::same_as<std::decay_t<T>, Item> && ...)
+  static void addComment(T&&... item);
 };
+
+template<class... T>
+// requires(std::same_as<std::decay_t<T>, Config::Item> && ...)
+toml::value& Config::config(T&&... item) {
+  auto p = &root_;
+  // clang-format off
+  ((p = &(*p)[item.key]), ...);
+  // clang-format on
+  return *p;
+}
+
+template<class... T>
+// requires(std::same_as<std::decay_t<T>, Config::Item> && ...)
+void Config::addComment(T&&... item) {
+  auto const& lastComment = (..., item.comment);
+  if (!lastComment.empty()) { config(std::forward<T>(item)...).comments().emplace_back(" " + lastComment); }
+}
 }  // namespace leprac
 #endif  // CONFIG_HPP

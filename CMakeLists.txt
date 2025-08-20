@@ -20,7 +20,7 @@ target_include_directories(leprac PRIVATE asset/style)
 target_link_libraries(leprac PRIVATE d3d11 dxgi dxguid ntdll)
 
 # Seems ok if don't define them
-target_compile_definitions(leprac PRIVATE UNICODE _UNICODE)
+target_compile_definitions(leprac PRIVATE UNICODE _UNICODE NOMINMAX)
 
 include(FetchContent)
 
@@ -54,9 +54,11 @@ macro(external)
 endmacro()
 
 add_subdirectory(hook)
+add_subdirectory(test)
 
 function(add_aho_corasick)
-    target_include_directories(leprac PRIVATE ${EXT_DIR}/aho_corasick/src)
+    # Use my modification.
+    # target_include_directories(leprac PRIVATE ${EXT_DIR}/aho_corasick/src)
 endfunction()
 
 function(add_curl)

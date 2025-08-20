@@ -13,6 +13,7 @@ This is the source of kiero. I attempted to use it as d3d11 hook, yet it still n
 </p>
 
 ### Requirement
+
 [Windows SDK](https://www.microsoft.com/en-us/download/details.aspx?id=8279) (For D3D9/D3D10/D3D11/OpenGL hook)
 
 [DirectX SDK](https://www.microsoft.com/en-us/download/details.aspx?id=4064) (For D3D9/D3D10/D3D11 hook)
@@ -22,7 +23,9 @@ This is the source of kiero. I attempted to use it as d3d11 hook, yet it still n
 [MinHook](https://github.com/TsudaKageyu/minhook) (For kiero::bind function)
 
 ### Example
+
 To start, go to the kiero.h and select the desired hooks
+
 ```C++
 // Example for D3D9 hook
 #define KIERO_INCLUDE_D3D9   1 // 1 if you need D3D9 hook
@@ -34,6 +37,7 @@ To start, go to the kiero.h and select the desired hooks
 ```
 
 Then proceed to the main work
+
 ```C++
 // Example for D3D9 hook
 
@@ -95,6 +99,7 @@ BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD fdwReason, LPVOID)
 ```
 
 ### License
+
 ```
 MIT License
 

@@ -17,8 +17,8 @@ void Logger::init() {
   info("Logger init.");
   // std::atexit(deinit); is called at main() so as to be before other deinits
   switch (Config::logMode()) {
-  case LoggerMode::file   : initFile(); break;
-  case LoggerMode::console: initConsole();
+  case LogMode::file   : initFile(); break;
+  case LogMode::console: initConsole();
   }
   spdlog::set_pattern("[%Y-%m-%d %H:%M:%S] [%n] %^[%l]%$ %v");
   spdlog::set_level(Config::logLevel());
@@ -56,6 +56,7 @@ void Logger::initConsole() {
   freopen_s(&stream, "CONOUT$", "w", stderr);
   logger_ = spdlog::stdout_color_st(loggerName);
 }
+
 void Logger::initFile() {
   if (Config::logLines() == -1) {
     initBasic();
@@ -64,13 +65,10 @@ void Logger::initFile() {
   }
 }
 
-void Logger::initBasic() {
-  logger_ = spdlog::basic_logger_st(loggerName, pathLog);
-}
+void Logger::initBasic() { logger_ = spdlog::basic_logger_st(loggerName, pathLog); }
 
 void Logger::initRing() {
-  auto ringSink =
-    std::make_shared<spdlog::sinks::ringbuffer_sink_st>(Config::logLines());
-  logger_ = std::make_shared<spdlog::logger>(loggerName, ringSink);
+  auto ringSink = std::make_shared<spdlog::sinks::ringbuffer_sink_st>(Config::logLines());
+  logger_       = std::make_shared<spdlog::logger>(loggerName, ringSink);
 }
 }  // namespace leprac

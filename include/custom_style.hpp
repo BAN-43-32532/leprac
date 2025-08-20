@@ -1,13 +1,10 @@
 #ifndef CUSTOM_STYLE_HPP
 #define CUSTOM_STYLE_HPP
-#include <aho_corasick/aho_corasick.hpp>
-#include <cstddef>
-#include <fstream>
 #include <imgui.h>
 #include <string>
 #include <typeindex>
-#include <unordered_map>
 
+#include "aho_corasick.hpp"
 #include "common.hpp"
 #include "logger.hpp"
 
@@ -39,9 +36,7 @@ static std::vector<float> parseNumbers(std::string_view str);
 
 template<class T>
 T *stylePtr(size_t offset) {
-  return reinterpret_cast<T *>(
-    reinterpret_cast<char *>(&ImGui::GetStyle()) + offset
-  );
+  return reinterpret_cast<T *>(reinterpret_cast<char *>(&ImGui::GetStyle()) + offset);
 }
 
 template<class T>
@@ -67,7 +62,7 @@ int parseEnum(std::string_view strValue, bool isOR = true) {
   return static_cast<int>(*enumValue);
 }
 
-void parseCustomStyle(std::string path);
+void parseCustomStyle(std::string const &path);
 }  // namespace leprac
 
 #endif  // CUSTOM_STYLE_HPP

@@ -16,13 +16,13 @@ file(GLOB IMGUI_SRC CONFIGURE_DEPENDS ${EXAMPLE_DIR}/imgui/*.cpp)
 set(IMGUI_EXAMPLE_DIR ${EXAMPLE_DIR}/imgui/examples)
 
 add_library(kiero_test SHARED
-        ${CMAKE_CURRENT_LIST_DIR}/kiero.cpp
-        ${MINHOOK_SRC}
-        ${EXAMPLE_DIR}/main.cpp
-        ${IMPL_SRC}
-        ${IMGUI_SRC}
-        ${IMGUI_EXAMPLE_DIR}/imgui_impl_win32.cpp
-        ${IMGUI_EXAMPLE_DIR}/imgui_impl_dx11.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/kiero.cpp
+    ${MINHOOK_SRC}
+    ${EXAMPLE_DIR}/main.cpp
+    ${IMPL_SRC}
+    ${IMGUI_SRC}
+    ${IMGUI_EXAMPLE_DIR}/imgui_impl_win32.cpp
+    ${IMGUI_EXAMPLE_DIR}/imgui_impl_dx11.cpp
 )
 
 target_include_directories(kiero_test PRIVATE ${EXAMPLE_DIR}/imgui)

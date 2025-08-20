@@ -10,8 +10,7 @@ class Update {
  private:
   static std::string fetchLatestReleaseJson();
   static std::string parseLatestVersion(std::string const& jsonStr);
-  static void
-  notifyUpdate(std::string const& latestVersion, std::string const& url);
+  static void        notifyUpdate(std::string const& latestVersion, std::string const& url);
 };
 }  // namespace leprac
 #endif  // UPDATE_HPP

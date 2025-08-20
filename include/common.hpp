@@ -6,14 +6,17 @@
 #include <ranges>
 #include <Windows.h>
 
+#include "aho_corasick.hpp"
 #include "spdlog/common.h"
 
 namespace leprac {
+using namespace std::string_literals;
 namespace fs     = std::filesystem;
 namespace ranges = std::ranges;
 namespace views  = std::views;
 namespace me     = magic_enum;
 using level      = spdlog::level::level_enum;
+using ParseMode  = aho_corasick::trie::ParseMode;
 
 template<typename T>
 concept CvtSV = std::convertible_to<T, std::string_view>;
@@ -54,7 +57,7 @@ enum class Lang {
   // add more language codes here if needed
 };
 
-enum class LoggerMode {
+enum class LogMode {
   // Append logs to a file.
   // If logLines is positive, only keep the latest #logLines lines.
   // Otherwise, no line limits.
@@ -77,6 +80,9 @@ constexpr inline uint32_t maxLogLines = 1000;
 std::string  toString(std::wstring const &wstr);
 std::wstring toWstring(std::string const &str);
 
+std::string toUTF16(std::string const &str);
+std::string toUTF8(std::string const &str);
+
 // Safe when sv contains non-ascii characters.
 std::string toLower(std::string_view sv);
 std::string toUpper(std::string_view sv);
@@ -89,29 +95,25 @@ bool is32bit(libmem::Process const &process);
 // Use joinZeros for ImGui::Combo. There have to be two '\0' at the end.
 
 template<ranges::input_range R>
-requires ranges::common_range<R>
-      && std::convertible_to<ranges::range_value_t<R>, std::string_view>
+requires ranges::common_range<R> && std::convertible_to<ranges::range_value_t<R>, std::string_view>
 std::string join(std::string_view sep, R &&range) {
   return range | views::join_with(sep) | ranges::to<std::string>();
 }
 
 template<ranges::input_range R>
-requires ranges::common_range<R>
-      && std::convertible_to<ranges::range_value_t<R>, std::string_view>
+requires ranges::common_range<R> && std::convertible_to<ranges::range_value_t<R>, std::string_view>
 std::string joinZeros(R &&range) {
   return join({"\0", 1}, range).append(std::string_view("\0", 1));
 }
 
 template<class... T>
-requires(std::convertible_to<T, std::string_view> && ...)
-std::string join(std::string_view sep, T &&...args) {
+requires(std::convertible_to<T, std::string_view> && ...) std::string join(std::string_view sep, T &&...args) {
   std::array<std::string_view, sizeof...(T)> arr{std::forward<T>(args)...};
   return join(sep, arr);
 }
 
 template<class... T>
-requires(std::convertible_to<T, std::string_view> && ...)
-std::string joinZeros(T &&...args) {
+requires(std::convertible_to<T, std::string_view> && ...) std::string joinZeros(T &&...args) {
   std::array<std::string_view, sizeof...(T)> arr{std::forward<T>(args)...};
   return joinZeros(arr);
 }

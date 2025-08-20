@@ -4,12 +4,14 @@
 #include <stack>
 
 #include "common.hpp"
+#include "config.hpp"
 
 // Solution for widget centering, from
 // https://github.com/ocornut/imgui/discussions/3862#discussioncomment-8907750
 class centered_control_wrapper_t {
  public:
   explicit centered_control_wrapper_t(bool result): result_(result) {}
+
   explicit operator bool() const { return result_; }
 
  private:
@@ -18,12 +20,7 @@ class centered_control_wrapper_t {
 
 class centered_control_t {
  public:
-  explicit centered_control_t(
-    ImVec2 window_size,
-    float  y = 0.f,
-    float s  = 0.f,
-    float su = 0.f
-  ):
+  explicit centered_control_t(ImVec2 window_size, float y = 0.f, float s = 0.f, float su = 0.f):
     window_size_(window_size) {
     y_offset      = y;
     spacing_below = s;
@@ -38,9 +35,7 @@ class centered_control_t {
     control();
     ImVec2 control_size = ImGui::GetItemRectSize();
     ImGui::Dummy(ImVec2(0, spacing_up));
-    ImGui::SetCursorPos(ImVec2(
-      (window_size_.x - control_size.x) * 0.5f, original_pos.y + y_offset
-    ));
+    ImGui::SetCursorPos(ImVec2((window_size_.x - control_size.x) * 0.5f, original_pos.y + y_offset));
     control();
     ImGui::Dummy(ImVec2(0, spacing_below));
     return ccw;
@@ -70,8 +65,7 @@ class centered_control_t {
  * Cons : to add only spacing you'll need to still add a y_offset, you can do it
  * with 0.f on the second one, to avoid redundancy I made it like that
  */
-#define center_(control, ...) \
-  centered_control_t{ImGui::GetWindowSize(), __VA_ARGS__}([&]() { control; })
+#define center_(control, ...) centered_control_t{ImGui::GetWindowSize(), __VA_ARGS__}([&]() { control; })
 
 namespace leprac {
 class UI {
@@ -97,6 +91,7 @@ class UI {
       radiusOld_                      = ImGui::GetStyle().FrameRounding;
       ImGui::GetStyle().FrameRounding = radius;
     }
+
     ~FrameRound() { ImGui::GetStyle().FrameRounding = radiusOld_; }
 
    private:
@@ -116,14 +111,23 @@ class UI {
 
   static void mainMenu_Game_Info(GameID gameID);
 
+  static void mainMenu_Game_Add();
+  static void mainMenu_Game_Scan();
+
+  static void mainMenu_Game_Launch(size_t idx);
+  static void mainMenu_Game_ApplyLeprac(bool disabled);
+
+  static void mainMenu_Game_Modify();
+  static void mainMenu_Game_OpenFolder(size_t idx);
+  static void mainMenu_Game_Delete();
+
   static void mainMenu_Setting_StyleSelect();
   static void mainMenu_Setting_LangSelect();
 
   static void backButton();
-  static void
-  itemTooltip(char const* text, float width = ImGui::GetFontSize() * 35.0f);
+  static void itemTooltip(char const* text, float width = ImGui::GetFontSize() * 35.0f);
   // ImGui demo implementation. I merged ImGui::SameLine() with it.
-  static void HelpMarker(char const* desc);
+  static void helpMarker(char const* desc);
 
   static void setStyle(Style style);
   static void setImGuiFont();

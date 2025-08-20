@@ -11,8 +11,7 @@
 #include "UI.hpp"
 
 // Forward declare message handler from imgui_impl_win32.cpp
-extern IMGUI_IMPL_API LRESULT
-  ImGui_ImplWin32_WndProcHandler(HWND, UINT, WPARAM, LPARAM);
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND, UINT, WPARAM, LPARAM);
 
 namespace leprac {
 // Forward declarations of helper functions
@@ -47,12 +46,11 @@ void Launcher::run() {
     while (PeekMessage(&msg, nullptr, 0U, 0U, PM_REMOVE)) {
       TranslateMessage(&msg);
       DispatchMessage(&msg);
-      if (msg.message == WM_QUIT) return;
+      if (msg.message == WM_QUIT) { std::exit(EXIT_SUCCESS); }
     }
 
     // Handle window being minimized or screen locked
-    if (swapChainOccluded
-        && swapChain->Present(0, DXGI_PRESENT_TEST) == DXGI_STATUS_OCCLUDED) {
+    if (swapChainOccluded && swapChain->Present(0, DXGI_PRESENT_TEST) == DXGI_STATUS_OCCLUDED) {
       std::this_thread::sleep_for(std::chrono::milliseconds(16));
       continue;
     }
@@ -71,9 +69,7 @@ void Launcher::run() {
     // Rendering
     ImGui::Render();
     constexpr float clear_color_with_alpha[4]{1, 1, 1, 0};
-    d3dDeviceContext->ClearRenderTargetView(
-      mainRenderTargetView, clear_color_with_alpha
-    );
+    d3dDeviceContext->ClearRenderTargetView(mainRenderTargetView, clear_color_with_alpha);
     d3dDeviceContext->OMSetRenderTargets(1, &mainRenderTargetView, nullptr);
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
@@ -102,9 +98,7 @@ void Launcher::run() {
 void Launcher::initWindow() {
   // Make process DPI aware and obtain main monitor scale
   ImGui_ImplWin32_EnableDpiAwareness();
-  mainScale_ = ImGui_ImplWin32_GetDpiScaleForMonitor(
-    MonitorFromPoint({}, MONITOR_DEFAULTTOPRIMARY)
-  );
+  mainScale_ = ImGui_ImplWin32_GetDpiScaleForMonitor(MonitorFromPoint({}, MONITOR_DEFAULTTOPRIMARY));
 
   auto hInstance = GetModuleHandle(nullptr);
   wc_            = {
@@ -127,11 +121,9 @@ void Launcher::initWindow() {
   auto windowStyle = WS_TILEDWINDOW & ~WS_MAXIMIZEBOX;
   RECT workArea{};
   SystemParametersInfo(SPI_GETWORKAREA, 0, &workArea, 0);
-  auto windowWidth =
-    static_cast<uint32_t>(static_cast<float>(Config::width()) * mainScale_);
-  auto windowHeight =
-    static_cast<uint32_t>(static_cast<float>(Config::height()) * mainScale_);
-  hwnd_ = CreateWindowEx(
+  auto windowWidth  = static_cast<uint32_t>(static_cast<float>(Config::width()) * mainScale_);
+  auto windowHeight = static_cast<uint32_t>(static_cast<float>(Config::height()) * mainScale_);
+  hwnd_             = CreateWindowEx(
     WS_EX_LAYERED,
     wc_.lpszClassName,
     L"leprac",
@@ -186,13 +178,13 @@ bool Launcher::createDeviceD3D() {
   sd.BufferDesc.Format                  = DXGI_FORMAT_R8G8B8A8_UNORM;
   sd.BufferDesc.RefreshRate.Numerator   = 60;
   sd.BufferDesc.RefreshRate.Denominator = 1;
-  sd.Flags              = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-  sd.BufferUsage        = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-  sd.OutputWindow       = hwnd_;
-  sd.SampleDesc.Count   = 1;
-  sd.SampleDesc.Quality = 0;
-  sd.Windowed           = TRUE;
-  sd.SwapEffect         = DXGI_SWAP_EFFECT_DISCARD;
+  sd.Flags                              = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+  sd.BufferUsage                        = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+  sd.OutputWindow                       = hwnd_;
+  sd.SampleDesc.Count                   = 1;
+  sd.SampleDesc.Quality                 = 0;
+  sd.Windowed                           = TRUE;
+  sd.SwapEffect                         = DXGI_SWAP_EFFECT_DISCARD;
 
   UINT                        createDeviceFlags = 0;
   // createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
@@ -254,9 +246,7 @@ void Launcher::cleanupDeviceD3D() {
 void Launcher::createRenderTarget() {
   ID3D11Texture2D* pBackBuffer;
   swapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
-  d3dDevice->CreateRenderTargetView(
-    pBackBuffer, nullptr, &mainRenderTargetView
-  );
+  d3dDevice->CreateRenderTargetView(pBackBuffer, nullptr, &mainRenderTargetView);
   pBackBuffer->Release();
 }
 
@@ -268,12 +258,10 @@ void Launcher::cleanupRenderTarget() {
 }
 
 void Launcher::handleResize() {
-  if (resizeWidth_ != 0 && resizeHeight_ != 0) {
+  if (resizeWidth_ >= 0 && resizeHeight_ >= 0) {
     cleanupRenderTarget();
-    swapChain->ResizeBuffers(
-      0, resizeWidth_, resizeHeight_, DXGI_FORMAT_UNKNOWN, 0
-    );
-    resizeWidth_ = resizeHeight_ = 0;
+    swapChain->ResizeBuffers(0, resizeWidth_, resizeHeight_, DXGI_FORMAT_UNKNOWN, 0);
+    resizeWidth_ = resizeHeight_ = -1;
     createRenderTarget();
 
     Config::width()  = resizeWidth_;

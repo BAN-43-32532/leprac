@@ -9,12 +9,10 @@
 namespace leprac {
 using json = nlohmann::json;
 
-constexpr auto repoApiUrl =
-  "https://api.github.com/repos/BAN-43-32532/leprac/releases/latest";
-constexpr auto userAgent = "leprac-updater";
+constexpr auto repoApiUrl = "https://api.github.com/repos/BAN-43-32532/leprac/releases/latest";
+constexpr auto userAgent  = "leprac-updater";
 
-static size_t
-curlWriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
+static size_t curlWriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
   static_cast<std::string*>(userp)->append((char*) contents, size * nmemb);
   return size * nmemb;
 }
@@ -49,8 +47,7 @@ std::string Update::parseLatestVersion(std::string const& jsonStr) {
   return {};
 }
 
-void
-Update::notifyUpdate(std::string const& latestVersion, std::string const& url) {
+void Update::notifyUpdate(std::string const& latestVersion, std::string const& url) {
   auto msg = std::format(
     "Update available!\n"
     "Current version: {}\n"

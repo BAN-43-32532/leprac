@@ -14,8 +14,10 @@ class Launcher {
 
   static void run();
 
-  [[nodiscard]] static auto  mainScale() { return mainScale_; }
+  [[nodiscard]] static auto mainScale() { return mainScale_; }
+
   [[nodiscard]] static auto& resizeWidth() { return resizeWidth_; }
+
   [[nodiscard]] static auto& resizeHeight() { return resizeHeight_; }
 
  private:
@@ -37,8 +39,8 @@ class Launcher {
   static inline bool                    swapChainOccluded{};
   static inline ID3D11RenderTargetView* mainRenderTargetView{};
 
-  static inline uint32_t resizeWidth_{};
-  static inline uint32_t resizeHeight_{};
+  static inline int resizeWidth_{};
+  static inline int resizeHeight_{};
 
   static inline WNDCLASSEX wc_{};
   static inline HWND       hwnd_{};

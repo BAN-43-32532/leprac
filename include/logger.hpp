@@ -8,9 +8,25 @@
 namespace leprac {
 class Logger {
  public:
+  class Except: public std::runtime_error {
+   public:
+    template<class... Args>
+    explicit Except(spdlog::format_string_t<Args...> fmt, Args &&...args):
+      std::runtime_error([&] {
+        auto formatted = fmt::format(fmt, std::forward<Args>(args)...);
+        logger_->error(formatted);
+        return formatted;
+      }()) {}
+  };
+
   Logger() = delete;
   static void init();
   static void deinit();
+
+  template<class... Args>
+  static void throwIf(bool cond, spdlog::format_string_t<Args...> fmt, Args &&...args) {
+    if (cond) { throw Except(fmt, std::forward<Args>(args)...); }
+  }
 
   // Log functions below can be called safely even if Logger hasn't init yet.
 
@@ -41,12 +57,12 @@ class Logger {
     level                         lvl{level::off};
     std::string                   msg;
   };
+
   // Save messages here before Logger::init() and will output after that
   static inline std::deque<LogEntry> buffer_;
 
   template<class... Args>
-  static void
-  logBuffered(level lvl, spdlog::format_string_t<Args...> fmt, Args &&...args);
+  static void logBuffered(level lvl, spdlog::format_string_t<Args...> fmt, Args &&...args);
   static void drainBuffer();
 
   static void initConsole();
@@ -92,19 +108,12 @@ void Logger::critical(spdlog::format_string_t<Args...> fmt, Args &&...args) {
 }
 
 template<class... Args>
-void Logger::logBuffered(
-  level                            lvl,
-  spdlog::format_string_t<Args...> fmt,
-  Args &&...args
-) {
+void Logger::logBuffered(level lvl, spdlog::format_string_t<Args...> fmt, Args &&...args) {
   if (logger_ == nullptr) [[unlikely]] {
-    buffer_.emplace_back(
-      spdlog::log_clock::now(),
-      lvl,
-      fmt::format(fmt, std::forward<Args>(args)...)
-    );
+    buffer_.emplace_back(spdlog::log_clock::now(), lvl, fmt::format(fmt, std::forward<Args>(args)...));
   } else {
     logger_->log(lvl, fmt, std::forward<Args>(args)...);
+    logger_->flush();
   }
 }
 }  // namespace leprac

@@ -39,19 +39,7 @@ struct Status {
 };
 
 struct RenderType {
-  enum Enum {
-    None,
-
-    D3D9,
-    D3D10,
-    D3D11,
-    D3D12,
-
-    OpenGL,
-    Vulkan,
-
-    Auto
-  };
+  enum Enum { None, D3D9, D3D10, D3D11, D3D12, OpenGL, Vulkan, Auto };
 };
 
 Status::Enum init(RenderType::Enum renderType);
@@ -68,8 +56,6 @@ template<typename... Args>
 void LogToFile(std::format_string<Args...> fmt, Args&&... args) {
   static std::ofstream logfile;
   if (!logfile.is_open()) { logfile.open("KieroDLL.log", std::ios::app); }
-  if (logfile.is_open()) {
-    logfile << std::format(fmt, std::forward<Args>(args)...) << std::endl;
-  }
+  if (logfile.is_open()) { logfile << std::format(fmt, std::forward<Args>(args)...) << std::endl; }
 }
 #endif  // __KIERO_H__

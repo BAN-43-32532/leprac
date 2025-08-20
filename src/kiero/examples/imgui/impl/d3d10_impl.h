@@ -3,12 +3,8 @@
 
 #include "shared.h"
 
-namespace impl
-{
-	namespace d3d10
-	{
-		void init();
-	}
-}
+namespace impl {
+namespace d3d10 { void init(); }  // namespace d3d10
+}  // namespace impl
 
-#endif // __D3D10_IMPL_H__
+#endif  // __D3D10_IMPL_H__

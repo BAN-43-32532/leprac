@@ -1,3 +1,6 @@
+# Please use double quote (basic string) throughout this file.
+# "Len'en" occurs quite often and literal strings cannot deal with it.
+
 [lang_name]
 en = "English"
 zh = "中文"
@@ -212,6 +215,11 @@ ja = "スタイル"
 en = "Resizable game window"
 zh = "使游戏窗口大小可调整"
 ja = "ゲーム画面のリサイズを有効化"
+
+[UI.setting.resize_enable.help]
+en = "Requires ResizeEnable. Click the button to download ResizeEnable.zip, extract it, and specify the directory of ResizeEnableRunner.exe."
+zh = "依赖 ResizeEnable。下载 ResizeEnable.zip 并指定解压后的路径。"
+ja = "ResizeEnable が必要です。「Download」をクリックして ResizeEnable.zip をダウンロードし、解凍後に ResizeEnableRunner.exe を含むフォルダを指定してください。"
 
 # Combo
 [UI.setting.language]

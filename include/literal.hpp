@@ -50,8 +50,7 @@ std::string tag(T&&... keys) {
 template<CvtSV... T>
 std::string const& str(T&&... keys) {
   auto t = tag(std::forward<T>(keys)...);
-  if (auto it = Literal::cacheLiteral.find(t);
-      it == Literal::cacheLiteral.end() || it->second.empty()) {
+  if (auto it = Literal::cacheLiteral.find(t); it == Literal::cacheLiteral.end() || it->second.empty()) {
     Literal::cachingLiteral(keys...);
   }
   return Literal::cacheLiteral[t];
@@ -65,8 +64,7 @@ char const* txt(T&&... keys) {
 template<CvtSV... T>
 char const* lbl(T&&... keys) {
   auto t = tag(std::forward<T>(keys)...);
-  if (auto it = Literal::cacheLabel.find(t);
-      it == Literal::cacheLabel.end() || it->second.empty()) {
+  if (auto it = Literal::cacheLabel.find(t); it == Literal::cacheLabel.end() || it->second.empty()) {
     Literal::cachingLabel(keys...);
   }
   return Literal::cacheLabel[t].c_str();
@@ -96,10 +94,7 @@ void Literal::cachingLiteral(T&&... keys) {
 template<CvtSV... T>
 void Literal::cachingLabel(T&&... keys) {
   auto t = tag(std::forward<T>(keys)...);
-  if (auto it = cacheLiteral.find(t);
-      it == cacheLiteral.end() || it->second.empty()) {
-    cachingLiteral(keys...);
-  }
+  if (auto it = cacheLiteral.find(t); it == cacheLiteral.end() || it->second.empty()) { cachingLiteral(keys...); }
   cacheLabel[t] = std::format("{}###{}", str(keys...), t);
 }
 }  // namespace leprac
