@@ -2,7 +2,6 @@
 
 #include <imgui.h>
 #include <imgui_internal.h>
-#include <magic_enum/magic_enum_all.hpp>
 #include <portable-file-dialogs/portable-file-dialogs.h>
 #include <typeindex>
 

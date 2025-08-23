@@ -1,6 +1,5 @@
 #ifndef LITERAL_HPP
 #define LITERAL_HPP
-#include <magic_enum/magic_enum_all.hpp>
 #include <toml.hpp>
 
 #include "asset.hpp"

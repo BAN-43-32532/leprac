@@ -2,12 +2,14 @@
 #define COMMON_HPP
 #include <filesystem>
 #include <libmem/libmem.hpp>
-#include <magic_enum/magic_enum_all.hpp>
 #include <ranges>
 #include <Windows.h>
 
 #include "aho_corasick.hpp"
 #include "spdlog/common.h"
+
+using std::string_view;
+import magic_enum;
 
 namespace leprac {
 using namespace std::string_literals;

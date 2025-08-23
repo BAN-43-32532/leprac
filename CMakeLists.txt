@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.28)
 project(leprac LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 23)
@@ -9,8 +9,12 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
+add_executable(leprac WIN32)
+
 file(GLOB SRC CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/src/*.cpp)
-add_executable(leprac WIN32 ${SRC} ${CMAKE_SOURCE_DIR}/asset/icon/resource.rc)
+target_sources(leprac PRIVATE ${SRC})
+
+target_sources(leprac PRIVATE ${CMAKE_SOURCE_DIR}/asset/icon/resource.rc)
 
 set(EXT_DIR ${CMAKE_SOURCE_DIR}/external)
 target_include_directories(leprac PRIVATE ${EXT_DIR} ${CMAKE_SOURCE_DIR}/include)
@@ -118,6 +122,11 @@ endfunction()
 
 function(add_magic_enum)
     target_include_directories(leprac PRIVATE ${EXT_DIR}/magic_enum/include)
+    target_sources(leprac PRIVATE
+        FILE_SET modules TYPE CXX_MODULES
+        BASE_DIRS ${PROJECT_SOURCE_DIR}
+        FILES
+        ${EXT_DIR}/magic_enum/module/magic_enum.cppm)
 endfunction()
 
 function(add_minhook)
