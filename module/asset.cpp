@@ -1,10 +1,10 @@
-#ifndef ASSET_HPP
-#define ASSET_HPP
+module;
 #include <toml.hpp>
+export module asset;
 
-#include "common.hpp"
+import common;
 
-namespace leprac {
+export namespace leprac {
 class Asset {
  public:
   // No need to parse comments when reading config
@@ -39,4 +39,3 @@ class Asset {
   static inline std::unordered_map<GameID, toml::value> pattern_;
 };
 }  // namespace leprac
-#endif  // ASSET_HPP

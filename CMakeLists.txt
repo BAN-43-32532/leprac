@@ -11,13 +11,17 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 add_executable(leprac WIN32)
 
+file(GLOB MODULE CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/module/*.cpp)
+target_sources(leprac PRIVATE FILE_SET CXX_MODULES FILES ${MODULE})
+
 file(GLOB SRC CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/src/*.cpp)
 target_sources(leprac PRIVATE ${SRC})
 
 target_sources(leprac PRIVATE ${CMAKE_SOURCE_DIR}/asset/icon/resource.rc)
 
+
 set(EXT_DIR ${CMAKE_SOURCE_DIR}/external)
-target_include_directories(leprac PRIVATE ${EXT_DIR} ${CMAKE_SOURCE_DIR}/include)
+target_include_directories(leprac PRIVATE ${EXT_DIR} ${CMAKE_SOURCE_DIR}/module)
 target_include_directories(leprac PRIVATE asset/style)
 
 # Required by launcher & overlay using ImGui DX11 & WIN32 backends. Len'en uses DX11.
@@ -44,7 +48,7 @@ if (MSVC)
 endif ()
 
 macro(external)
-    add_aho_corasick() # For custom style parsing (& maybe pattern match)
+    # add_aho_corasick: For custom style parsing (& maybe pattern match); use my modification.
     add_curl() # Only for auto-update. May replace in the future
     add_embed() # Asset data & literal embedding
     add_imgui() # Launcher & overlay GUI
@@ -59,11 +63,6 @@ endmacro()
 
 add_subdirectory(hook)
 add_subdirectory(test)
-
-function(add_aho_corasick)
-    # Use my modification.
-    # target_include_directories(leprac PRIVATE ${EXT_DIR}/aho_corasick/src)
-endfunction()
 
 function(add_curl)
     set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
@@ -102,8 +101,10 @@ endfunction()
 
 function(add_json)
     add_subdirectory(${EXT_DIR}/json)
-    target_link_libraries(leprac PRIVATE nlohmann_json::nlohmann_json)
-
+    target_link_libraries(leprac PRIVATE nlohmann_json)
+    # cpp20 module fails
+    # set(NLOHMANN_JSON_BUILD_MODULES ON CACHE BOOL "" FORCE)
+    # target_link_libraries(leprac PRIVATE nlohmann_json_modules)
 endfunction()
 
 function(add_libmem)
@@ -122,11 +123,7 @@ endfunction()
 
 function(add_magic_enum)
     target_include_directories(leprac PRIVATE ${EXT_DIR}/magic_enum/include)
-    target_sources(leprac PRIVATE
-        FILE_SET modules TYPE CXX_MODULES
-        BASE_DIRS ${PROJECT_SOURCE_DIR}
-        FILES
-        ${EXT_DIR}/magic_enum/module/magic_enum.cppm)
+    target_sources(leprac PRIVATE FILE_SET CXX_MODULES FILES ${EXT_DIR}/magic_enum/module/magic_enum.cppm)
 endfunction()
 
 function(add_minhook)

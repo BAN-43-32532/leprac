@@ -1,8 +1,10 @@
-#include "common.hpp"
-
+module;
 #include <atlstr.h>
 #include <string>
 #include <Windows.h>
+#include <ranges>
+#include <toml.hpp>
+module common;
 
 namespace leprac {
 // CStringA uses char

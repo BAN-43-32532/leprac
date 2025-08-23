@@ -22,9 +22,7 @@
  * SOFTWARE.
  */
 
-#ifndef AHO_CORASICK_HPP
-#define AHO_CORASICK_HPP
-
+module;
 #include <algorithm>
 #include <cctype>
 #include <map>
@@ -36,8 +34,9 @@
 #include <unordered_set>
 #include <utility>
 #include <vector>
+export module aho_corasick;
 
-namespace aho_corasick {
+export namespace aho_corasick {
 // class interval
 class interval {
   size_t d_start;
@@ -524,5 +523,3 @@ class basic_trie {
 typedef basic_trie<char>    trie;
 typedef basic_trie<wchar_t> wtrie;
 }  // namespace aho_corasick
-
-#endif  // AHO_CORASICK_HPP

@@ -1,5 +1,6 @@
-#include "literal.hpp"
-
+module;
+#include <toml.hpp>
+module literal;
 namespace leprac {
 void Literal::cacheClear() {
   cacheLiteral.clear();

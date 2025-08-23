@@ -1,10 +1,9 @@
-#include "update.hpp"
-
+module;
 #include <curl/curl.h>
 #include <iostream>
 #include <nlohmann/json.hpp>
-
-#include "common.hpp"
+module update;
+import common;
 
 namespace leprac {
 using json = nlohmann::json;
@@ -33,7 +32,7 @@ std::string Update::fetchLatestReleaseJson() {
   return (res == CURLE_OK) ? response : "";
 }
 
-std::string Update::parseLatestVersion(std::string const& jsonStr) {
+std::string Update::parseLatestVersion(std::string_view jsonStr) {
   try {
     auto j = json::parse(jsonStr);
     if (j.contains("tag_name")) {
@@ -47,7 +46,7 @@ std::string Update::parseLatestVersion(std::string const& jsonStr) {
   return {};
 }
 
-void Update::notifyUpdate(std::string const& latestVersion, std::string const& url) {
+void Update::notifyUpdate(std::string_view latestVersion, std::string_view url) {
   auto msg = std::format(
     "Update available!\n"
     "Current version: {}\n"

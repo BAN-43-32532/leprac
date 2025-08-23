@@ -1,12 +1,17 @@
-#ifndef CONFIG_HPP
-#define CONFIG_HPP
+module;
 #include <spdlog/spdlog.h>
 #include <string>
 #include <toml.hpp>
+export module config;
 
-#include "common.hpp"
+import common;
 
-namespace leprac {
+export namespace leprac {
+class Logger;
+
+template<class T>
+concept Enum = std::is_enum_v<T>;
+
 /**
  * Example of leprac-cfg.toml
  *
@@ -53,9 +58,6 @@ namespace leprac {
  * version = "0_20b"
  * path = "./Uso.exe"
  */
-template<class T>
-concept Enum = std::is_enum_v<T>;
-
 class Config {
  public:
   // No need to parse comments when reading config
@@ -200,4 +202,3 @@ void Config::addComment(T&&... item) {
   if (!lastComment.empty()) { config(std::forward<T>(item)...).comments().emplace_back(" " + lastComment); }
 }
 }  // namespace leprac
-#endif  // CONFIG_HPP

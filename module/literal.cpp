@@ -1,13 +1,13 @@
-#ifndef LITERAL_HPP
-#define LITERAL_HPP
+module;
 #include <toml.hpp>
+export module literal;
 
-#include "asset.hpp"
-#include "common.hpp"
-#include "config.hpp"
-#include "logger.hpp"
+import common;
+import asset;
+import logger;
+import config;
 
-namespace leprac {
+export namespace leprac {
 class Literal {
  public:
   // Returns "key1.key2" style tag for cache index
@@ -97,4 +97,3 @@ void Literal::cachingLabel(T&&... keys) {
   cacheLabel[t] = std::format("{}###{}", str(keys...), t);
 }
 }  // namespace leprac
-#endif  // LITERAL_HPP

@@ -1,9 +1,8 @@
-#include "asset.hpp"
-
+module;
 #include <battery/embed.hpp>
 #include <toml.hpp>
-
-#include "logger.hpp"
+module asset;
+import logger;
 
 #define ASSET_PATH(rel)         "asset/" #rel ".toml"
 #define ASSET_PATH2(rel1, rel2) "asset/" #rel1 "/" #rel2 ".toml"

@@ -1,11 +1,13 @@
-#include "logger.hpp"
-
+module;
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/ringbuffer_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/spdlog.h>
+#include <toml.hpp>
 #include <Windows.h>
-
-#include "config.hpp"
+module logger;
+import config;
+import common;
 
 namespace leprac {
 namespace {

@@ -1,11 +1,12 @@
-#ifndef LAUNCHER_HPP
-#define LAUNCHER_HPP
+module;
 #include <d3d11.h>
 #include <Windows.h>
+export module launcher;
+import common;
 
-#include "game.hpp"
+class Logger;
 
-namespace leprac {
+export namespace leprac {
 class Launcher {
  public:
   Launcher() = delete;
@@ -48,4 +49,3 @@ class Launcher {
   static inline float mainScale_{1};
 };
 }  // namespace leprac
-#endif  // LAUNCHER_HPP

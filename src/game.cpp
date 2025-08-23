@@ -1,14 +1,19 @@
-#include "game.hpp"
-
+module;
+#include <algorithm>
+#include <filesystem>
 #include <format>
+#include <fstream>
 #include <libmem/libmem.hpp>
 #include <optional>
+#include <ranges>
+#include <unordered_set>
 #include <Windows.h>
 #include <winternl.h>
-
-#include "aho_corasick.hpp"
-#include "asset.hpp"
-#include "logger.hpp"
+#include <toml.hpp>
+module game;
+import aho_corasick;
+import asset;
+import logger;
 
 namespace leprac {
 struct THREAD_BASIC_INFORMATION {

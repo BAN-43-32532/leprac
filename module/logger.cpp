@@ -1,11 +1,12 @@
-#ifndef LOGGER_HPP
-#define LOGGER_HPP
+module;
 #include <deque>
 #include <spdlog/spdlog.h>
+export module logger;
+import common;
 
-#include "common.hpp"
+// namespace leprac { class Config; }  // namespace leprac
 
-namespace leprac {
+export namespace leprac {
 class Logger {
  public:
   class Except: public std::runtime_error {
@@ -117,4 +118,3 @@ void Logger::logBuffered(level lvl, spdlog::format_string_t<Args...> fmt, Args &
   }
 }
 }  // namespace leprac
-#endif  // LOGGER_HPP

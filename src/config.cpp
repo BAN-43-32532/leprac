@@ -1,9 +1,8 @@
-#include "config.hpp"
-
+module;
 #include <ranges>
 #include <toml.hpp>
-
-#include "logger.hpp"
+module config;
+import logger;
 
 namespace leprac {
 void Config::init() {

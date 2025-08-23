@@ -1,14 +1,16 @@
-#include "launcher.hpp"
-
+module;
 #include <backends/imgui_impl_dx11.h>
 #include <backends/imgui_impl_win32.h>
+#include <cstdlib>
 #include <d3d11.h>
 #include <imgui.h>
+#include <thread>
 #include <Windows.h>
-
-#include "config.hpp"
-#include "logger.hpp"
-#include "UI.hpp"
+#include <toml.hpp>
+module launcher;
+import logger;
+import UI;
+import config;
 
 // Forward declare message handler from imgui_impl_win32.cpp
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND, UINT, WPARAM, LPARAM);

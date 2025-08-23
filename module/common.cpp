@@ -1,17 +1,28 @@
-#ifndef COMMON_HPP
-#define COMMON_HPP
+module;
 #include <filesystem>
 #include <libmem/libmem.hpp>
 #include <ranges>
+#include <spdlog/spdlog.h>
 #include <Windows.h>
+export module common;
 
-#include "aho_corasick.hpp"
-#include "spdlog/common.h"
+import aho_corasick;
 
-using std::string_view;
-import magic_enum;
+export using std::string_view;  // This is only to fix that magic_enum doesn't export using string_view.
+export import magic_enum;
 
 namespace leprac {
+class Asset;
+class Config;
+class Game;
+class Launcher;
+class Literal;
+class Logger;
+class UI;
+class Update;
+}  // namespace leprac
+
+export namespace leprac {
 using namespace std::string_literals;
 namespace fs     = std::filesystem;
 namespace ranges = std::ranges;
@@ -23,21 +34,12 @@ using ParseMode  = aho_corasick::trie::ParseMode;
 template<typename T>
 concept CvtSV = std::convertible_to<T, std::string_view>;
 
-class Asset;
-class Config;
-class Game;
-class Launcher;
-class Literal;
-class Logger;
-class UI;
-class Update;
-
 enum class GameID {
   Le01,
   Le02,
   Le03,
   Le04,
-  Uso,  // JynX call it Uso, while westerners may call it FRI
+  Uso,  // JynX calls it Uso, while many may call it FRI
 };
 
 // To add more languages, simply add the language code to Literal::Lang.
@@ -138,4 +140,3 @@ requires(std::convertible_to<T, std::string_view> && ...) std::string joinZeros(
 //   return join({"\0", 1}, arg, args...).append(std::string_view("\0", 1));
 // }
 }  // namespace leprac
-#endif  // COMMON_HPP

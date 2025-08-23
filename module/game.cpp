@@ -1,12 +1,13 @@
-#ifndef GAME_HPP
-#define GAME_HPP
+module;
+#include <filesystem>
 #include <libmem/libmem.hpp>
 #include <string>
 #include <vector>
+export module game;
 
-#include "common.hpp"
+import common;
 
-namespace leprac {
+export namespace leprac {
 class Game {
  public:
   Game(GameID);
@@ -43,4 +44,3 @@ class Game {
   // libmem::Process gameProcess_;
 };
 }  // namespace leprac
-#endif  // GAME_HPP

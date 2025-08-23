@@ -1,9 +1,10 @@
+#include <cstdlib>
 #include <Windows.h>
-
-#include "asset.hpp"
-#include "config.hpp"
-#include "launcher.hpp"
-#include "logger.hpp"
+import logger;
+import common;
+import config;
+import asset;
+import launcher;
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
   using namespace leprac;
