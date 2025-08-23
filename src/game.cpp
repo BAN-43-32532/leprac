@@ -6,10 +6,10 @@ module;
 #include <libmem/libmem.hpp>
 #include <optional>
 #include <ranges>
+#include <toml.hpp>
 #include <unordered_set>
 #include <Windows.h>
 #include <winternl.h>
-#include <toml.hpp>
 module game;
 import aho_corasick;
 import asset;
@@ -38,9 +38,13 @@ std::string toProcessName(GameID game) {
 
 // void Game::init() {}
 
-auto Game::getID() const { return gameId_; }
+Game::Game(GameID id): gameId_(id) {
+  gameProcess_ = *libmem::FindProcess(toProcessName(id).c_str());
+}
 
-// auto Game::process() const { return gameProcess_; }
+auto Game::gameID() const { return gameId_; }
+
+auto Game::process() const { return gameProcess_; }
 
 std::vector<GameID> Game::detectRunningGames() {
   std::vector<GameID> result;
@@ -70,10 +74,10 @@ std::optional<bool> Game::isVersionSupported(GameID id, std::string const& versi
   return std::nullopt;
 }
 
-std::string Game::loadBinary(std::string const& path) {
-  std::ifstream file(path, std::ios::binary | std::ios::ate);
+std::string Game::loadBinary(std::string_view path, size_t size) {
+  std::ifstream file(path.data(), std::ios::binary | std::ios::ate);
   Logger::throwIf(!file, "Failed to open file {}. Check if it is occupied.", path);
-  auto size = file.tellg();
+  if (size == 0) { size = file.tellg(); }
   Logger::throwIf(size <= 0, "Failed to get the size of file {} (got nonpositive size).", path);
   file.seekg(0, std::ios::beg);
 
@@ -98,7 +102,8 @@ std::optional<GameID> Game::searchIDFromEXE(std::string const& path) {
   return std::nullopt;
 }
 
-std::string Game::searchVersionFromEXE(GameID id, std::string const& path) {
+std::expected<std::string, Game::ErrorSearchVersionFromEXE>
+Game::searchVersionFromEXE(GameID id, std::string const& path) {
   static std::unordered_map<GameID, aho_corasick::trie> tries;
   if (!tries.contains(id)) {
     auto  nameID = toLower(me::enum_name(id));
@@ -111,17 +116,21 @@ std::string Game::searchVersionFromEXE(GameID id, std::string const& path) {
     }
     trie.only_whole_words();
   }
-  try {
-    auto data   = loadBinary(path);
-    auto result = tries[id].parse_text(data, ParseMode::StopAtFirstMatch);
-    Logger::throwIf(result.size() != 1, "Found {} version", result.size());
-    auto key = result[0].get_keyword();
-    if (ranges::contains(Asset::version().at(toLower(me::enum_name(id))).as_table() | views::keys, key)) { return key; }
-    return toUTF8(key);
-  } catch (...) {}
+  auto data   = loadBinary(path);
+  auto result = tries[id].parse_text(data, ParseMode::StopAtFirstMatch);
+  if (result.empty()) { return std::unexpected(ErrorSearchVersionFromEXE::FoundNoVersion); }
+  if (result.size() >= 2) { return std::unexpected(ErrorSearchVersionFromEXE::FoundMultipleVersions); }
+  // Logger::throwIf(result.size() == 1, "Found {} version", result.size());
+  auto key = result[0].get_keyword();
+  if (ranges::contains(Asset::version().at(toLower(me::enum_name(id))).as_table() | views::keys, key)) { return key; }
+  return toUTF8(key);
 
   Logger::error("Failed to find the game version of exe file {}", path);
-  return {};
+}
+
+bool Game::isLe01prac(std::string_view path) {
+  auto data = loadBinary(path, 0x400);
+  return not ranges::search(data, "leprac").empty();
 }
 
 std::vector<fs::path> Game::scanGameEXE(fs::path const& path) {

@@ -34,6 +34,12 @@ using ParseMode  = aho_corasick::trie::ParseMode;
 template<typename T>
 concept CvtSV = std::convertible_to<T, std::string_view>;
 
+// helper type for the visitor
+template<class... Ts>
+struct overload: Ts... {
+  using Ts::operator()...;
+};
+
 enum class GameID {
   Le01,
   Le02,
